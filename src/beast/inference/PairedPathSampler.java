@@ -34,6 +34,15 @@ public class PairedPathSampler extends PathSampler {
 	public Input<String> model2Input = new Input<String>("model2",
 			"file name of second model that needs to be compared",
 			Validate.REQUIRED);
+	
+	public Input<Integer> nrOfStepsInput = new Input<Integer>("nrOfSteps","Number of steps used", Validate.REQUIRED);
+	public enum Scheme {
+		sigmoid, uniform
+	}
+	public Input<Scheme> schemInput = new Input<Scheme>("scheme" ,"sampling scheme, one of " + Scheme.values(), Scheme.sigmoid);
+	public Input<Integer> chaingLengthInput = new Input<Integer>("chaingLength", "lenght of the chain for each individual step", Validate.REQUIRED);
+	public Input<File> stepDirectoryInput = new Input<File>("stepDirectory", "directory where to put temporary files used during path sampling", new File("/tmp"));
+	
 
 	MCMC model1;
 	MCMC model2;
