@@ -386,5 +386,4 @@ public class PairedPathSampler extends PathSampler {
 			collectObjects(plugin2, objects);
 		}
 	}
-
 }
