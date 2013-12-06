@@ -1,48 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" version="2.0">
     
-<map name="InverseGamma">beast.math.distributions.InverseGamma</map>
+<map name="Gamma">beast.math.distributions.Gamma</map>
 <map name="Normal">beast.math.distributions.Normal</map>
 <map name='prior'>beast.math.distributions.Prior</map>
 
 
-<run chainLength="10000000" id="mcmc" spec="MCMC">
+
+<run chainLength="1000000" id="mcmc" spec="MCMC">
     <state id="state" storeEvery="5000">
-        <parameter id="birthRate" name="stateNode">-1.532150246 0.04074889315 0.3764286126 -1.273536386 -0.09245518809 -0.08052089396 -0.8836752794 -1.751806433 0.4095952282 1.628965147 0.665399023 0.1235472142 0.7869642234 0.1178040049 0.139374006 2.299191912 -0.3189984415 -0.4214709484 -2.282972059 0.01863195228</parameter>
-        <parameter id="mean-dataPrior" name="stateNode">0.0</parameter>
-        <parameter id="sigma-HyperPrior" name="stateNode">1.0</parameter>
+        <parameter id="mean" name="stateNode">0.0</parameter>
+        <parameter id="sigma" name="stateNode">2.0</parameter>
     </state>
 
-
     <distribution id="posterior" spec="util.CompoundDistribution">
+
         <distribution id="prior" spec="util.CompoundDistribution">
-            <prior id="HyperPrior" name="distribution" x="@mean-dataPrior">
-                <Normal id="Normal.01" name="distr" sigma="@sigma-HyperPrior">
-                    <parameter estimate="false" id="RealParameter.0" name="mean">2.0</parameter>
-                </Normal>
+            <prior id="meanPrior" name="distribution" x="@mean">
+                <Normal name="distr" sigma="@sigma" mean='2.0'/>
             </prior>
-            <prior id="HyperPrior.hyperNormal-sigma-HyperPrior" name="distribution" x="@sigma-HyperPrior">
-                <InverseGamma id="Gamma.0" name="distr">
-                    <parameter estimate="false" id="RealParameter.01" name="alpha">1.0</parameter>
-                    <parameter estimate="false" id="RealParameter.02" name="beta">1.0</parameter>
-                </InverseGamma>
+
+            <prior id="precissionPrior" name="distribution">
+               	<x id='precission' spec='beast.math.statistic.RPNcalculator' expression='1.0 sigma / sigma /' parameter='@sigma'/> 
+                <Gamma name="distr" alpha='1.0' beta='1.0'/>
             </prior>
         </distribution>
+
         <distribution id="likelihood" spec="util.CompoundDistribution">
-            <prior id="dataPrior" name="distribution" x="@birthRate">
-                <Normal id="Normal.0" mean="@mean-dataPrior" sigma="@sigma-HyperPrior" name="distr">
-                </Normal>
+            <prior id="dataLikelihood" name="distribution" >
+		        <parameter id="data" name="x">-1.532150246 0.04074889315 0.3764286126 -1.273536386 -0.09245518809 -0.08052089396 -0.8836752794 -1.751806433 0.4095952282 1.628965147 0.665399023 0.1235472142 0.7869642234 0.1178040049 0.139374006 2.299191912 -0.3189984415 -0.4214709484 -2.282972059 0.01863195228</parameter>
+                <Normal mean="@mean" sigma="@sigma" name="distr"/>
             </prior>
         </distribution>
+
     </distribution>
 
-    <operator id="hyperScaler" parameter="@mean-dataPrior" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
+    <operator id="meanRandomWalker" parameter="@mean" windowSize="0.5" spec="RealRandomWalkOperator" weight="1"/>
 
-    <operator id="hyperScaler.hyperNormal-sigma-HyperPrior" parameter="@sigma-HyperPrior" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
+    <operator id="sigmaScaler" parameter="@sigma" scaleFactor="0.5" spec="ScaleOperator" weight="1"/>
 
     <logger fileName="trace.log" id="tracelog" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
+        <log idref='precission'/>
+        <log idref='sigma'/>
+        <log idref='mean'/>
     </logger>
 
     <logger id="screenlog" logEvery="1000">
