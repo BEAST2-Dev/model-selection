@@ -1,42 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" version="2.0">
-
-
-
     
-
-
-    
-
-
-    
-<map name="Beta">beast.math.distributions.Beta</map>
-<map name="Exponential">beast.math.distributions.Exponential</map>
 <map name="InverseGamma">beast.math.distributions.InverseGamma</map>
-<map name="LogNormal">beast.math.distributions.LogNormalDistributionModel</map>
-<map name="Gamma">beast.math.distributions.Gamma</map>
-<map name="Uniform">beast.math.distributions.Uniform</map>
-<map name="prior">beast.math.distributions.Prior</map>
-<map name="LaplaceDistribution">beast.math.distributions.LaplaceDistribution</map>
-<map name="OneOnX">beast.math.distributions.OneOnX</map>
 <map name="Normal">beast.math.distributions.Normal</map>
+<map name='prior'>beast.math.distributions.Prior</map>
 
 
 <run chainLength="10000000" id="mcmc" spec="MCMC">
     <state id="state" storeEvery="5000">
-        <parameter id="birthRate.t:26" name="stateNode">-1.532150246 0.04074889315 0.3764286126 -1.273536386 -0.09245518809 -0.08052089396 -0.8836752794 -1.751806433 0.4095952282 1.628965147 0.665399023 0.1235472142 0.7869642234 0.1178040049 0.139374006 2.299191912 -0.3189984415 -0.4214709484 -2.282972059 0.01863195228</parameter>
-        <parameter id="parameter.hyperNormal-mean-YuleBirthRatePrior.t:26" name="stateNode">0.0</parameter>
-        <parameter id="parameter.hyperNormal-sigma-HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26" name="stateNode">1.0</parameter>
+        <parameter id="birthRate" name="stateNode">-1.532150246 0.04074889315 0.3764286126 -1.273536386 -0.09245518809 -0.08052089396 -0.8836752794 -1.751806433 0.4095952282 1.628965147 0.665399023 0.1235472142 0.7869642234 0.1178040049 0.139374006 2.299191912 -0.3189984415 -0.4214709484 -2.282972059 0.01863195228</parameter>
+        <parameter id="mean-dataPrior" name="stateNode">0.0</parameter>
+        <parameter id="sigma-HyperPrior" name="stateNode">1.0</parameter>
     </state>
 
 
     <distribution id="posterior" spec="util.CompoundDistribution">
         <distribution id="prior" spec="util.CompoundDistribution">
-            <prior id="HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26" name="distribution" x="@parameter.hyperNormal-mean-YuleBirthRatePrior.t:26">
-                <Normal id="Normal.01" name="distr" sigma="@parameter.hyperNormal-sigma-HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26">
+            <prior id="HyperPrior" name="distribution" x="@mean-dataPrior">
+                <Normal id="Normal.01" name="distr" sigma="@sigma-HyperPrior">
                     <parameter estimate="false" id="RealParameter.0" name="mean">2.0</parameter>
                 </Normal>
             </prior>
-            <prior id="HyperPrior.hyperNormal-sigma-HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26" name="distribution" x="@parameter.hyperNormal-sigma-HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26">
+            <prior id="HyperPrior.hyperNormal-sigma-HyperPrior" name="distribution" x="@sigma-HyperPrior">
                 <InverseGamma id="Gamma.0" name="distr">
                     <parameter estimate="false" id="RealParameter.01" name="alpha">1.0</parameter>
                     <parameter estimate="false" id="RealParameter.02" name="beta">1.0</parameter>
@@ -44,18 +28,18 @@
             </prior>
         </distribution>
         <distribution id="likelihood" spec="util.CompoundDistribution">
-            <prior id="YuleBirthRatePrior.t:26" name="distribution" x="@birthRate.t:26">
-                <Normal id="Normal.0" mean="@parameter.hyperNormal-mean-YuleBirthRatePrior.t:26" sigma="@HyperPrior.hyperNormal-sigma-HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26" name="distr">
+            <prior id="dataPrior" name="distribution" x="@birthRate">
+                <Normal id="Normal.0" mean="@mean-dataPrior" sigma="@sigma-HyperPrior" name="distr">
                 </Normal>
             </prior>
         </distribution>
     </distribution>
 
-    <operator id="hyperScaler.hyperNormal-mean-YuleBirthRatePrior.t:26" parameter="@parameter.hyperNormal-mean-YuleBirthRatePrior.t:26" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
+    <operator id="hyperScaler" parameter="@mean-dataPrior" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
 
-    <operator id="hyperScaler.hyperNormal-sigma-HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26" parameter="@parameter.hyperNormal-sigma-HyperPrior.hyperNormal-mean-YuleBirthRatePrior.t:26" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
+    <operator id="hyperScaler.hyperNormal-sigma-HyperPrior" parameter="@sigma-HyperPrior" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
 
-    <logger fileName="26.log" id="tracelog" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+    <logger fileName="trace.log" id="tracelog" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
