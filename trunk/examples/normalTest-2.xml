@@ -5,11 +5,8 @@
 <map name='prior'>beast.math.distributions.Prior</map>
 
 
-<run spec='beast.inference.PathSampler' chainLength="500000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='50' preBurnin="50000" deleteOldLogs='true' nrofsteps='100'>
-cd $(dir)
-java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
 
-<mcmc chainLength="10000000" id="mcmc" spec="MCMC">
+<run chainLength="1000000" id="mcmc" spec="MCMC">
     <state id="state" storeEvery="5000">
         <parameter id="mean" lower='-Infinity' upper='Infinity' name="stateNode">0.0</parameter>
         <parameter id="tau" lower='0' name="stateNode">2.0</parameter>
@@ -24,7 +21,7 @@ java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -ja
 
             <prior id="precissionPrior" name="distribution">
                	<x idref='tau'/>
-               	<Gamma name="distr" alpha='10' beta='1.0'/>
+               	<Gamma name="distr" alpha='10' beta='10.0'/>
             </prior>
         </distribution>
 
@@ -56,7 +53,5 @@ java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -ja
         <log idref="likelihood"/>
         <log idref="prior"/>
     </logger>
-</mcmc>
-</run>
 
 </beast>
