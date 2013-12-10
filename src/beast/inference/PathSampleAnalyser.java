@@ -92,7 +92,7 @@ public class PathSampleAnalyser extends BEASTObject {
 				logMarginalL += Math.log(x/n);
 
 				contrib[i] = weight * logLmax + Math.log(x/n);
-				logdata1.set(1, weight * logLmax + Math.log(x/n));
+				logdata1.set(1, -weight * logLmax + Math.log(x/n));
 
 //				logMarginalL += weight * marginalLs[i]; 
 			}
@@ -146,7 +146,7 @@ public class PathSampleAnalyser extends BEASTObject {
 		String rootDir = args[2];
 		int burnInPercentage = Integer.parseInt(args[3]);
 		double marginalL = analyser.estimateMarginalLikelihood(nSteps, alpha, rootDir, burnInPercentage);
-		System.out.println("marginal L estimate =" + marginalL);
+		System.out.println("marginal L estimate = " + -marginalL);
 	}
 	
 }
