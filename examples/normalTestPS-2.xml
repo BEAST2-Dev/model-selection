@@ -5,7 +5,7 @@
 <map name='prior'>beast.math.distributions.Prior</map>
 
 
-<run spec='beast.inference.PathSampler' chainLength="500000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='50' preBurnin="50000" deleteOldLogs='true' nrofsteps='50'>
+<run spec='beast.inference.PathSampler' chainLength="500000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='50' preBurnin="50000" deleteOldLogs='true' nrofsteps='100'>
 cd $(dir)
 java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
 
