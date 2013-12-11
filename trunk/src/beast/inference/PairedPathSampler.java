@@ -261,11 +261,13 @@ public class PairedPathSampler extends PathSampler {
 	            return -1.0;
 	        } else {
 	            double xvalue = ((pathSteps - step)/((double)pathSteps)) - 0.5;
-	            return Math.exp(alpha*xvalue)/(Math.exp(alpha*xvalue) + Math.exp(-alpha*xvalue));
+	            return (sigmoid(alpha*xvalue) -0.5) / (sigmoid(0.5*alpha) - sigmoid(-0.5*alpha)) + 0.5;
 	        }
 		}
     }
-	
+	double sigmoid(double f) {
+		return Math.exp(f)/(Math.exp(f) + Math.exp(-f));
+	}
 
 	/**
 	 * replace all objects in model2 with those in model1 if they have the same
