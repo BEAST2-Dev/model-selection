@@ -27,18 +27,20 @@ import beast.util.XMLProducer;
 		+ "Uses multiple threads if specified as command line option to BEAST. "
 		+ "This uses the operator schedule of the first model.")
 public class PairedPathSampler extends PathSampler {
-	public Input<String> model1Input = new Input<String>(
+	public Input<File> model1Input = new Input<File>(
 			"model1",
 			"file name of BEAST XML file containing the first model that needs to be compared",
+			new File("examples/normalTest-1.xml"),
 			Validate.REQUIRED);
-	public Input<String> model2Input = new Input<String>("model2",
+	public Input<File> model2Input = new Input<File>("model2",
 			"file name of second model that needs to be compared",
+			new File("examples/normalTest-2.xml"),
 			Validate.REQUIRED);
 	
 	public enum Scheme {
 		sigmoid, uniform
 	}
-	public Input<Scheme> schemInput = new Input<Scheme>("scheme" ,"sampling scheme, one of " + Scheme.values(), Scheme.sigmoid);
+	public Input<Scheme> schemeInput = new Input<Scheme>("scheme" ,"sampling scheme, one of " + Scheme.values(), Scheme.sigmoid, Scheme.values());
 	
 
 	MCMC model1;
@@ -50,11 +52,12 @@ public class PairedPathSampler extends PathSampler {
 		m_sScriptInput.setRule(Validate.OPTIONAL);
 	}
 
+	
 	@Override
-	public void initAndValidate() throws Exception {
+	public void run() throws Exception {
 
 		XMLParser parser1 = new XMLParser();
-		Object o = parser1.parseFile(new File(model1Input.get()));
+		Object o = parser1.parseFile(model1Input.get());
 		if (!(o instanceof MCMC)) {
 			throw new Exception("The model in " + model1Input.get()
 					+ " does not appear to be an MCMC analysis.");
@@ -62,7 +65,7 @@ public class PairedPathSampler extends PathSampler {
 		model1 = (MCMC) o;
 
 		XMLParser parser2 = new XMLParser();
-		o = parser2.parseFile(new File(model2Input.get()));
+		o = parser2.parseFile(model2Input.get());
 		if (!(o instanceof MCMC)) {
 			throw new Exception("The model in " + model2Input.get()
 					+ " does not appear to be an MCMC analysis.");
@@ -90,11 +93,17 @@ public class PairedPathSampler extends PathSampler {
 		}
 
 		generateStepFiles();
+		
+		doRuns();
 	}
 
 	private void generateStepFiles() throws Exception {
 		// grab info from inputs
 		m_sScript = m_sScriptInput.get();
+		if (m_sScript == null) {
+			m_sScript = "cd $(dir)\n" +
+					"java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml\n";
+		}
 		if (m_sHostsInput.get() != null) {
 			m_sHosts = m_sHostsInput.get().split(",");
 			// remove whitespace
@@ -125,6 +134,7 @@ public class PairedPathSampler extends PathSampler {
 
 		// initialise MCMC
 		PairedPathSamplingStep step = new PairedPathSamplingStep();
+		step.setID("pathSamplingStep");
 		for (Input<?> input : model1.listInputs()) {
 			try {
 				if (input.get() instanceof List) {
@@ -148,7 +158,7 @@ public class PairedPathSampler extends PathSampler {
 		// add posterior logger
 		Logger logger = new Logger();
 		logger.initByName("fileName", LIKELIHOOD_LOG_FILE, 
-				"log", step.posteriorInput.get(),
+				"log", step,
 				"logEvery", chainLength / 1000);
 		step.loggersInput.setValue(logger, step);
 
@@ -177,7 +187,8 @@ public class PairedPathSampler extends PathSampler {
 				step.burnInInput.setValue(0, step);
 			}
 			// create XML for a single step
-			double beta = nextBeta(i, m_nSteps, alphaInput.get());
+			double beta = nextBeta(i, m_nSteps-1	, alphaInput.get());
+			System.err.println(i + " " + beta);
 //					betaDistribution != null ? betaDistribution
 //					.inverseCumulativeProbability((i + 0.0) / (m_nSteps - 1))
 //					: (i + 0.0) / (m_nSteps - 1);
@@ -237,16 +248,22 @@ public class PairedPathSampler extends PathSampler {
 
  	/** sigmoid shaped steps **/
 	double nextBeta(int step, int pathSteps, Double alpha) {
-        if (step == 0) {
-            return 1.0;
-        } else if (step == pathSteps) {
-            return 0.0;
-        } else if (step > pathSteps) {
-            return -1.0;
-        } else {
-            double xvalue = ((pathSteps - step)/((double)pathSteps)) - 0.5;
-            return Math.exp(alpha*xvalue)/(Math.exp(alpha*xvalue) + Math.exp(-alpha*xvalue));
-        }
+		switch (schemeInput.get()) {
+		case uniform:
+			return (step + 0.0) / pathSteps;
+		case sigmoid:
+		default:
+	        if (step == 0) {
+	            return 1.0;
+	        } else if (step == pathSteps) {
+	            return 0.0;
+	        } else if (step > pathSteps) {
+	            return -1.0;
+	        } else {
+	            double xvalue = ((pathSteps - step)/((double)pathSteps)) - 0.5;
+	            return Math.exp(alpha*xvalue)/(Math.exp(alpha*xvalue) + Math.exp(-alpha*xvalue));
+	        }
+		}
     }
 	
 

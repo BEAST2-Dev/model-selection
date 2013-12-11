@@ -105,7 +105,15 @@ public class Application {
 			buf.append("Usage: " + myBeastObject.getClass().getName() + "\n");
 			for (Input<?> input : inputs) {
 				buf.append("-" + input.getName() + " ");
-				buf.append(input.getValueTipText());
+				try {
+					Class typeClass = input.getType();
+					if (typeClass == null) {
+						input.determineClass(myBeastObject);
+					}
+					buf.append(input.getValueTipText());
+				} catch (Exception e) {
+					// ignore
+				}
 				buf.append("\t" + input.getTipText() + "\n");
 			}
 		} catch (Exception e) {
