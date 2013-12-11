@@ -1,7 +1,7 @@
 package beast.app.util;
 
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -69,6 +69,9 @@ public class Application {
 						break;
 					}
 				}
+				if (name.equals("help")) {
+					throw new Exception(""); // calling app should call getUsage()
+				}
 			} else {
 				if (i == args.length - 1) {
 					defaultInput.setValue(arg, null);
@@ -81,8 +84,8 @@ public class Application {
 							+ " ignored.");
 					i++;
 				} else {
-					throw new Exception("Unknown argument: " + args[i] + "\n"
-							+ getUsage());
+					throw new Exception("Unknown argument: " + args[i] + "\n");
+							//+ getUsage());
 				}
 			}
 		}
@@ -106,7 +109,7 @@ public class Application {
 			for (Input<?> input : inputs) {
 				buf.append("-" + input.getName() + " ");
 				try {
-					Class typeClass = input.getType();
+					Class<?> typeClass = input.getType();
 					if (typeClass == null) {
 						input.determineClass(myBeastObject);
 					}
@@ -119,6 +122,7 @@ public class Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		buf.append("-help\t show arguments");
 		return buf.toString();
 	}
 

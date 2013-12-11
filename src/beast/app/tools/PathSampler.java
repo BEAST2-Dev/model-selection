@@ -31,7 +31,7 @@ public class PathSampler {
 				doc.beautiConfig.suppressPlugins.add(sampler.getClass().getName() + ".hosts");
 				String fileSep = System.getProperty("file.separator");
 				if (!sampler.model1Input.get().exists()) {
-					sampler.model1Input.setValue(new File(Beauti.g_sDir + fileSep + "model1.xml"), sampler);
+					sampler.model1Input.setValue(new File(Beauti.g_sDir + fileSep + "model.xml"), sampler);
 				}
 			
 				BEASTObjectPanel panel = new BEASTObjectPanel(sampler, sampler.getClass(), doc);
@@ -51,7 +51,7 @@ public class PathSampler {
 			sampler.initAndValidate();
 			sampler.run();
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.out.println(e.getMessage());
 			if (main != null) {
 				System.out.println(main.getUsage());
