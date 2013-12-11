@@ -91,8 +91,8 @@ public class PathSampleAnalyser extends BEASTObject {
 				}
 				logMarginalL += Math.log(x/n);
 
-				contrib[i] = weight * logLmax + Math.log(x/n);
-				logdata1.set(1, -weight * logLmax + Math.log(x/n));
+				contrib[i] = -(weight * logLmax + Math.log(x/n));
+				logdata1.set(1, -(weight * logLmax + Math.log(x/n)));
 
 //				logMarginalL += weight * marginalLs[i]; 
 			}
