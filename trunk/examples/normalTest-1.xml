@@ -53,5 +53,5 @@
         <log idref="likelihood"/>
         <log idref="prior"/>
     </logger>
-
+</run>
 </beast>

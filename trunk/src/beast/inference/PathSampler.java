@@ -34,9 +34,9 @@ import beast.util.XMLProducer;
 public class PathSampler extends beast.core.Runnable {
 	public static String LIKELIHOOD_LOG_FILE = "likelihood.log";
 
-	public Input<Integer> stepsInput = new Input<Integer>("nrofsteps", "the number of steps to use, default 8", 8);
 	public Input<Double> alphaInput = new Input<Double>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
 			"If alpha <= 0, uniform intervals are used.", 0.3);
+	public Input<Integer> stepsInput = new Input<Integer>("nrofsteps", "the number of steps to use, default 8", 8);
 	public Input<String> rootDirInput = new Input<String>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
 	public Input<MCMC> mcmcInput = new Input<MCMC>("mcmc", "MCMC analysis used to specify model and operations in each of the particles", Validate.REQUIRED);
 	public Input<Integer> chainLengthInput = new Input<Integer>("chainLength", "number of sample to run a chain for a single step", 100000);
@@ -74,8 +74,16 @@ public class PathSampler extends beast.core.Runnable {
 
 	@Override
 	public void initAndValidate() throws Exception {
+	}
+	
+	@Override
+	public void run() throws Exception {
 		// grab info from inputs
 		m_sScript = m_sScriptInput.get();
+		if (m_sScript == null) {
+			m_sScript = "cd $(dir)\n" +
+					"java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml\n";
+		}
 		if (m_sHostsInput.get() != null) {
 			m_sHosts = m_sHostsInput.get().split(",");
 			// remove whitespace
@@ -216,7 +224,10 @@ public class PathSampler extends beast.core.Runnable {
     	for (int k = 0; k < BeastMCMC.m_nThreads; k++) {
     		cmdFiles[k].close();
     	}
-	} // initAndValidate
+
+    	doRuns();
+		
+	} // run
 	
 	private Distribution extractLikelihood(MCMC mcmc) throws Exception {
 		Distribution posterior = mcmc.posteriorInput.get();
@@ -313,8 +324,7 @@ public class PathSampler extends beast.core.Runnable {
 		}
 	}
 	
-    @Override
-    public void run() throws Exception {
+    public void doRuns() throws Exception {
     	if (doNotRun.get()) {
     		System.out.println("batch files can be found in " + rootDirInput.get());
     		System.out.println("Run these and then run"); 
