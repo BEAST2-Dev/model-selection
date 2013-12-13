@@ -79,7 +79,7 @@ public class PathSampleAnalyser extends BEASTObject {
 				// Use formula top right at page 153 of 
 				// Xie W, Lewis PO, Fan Y, Kuo L, Chen MH. 2011. Improving marginal
 				// likelihood estimation for Bayesian phylogenetic model selection.
-				// Syst Biol. 60:150–160.
+				// Syst Biol. 60:150-160.
 				Double [] marginal2 = marginalLs2[i];
 				double logLmax = max(marginal2);
 				logMarginalL += weight * logLmax;
