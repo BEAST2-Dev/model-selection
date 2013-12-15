@@ -386,7 +386,7 @@ public class PathSampler extends beast.core.Runnable {
     	
     	PathSampleAnalyser analyser = new PathSampleAnalyser();
     	double marginalL = analyser.estimateMarginalLikelihood(m_nSteps, alphaInput.get(), rootDirInput.get(), burnInPercentage);
-		System.out.println("marginal L estimate =" + marginalL);
+		System.out.println("marginal L estimate = " + marginalL);
 
 		System.out.println("\n\nTotal wall time: " + (endTime-startTime)/1000 + " seconds\nDone");
     } // run;	
