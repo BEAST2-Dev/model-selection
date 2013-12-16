@@ -5,6 +5,7 @@ import java.util.List;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class PairedPathSampler extends PathSampler {
 	public enum Scheme {
 		sigmoid, uniform
 	}
-	public Input<Scheme> schemeInput = new Input<Scheme>("scheme" ,"sampling scheme, one of " + Scheme.values(), Scheme.sigmoid, Scheme.values());
+	public Input<Scheme> schemeInput = new Input<Scheme>("scheme" ,"sampling scheme, one of " + Arrays.toString(Scheme.values()), Scheme.sigmoid, Scheme.values());
 	
 
 	MCMC model1;
@@ -50,6 +51,11 @@ public class PairedPathSampler extends PathSampler {
 	public PairedPathSampler() {
 		mcmcInput.setRule(Validate.OPTIONAL);
 		m_sScriptInput.setRule(Validate.OPTIONAL);
+		try {
+			alphaInput.setValue(10.0, this);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	
@@ -187,7 +193,7 @@ public class PairedPathSampler extends PathSampler {
 				step.burnInInput.setValue(0, step);
 			}
 			// create XML for a single step
-			double beta = nextBeta(i, m_nSteps-1	, alphaInput.get());
+			double beta = nextBeta(schemeInput.get(), i, m_nSteps-1	, alphaInput.get());
 			System.err.println(i + " " + beta);
 //					betaDistribution != null ? betaDistribution
 //					.inverseCumulativeProbability((i + 0.0) / (m_nSteps - 1))
@@ -247,8 +253,8 @@ public class PairedPathSampler extends PathSampler {
 
 
  	/** sigmoid shaped steps **/
-	double nextBeta(int step, int pathSteps, Double alpha) {
-		switch (schemeInput.get()) {
+	static public double nextBeta(Scheme scheme, int step, int pathSteps, Double alpha) {
+		switch (scheme) {
 		case uniform:
 			return (step + 0.0) / pathSteps;
 		case sigmoid:
@@ -265,7 +271,8 @@ public class PairedPathSampler extends PathSampler {
 	        }
 		}
     }
-	double sigmoid(double f) {
+	
+	static double sigmoid(double f) {
 		return Math.exp(f)/(Math.exp(f) + Math.exp(-f));
 	}
 
@@ -411,4 +418,19 @@ public class PairedPathSampler extends PathSampler {
 			collectObjects(plugin2, objects);
 		}
 	}
+
+	@Override
+	void printDoNotRunMessage() {
+		System.out.println("batch files can be found in " + rootDirInput.get());
+		System.out.println("Run these and then run"); 
+		System.out.println(PairedPathSampleAnalyser.class.getName() + m_nSteps + " " + alphaInput.get() + " " + rootDirInput.get() + " " + burnInPercentage);
+	}
+	
+	@Override
+	void analyse() throws Exception {
+    	PairedPathSampleAnalyser analyser = new PairedPathSampleAnalyser();
+    	double marginalL = analyser.estimateMarginalLikelihood(m_nSteps, alphaInput.get(), rootDirInput.get(), burnInPercentage);
+		System.out.println("Bayes factor estimate = " + marginalL);
+	}
+
 }

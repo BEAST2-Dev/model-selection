@@ -156,7 +156,7 @@ public class PairedPathSamplingStep extends PathSamplingStep implements Loggable
 
 	@Override
 	public void init(PrintStream out) throws Exception {
-		out.append("likelihood\t");
+		out.append("diff-posterior\t");
 	}
 
 

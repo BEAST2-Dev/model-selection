@@ -326,9 +326,7 @@ public class PathSampler extends beast.core.Runnable {
 	
     public void doRuns() throws Exception {
     	if (doNotRun.get()) {
-    		System.out.println("batch files can be found in " + rootDirInput.get());
-    		System.out.println("Run these and then run"); 
-    		System.out.println("java beast.inference.PathSampleAnalyser " + m_nSteps + " " + alphaInput.get() + " " + rootDirInput.get() + " " + burnInPercentage);
+    		printDoNotRunMessage();
     		return;
     	}
     	long startTime = System.currentTimeMillis();
@@ -383,13 +381,25 @@ public class PathSampler extends beast.core.Runnable {
 	    	}
 		}
     	long endTime = System.currentTimeMillis();
-    	
-    	PathSampleAnalyser analyser = new PathSampleAnalyser();
-    	double marginalL = analyser.estimateMarginalLikelihood(m_nSteps, alphaInput.get(), rootDirInput.get(), burnInPercentage);
-		System.out.println("marginal L estimate = " + marginalL);
+
+    	analyse();
 
 		System.out.println("\n\nTotal wall time: " + (endTime-startTime)/1000 + " seconds\nDone");
     } // run;	
+
+
+	void analyse() throws Exception {
+    	PathSampleAnalyser analyser = new PathSampleAnalyser();
+    	double marginalL = analyser.estimateMarginalLikelihood(m_nSteps, alphaInput.get(), rootDirInput.get(), burnInPercentage);
+		System.out.println("marginal L estimate = " + marginalL);
+	}
+
+
+	void printDoNotRunMessage() {
+		System.out.println("batch files can be found in " + rootDirInput.get());
+		System.out.println("Run these and then run"); 
+		System.out.println("java beast.inference.PathSampleAnalyser " + m_nSteps + " " + alphaInput.get() + " " + rootDirInput.get() + " " + burnInPercentage);
+	}
 
 
 	/** check for log files in directory for step i **/
