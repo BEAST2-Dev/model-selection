@@ -1,0 +1,18 @@
+<beast version='2.0'>
+    <run spec='beast.inference.PairedPathSampler' 
+        rootdir='/tmp/step'
+        model1='examples/normalTest-1.xml'
+        model2='examples/normalTest-2.xml'
+        nrofsteps='32'
+        alpha='3.0'
+        chainLength='100000'
+        burnInPercentage='50'
+        preBurnin='100000'
+        doNotRun='true'
+		deleteOldLogs='true'
+    >
+cd $(dir)
+java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
+
+</run>
+</beast>
