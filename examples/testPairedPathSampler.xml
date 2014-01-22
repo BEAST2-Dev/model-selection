@@ -3,7 +3,7 @@
         rootdir='/tmp/step'
         model1='examples/normalTest-1.xml'
         model2='examples/normalTest-2.xml'
-        nrofsteps='32'
+        nrOfSteps='32'
         alpha='3.0'
         chainLength='100000'
         burnInPercentage='50'

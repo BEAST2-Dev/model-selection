@@ -1,0 +1,45 @@
+<beast version='2.0'
+       namespace='beast.app.beauti:beast.core:beast.evolution.branchratemodel:beast.evolution.speciation:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution:beast.math.distributions'
+	templateinfo='template for standard phylogenetic analysis,&lt;br> supporting tip-date analysis and calibrations'>
+
+    <beauticonfig spec='BeautiConfig'
+        inputLabelMap=''
+        inlinePlugins =''
+        collapsedPlugins =''
+        suppressPlugins = 'beast.inference.PairedPathSampler.mcmc,
+beast.inference.PairedPathSampler.value,
+beast.inference.PairedPathSampler.hosts'
+        buttonLabelMap=''
+    >
+        <!--disableMenus='Mode'-->
+
+		<panel spec='BeautiPanelConfig' panelname="Model Selection" tiptext="Model Selection Parameters"
+            path=''
+            hasPartitions="none" icon='9.png.x' forceExpansion='TRUE'
+        />
+
+        <partitiontemplate id='StandardPartitionTemplate' spec='BeautiSubTemplate' class='beast.evolution.likelihood.TreeLikelihood' mainid='mcmc' value=''/>
+
+    </beauticonfig>
+
+<!-- framework for main model -->
+
+    <run spec='beast.inference.PairedPathSampler' 
+        rootdir='/tmp/step'
+        model1='examples/normalTest-1.xml'
+        model2='examples/normalTest-2.xml'
+        nrOfSteps='8'
+        alpha='3.0'
+        chainLength='100000'
+        burnInPercentage='50'
+        preBurnin='100000'
+        doNotRun='false'
+        deleteOldLogs='true'
+    >
+cd $(dir)
+java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
+
+</run>
+
+</beast>
+
