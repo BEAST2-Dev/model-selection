@@ -35,8 +35,8 @@ public class PairedPathSampler extends PathSampler {
 			Validate.REQUIRED);
 	public Input<File> model2Input = new Input<File>("model2",
 			"file name of second model that needs to be compared",
-			new File("examples/normalTest-2.xml"),
-			Validate.REQUIRED);
+			//new File("examples/normalTest-2.xml"),
+			Validate.OPTIONAL);
 	
 	public enum Scheme {
 		sigmoid, uniform
@@ -61,6 +61,12 @@ public class PairedPathSampler extends PathSampler {
 	
 	@Override
 	public void run() throws Exception {
+		if (model2Input.get() == null || model2Input.get().getAbsolutePath().matches("^\\s$")) {
+			// looks like we need to do a single model analysis
+			// instead of paired analysis
+			super.run();
+			return;
+		}
 
 		XMLParser parser1 = new XMLParser();
 		Object o = parser1.parseFile(model1Input.get());
