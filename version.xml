@@ -1,3 +1,13 @@
 <addon name='MODEL-SELECTION' version='1.0.1'>
 	<depends on='beast2' atleast='2.1.2'/>
+    <addonapp description="Path sampler"
+              class="beast.app.tools.PathSampler"
+              args=""
+              icon=""
+            />
+    <addonapp description="Paired path sampler"
+              class="beast.app.tools.PairedPathSampler"
+              args=""
+              icon=""
+            />
 </addon>
