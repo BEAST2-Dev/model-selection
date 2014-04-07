@@ -15,6 +15,7 @@ import beast.app.BeastMCMC;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.Input.Validate;
+import beast.core.util.Log;
 import beast.core.Logger;
 import beast.core.MCMC;
 import beast.core.Operator;
@@ -137,8 +138,12 @@ public class PairedPathSampler extends PathSampler {
 		// root directory sanity checks
 		File rootDir = new File(rootDirInput.get());
 		if (!rootDir.exists()) {
-			throw new Exception("Directory " + rootDirInput.get()
-					+ " does not exist.");
+			// try to create directory
+			if (!rootDir.mkdirs()) {
+				throw new Exception("Directory " + rootDirInput.get() + " does not exist and could not be created.");
+			} else {
+				Log.warning.println("Created directory " + rootDir.getAbsolutePath());
+			}
 		}
 		if (!rootDir.isDirectory()) {
 			throw new Exception(rootDirInput.get() + " is not a directory.");
