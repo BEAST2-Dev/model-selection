@@ -445,5 +445,9 @@ public class PathSampler extends beast.core.Runnable {
         in.close();
         out.close();
 	}
-	
+
+	@Override
+	public boolean hasPartitions() {
+		return false;
+	}
 } // PathSampler
