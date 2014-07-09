@@ -13,11 +13,14 @@ public class PathSamplerFromFile extends beast.inference.PathSampler {
 		public Input<File> model1Input = new Input<File>(
 				"model1",
 				"file name of BEAST XML file containing the model for which to run the path sampler",
-				new File("examples/normalTest-1.xml"),
+				new File("examples/normalTest-1XXX.xml"),
 				Validate.REQUIRED);
 		
 		@Override
 		public void initAndValidate() throws Exception {
+			if (!model1Input.get().exists()) {
+				return;
+			}
 			XMLParser parser1 = new XMLParser();
 			Object o = parser1.parseFile(model1Input.get());
 			if (!(o instanceof MCMC)) {

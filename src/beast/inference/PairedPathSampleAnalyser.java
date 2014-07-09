@@ -7,16 +7,22 @@ import java.util.List;
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
-import beast.core.Description;
 import beast.core.BEASTObject;
+import beast.core.Description;
+import beast.core.Input;
 import beast.inference.PairedPathSampler.Scheme;
 import beast.util.LogAnalyser;
 
 
 
 @Description("Reads logs produces through PairedPathSampler and estimates Bayes factor of the pair of models")
-public class PairedPathSampleAnalyser extends BEASTObject {
-	
+public class PairedPathSampleAnalyser extends beast.core.Runnable {
+	public Input<String> rootDirInput = new Input<String>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
+	public Input<Double> alphaInput = new Input<Double>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
+			"If alpha <= 0, uniform intervals are used.", 0.3);
+	public Input<Integer> stepsInput = new Input<Integer>("nrOfSteps", "the number of steps to use, default 8", 8);
+	public Input<Integer> burnInPercentageInput = new Input<Integer>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);
+
 	DecimalFormat formatter;
 	
 	@Override
@@ -152,4 +158,19 @@ public class PairedPathSampleAnalyser extends BEASTObject {
 		System.out.println("Bayes factor estimate = " + marginalL);
 	}
 	
+	@Override
+	public void run() {
+		double marginalL = Double.NaN;
+		try {
+			marginalL = estimateMarginalLikelihood(
+					stepsInput.get(), 
+					alphaInput.get(), 
+					rootDirInput.get(), 
+					burnInPercentageInput.get());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Bayes factor estimate = " + marginalL);
+	}
 }

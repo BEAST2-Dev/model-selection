@@ -1,21 +1,35 @@
 package beast.inference;
 
+
+import jam.util.IconUtils;
+
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.WindowConstants;
+
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
+import beast.app.BEASTVersion;
+import beast.app.BeastMCMC;
+import beast.app.util.Utils;
 import beast.core.Description;
-import beast.core.BEASTObject;
+import beast.core.Input;
 import beast.util.LogAnalyser;
 
 
 
 @Description("Reads logs produces through PathSampler and estimates marginal likelihood")
-public class PathSampleAnalyser extends BEASTObject {
-	
+public class PathSampleAnalyser extends beast.core.Runnable {
+	public Input<String> rootDirInput = new Input<String>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
+	public Input<Double> alphaInput = new Input<Double>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
+			"If alpha <= 0, uniform intervals are used.", 0.3);
+	public Input<Integer> stepsInput = new Input<Integer>("nrOfSteps", "the number of steps to use, default 8", 8);
+	public Input<Integer> burnInPercentageInput = new Input<Integer>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);
+
 	DecimalFormat formatter;
 	
 	@Override
@@ -146,6 +160,59 @@ public class PathSampleAnalyser extends BEASTObject {
 		String rootDir = args[2];
 		int burnInPercentage = Integer.parseInt(args[3]);
 		double marginalL = analyser.estimateMarginalLikelihood(nSteps, alpha, rootDir, burnInPercentage);
+		System.out.println("marginal L estimate = " + marginalL);
+	}
+
+    static class PathSampleAnalyserConsoleApp extends jam.console.ConsoleApplication {
+
+        public PathSampleAnalyserConsoleApp(final String nameString, final String aboutString, final javax.swing.Icon icon) throws IOException {
+            super(nameString, aboutString, icon, false);
+            getDefaultFrame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        }
+
+        public void doStop() {
+            // thread.stop is deprecated so need to send a message to running threads...
+//            Iterator iter = parser.getThreads();
+//            while (iter.hasNext()) {
+//                Thread thread = (Thread) iter.next();
+//                thread.stop(); // http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html
+//            }
+        }
+
+        public void setTitle(final String title) {
+            getDefaultFrame().setTitle(title);
+        }
+
+        BeastMCMC beastMCMC;
+    }
+
+	
+	@Override
+	public void run() throws Exception {
+        Utils.loadUIManager();
+        System.setProperty("com.apple.macos.useScreenMenuBar", "true");
+        System.setProperty("apple.laf.useScreenMenuBar", "true");
+        System.setProperty("apple.awt.showGrowBox", "true");
+        System.setProperty("beast.useWindow", "true");
+
+        String nameString = "PathSampleAnalyser";
+        final javax.swing.Icon icon = IconUtils.getIcon(beast.app.tools.PathSampleAnalyser.class, "ps.png");
+
+        BEASTVersion version = new BEASTVersion();
+        
+        final String aboutString = "<html><div style=\"font-family:sans-serif;\"><center>" +
+                "<div style=\"font-size:12;\"><p>Bayesian Evolutionary Analysis Sampling Trees<br>" +
+                "Version " + version.getVersionString() + ", " + version.getDateString() + "</p>" +
+                version.getHTMLCredits() +
+                "</div></center></div></html>";
+
+        PathSampleAnalyserConsoleApp consoleApp = new PathSampleAnalyserConsoleApp(nameString, aboutString, icon);
+		
+		double marginalL = estimateMarginalLikelihood(
+				stepsInput.get(), 
+				alphaInput.get(), 
+				rootDirInput.get(), 
+				burnInPercentageInput.get());
 		System.out.println("marginal L estimate = " + marginalL);
 	}
 	
