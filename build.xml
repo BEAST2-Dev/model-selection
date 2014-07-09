@@ -28,6 +28,7 @@
 	<path id="classpath">
         <pathelement path="${buildMODEL_SELECTION}"/>
 		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
+		<fileset dir="${libBeast2}" includes="jam.jar"/>
         <pathelement path="${beast2classpath}"/>
 	</path>
 

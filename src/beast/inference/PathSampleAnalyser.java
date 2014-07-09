@@ -1,21 +1,14 @@
 package beast.inference;
 
 
-import jam.util.IconUtils;
-
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.WindowConstants;
-
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
-import beast.app.BEASTVersion;
-import beast.app.BeastMCMC;
-import beast.app.util.Utils;
+import beast.app.util.ConsoleApp;
 import beast.core.Description;
 import beast.core.Input;
 import beast.util.LogAnalyser;
@@ -63,7 +56,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			LogAnalyser analyser = new LogAnalyser(new String[] {logFile}, 2000, burnInPercentage);
 			marginalLs[i] = analyser.getMean("likelihood");
 			marginalLs2[i] = analyser.getTrace("likelihood");
-			System.err.println("marginalLs[" + i + " ] = " + marginalLs[i]);
+			System.out.println("marginalLs[" + i + " ] = " + marginalLs[i]);
 
 			logdata1.add(marginalLs[i]);
 			logdata1.add(0.0);
@@ -113,6 +106,11 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 						
 		}
 		
+		if (consoleApp != null) {
+			// allow output to flush to app window
+			Thread.sleep(500);
+		}
+
 		System.out.println("\nStep        theta         likelihood   contribution ESS");
 		BetaDistribution betaDistribution = new BetaDistributionImpl(alpha, 1.0);
 		for (int i = 0; i < nSteps; i++) {
@@ -163,56 +161,24 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 		System.out.println("marginal L estimate = " + marginalL);
 	}
 
-    static class PathSampleAnalyserConsoleApp extends jam.console.ConsoleApplication {
-
-        public PathSampleAnalyserConsoleApp(final String nameString, final String aboutString, final javax.swing.Icon icon) throws IOException {
-            super(nameString, aboutString, icon, false);
-            getDefaultFrame().setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        }
-
-        public void doStop() {
-            // thread.stop is deprecated so need to send a message to running threads...
-//            Iterator iter = parser.getThreads();
-//            while (iter.hasNext()) {
-//                Thread thread = (Thread) iter.next();
-//                thread.stop(); // http://java.sun.com/j2se/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html
-//            }
-        }
-
-        public void setTitle(final String title) {
-            getDefaultFrame().setTitle(title);
-        }
-
-        BeastMCMC beastMCMC;
-    }
-
-	
+    public ConsoleApp consoleApp = null;
+    
 	@Override
 	public void run() throws Exception {
-        Utils.loadUIManager();
-        System.setProperty("com.apple.macos.useScreenMenuBar", "true");
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        System.setProperty("apple.awt.showGrowBox", "true");
-        System.setProperty("beast.useWindow", "true");
-
-        String nameString = "PathSampleAnalyser";
-        final javax.swing.Icon icon = IconUtils.getIcon(beast.app.tools.PathSampleAnalyser.class, "ps.png");
-
-        BEASTVersion version = new BEASTVersion();
-        
-        final String aboutString = "<html><div style=\"font-family:sans-serif;\"><center>" +
-                "<div style=\"font-size:12;\"><p>Bayesian Evolutionary Analysis Sampling Trees<br>" +
-                "Version " + version.getVersionString() + ", " + version.getDateString() + "</p>" +
-                version.getHTMLCredits() +
-                "</div></center></div></html>";
-
-        PathSampleAnalyserConsoleApp consoleApp = new PathSampleAnalyserConsoleApp(nameString, aboutString, icon);
-		
-		double marginalL = estimateMarginalLikelihood(
+		// create output window
+//        String nameString = "PathSampleAnalyser";
+//        String title = "Path Sample Analyser -- " + rootDirInput.get();
+//        consoleApp = new ConsoleApp(nameString, title);
+//        
+        // do the work
+        double marginalL = estimateMarginalLikelihood(
 				stepsInput.get(), 
 				alphaInput.get(), 
 				rootDirInput.get(), 
 				burnInPercentageInput.get());
+        
+        
+		Thread.sleep(500);
 		System.out.println("marginal L estimate = " + marginalL);
 	}
 	
