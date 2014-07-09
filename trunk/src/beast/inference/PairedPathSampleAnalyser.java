@@ -1,5 +1,6 @@
 package beast.inference;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
+import beast.app.util.ConsoleApp;
 import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.Input;
@@ -158,8 +160,16 @@ public class PairedPathSampleAnalyser extends beast.core.Runnable {
 		System.out.println("Bayes factor estimate = " + marginalL);
 	}
 	
+	
+    ConsoleApp consoleApp = null;
+
 	@Override
-	public void run() {
+	public void run() throws IOException {
+		// create output window
+        String nameString = "PairedPathSampleAnalyser";
+        String title = "Paired Path Sample Analyser -- " + rootDirInput.get();
+        consoleApp = new ConsoleApp(nameString, title);
+
 		double marginalL = Double.NaN;
 		try {
 			marginalL = estimateMarginalLikelihood(

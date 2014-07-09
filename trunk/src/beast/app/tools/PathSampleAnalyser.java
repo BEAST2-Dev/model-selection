@@ -1,45 +1,51 @@
 package beast.app.tools;
 
-import java.io.File;
-
-import beast.app.beauti.Beauti;
 import beast.app.beauti.BeautiConfig;
 import beast.app.beauti.BeautiDoc;
 import beast.app.draw.BEASTObjectDialog;
 import beast.app.draw.BEASTObjectPanel;
 import beast.app.util.Application;
-import beast.core.BEASTObject;
-import beast.core.Input;
-import beast.inference.PathSamplerFromFile;
+import beast.app.util.ConsoleApp;
 
-//command line interface to PathSampler
+//command line interface to PathSampleAnalyser
 public class PathSampleAnalyser {
 		
 	public static void main(final String[] args) throws Exception {
 		Application main = null;
 		try {
+			// create the runnable class with application that we want to launch
 			beast.inference.PathSampleAnalyser analyser = new beast.inference.PathSampleAnalyser();
 			
 			if (args.length == 0) {
 				// try the GUI version
-				analyser.setID("PathSamplerAnalyser");
+
+				// need to set the ID of the BEAST-object
+				analyser.setID("PathSampleAnalyser");
+				
+				// then initialise
 				analyser.initAndValidate();
+				
+				// create BeautiDoc and beauti configuration
 				BeautiDoc doc = new BeautiDoc();
 				doc.beautiConfig = new BeautiConfig();
 				doc.beautiConfig.initAndValidate();
-				doc.beautiConfig.suppressPlugins.add(analyser.getClass().getName() + ".mcmc");
-				doc.beautiConfig.suppressPlugins.add(analyser.getClass().getName() + ".value");
-				doc.beautiConfig.suppressPlugins.add(analyser.getClass().getName() + ".hosts");
-				String fileSep = System.getProperty("file.separator");
 			
+				// create panel with entries for the application
 				BEASTObjectPanel panel = new BEASTObjectPanel(analyser, analyser.getClass(), doc);
+				
+				// wrap panel in a dialog
 				BEASTObjectDialog dialog = new BEASTObjectDialog(panel, null);
 				if (dialog.showDialog()) {
 					dialog.accept(analyser, doc);
 					analyser.initAndValidate();
+
+					// create a console to show standard error and standard output
+					analyser.consoleApp = new ConsoleApp("PathSampleAnalyser", // name 
+							"Path Sample Analyser: " + analyser.rootDirInput.get() // console title
+							);
+
 					analyser.run();
 				}
-				System.exit(0);
 				return;
 			}
 
@@ -49,7 +55,6 @@ public class PathSampleAnalyser {
 			analyser.initAndValidate();
 			analyser.run();
 		} catch (Exception e) {
-			//e.printStackTrace();
 			System.out.println(e.getMessage());
 			if (main != null) {
 				System.out.println(main.getUsage());

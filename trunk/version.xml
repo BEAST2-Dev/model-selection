@@ -6,7 +6,7 @@
               icon="beast/app/tools/ps.png"
             />
     <addonapp description="Path Sample Analyser"
-              class="beast.app.tools.PairedPathSampler"
+              class="beast.app.tools.PathSampleAnalyser"
               args=""
               icon="beast/app/tools/ps.png"
             />
