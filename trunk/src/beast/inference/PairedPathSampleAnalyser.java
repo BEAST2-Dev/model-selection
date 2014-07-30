@@ -51,7 +51,7 @@ public class PairedPathSampleAnalyser extends beast.core.Runnable {
 		for (int i = 0; i < nSteps; i++) {
 			List<Double> logdata1 = new ArrayList<Double>();
 			String logFile = getStepDir(rootDir, i) + "/" + PathSampler.LIKELIHOOD_LOG_FILE;
-			LogAnalyser analyser = new LogAnalyser(new String[] {logFile}, 2000, burnInPercentage);
+			LogAnalyser analyser = new LogAnalyser(new String[] {logFile}, burnInPercentage);
 			marginalLs[i] = analyser.getMean("diff-posterior");
 			marginalLs2[i] = analyser.getTrace("diff-posterior");
 			System.err.println("marginalLs[" + i + " ] = " + marginalLs[i]);
