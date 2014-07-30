@@ -1,17 +1,16 @@
 package beast.inference;
 
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.math.distribution.BetaDistribution;
-import org.apache.commons.math.distribution.BetaDistributionImpl;
-
+import beast.app.tools.LogAnalyser;
 import beast.app.util.ConsoleApp;
 import beast.core.Description;
 import beast.core.Input;
-import beast.util.LogAnalyser;
+import org.apache.commons.math.distribution.BetaDistribution;
+import org.apache.commons.math.distribution.BetaDistributionImpl;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 
 
