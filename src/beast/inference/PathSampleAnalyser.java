@@ -1,10 +1,10 @@
 package beast.inference;
 
 
-import beast.app.tools.LogAnalyser;
 import beast.app.util.ConsoleApp;
 import beast.core.Description;
 import beast.core.Input;
+import beast.util.LogAnalyser;
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
