@@ -1,10 +1,10 @@
 package beast.inference;
 
-import beast.app.tools.LogAnalyser;
 import beast.app.util.ConsoleApp;
 import beast.core.Description;
 import beast.core.Input;
 import beast.inference.PairedPathSampler.Scheme;
+import beast.util.LogAnalyser;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
