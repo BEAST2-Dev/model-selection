@@ -229,7 +229,7 @@ public class PairedPathSampler extends PathSampler {
 					: new FileOutputStream(stepDir.getAbsoluteFile()
 							+ "/run.sh"));
 			PrintStream out2 = new PrintStream(cmdFile);
-			out2.print(cmd);
+			out2.println(cmd);
 			out2.close();
 
 			cmdFile = (beast.app.util.Utils.isWindows() ? new FileOutputStream(
@@ -238,7 +238,7 @@ public class PairedPathSampler extends PathSampler {
 							+ "/resume.sh"));
 			cmd = cmd.replace("-overwrite", "-resume");
 			out2 = new PrintStream(cmdFile);
-			out2.print(cmd);
+			out2.println(cmd);
 			out2.close();
 			// TODO: probably more efficient to group cmdFiles in block of
 			// #steps/#threads
@@ -249,9 +249,9 @@ public class PairedPathSampler extends PathSampler {
 						+ "\\beast.xml.state " + getStepDir(i) : "cp "
 						+ getStepDir(i - BeastMCMC.m_nThreads)
 						+ "/beast.xml.state " + getStepDir(i));
-				cmdFiles[i % BeastMCMC.m_nThreads].print(copyCmd);
+				cmdFiles[i % BeastMCMC.m_nThreads].println(copyCmd);
 			}
-			cmdFiles[i % BeastMCMC.m_nThreads].print(cmd);
+			cmdFiles[i % BeastMCMC.m_nThreads].println(cmd);
 			File script = new File(stepDir.getAbsoluteFile()
 					+ (beast.app.util.Utils.isWindows() ? "/run.bat"
 							: "/run.sh"));
