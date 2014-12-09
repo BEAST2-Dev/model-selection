@@ -58,7 +58,7 @@ public class Application {
 									input.setValue(Boolean.TRUE, null);
 								}
 							} else {
-								input.setValue(value, null);
+								input.setValue(value, myBeastObject);
 								i++;
 							}
 						} catch (Exception e) {
