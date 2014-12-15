@@ -16,6 +16,7 @@ import beast.core.Description;
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.util.Log;
+import beast.core.BEASTInterface;
 import beast.core.BEASTObject;
 import beast.core.Logger;
 import beast.core.MCMC;
@@ -293,9 +294,9 @@ public class PairedPathSampler extends PathSampler {
 	 */
 	private void mergeModel2IntoModel1() throws Exception {
 		// collect objects from model 1 and model 2
-		Map<String, BEASTObject> objects1 = new HashMap<String, BEASTObject>();
+		Map<String, BEASTInterface> objects1 = new HashMap<String, BEASTInterface>();
 		collectObjects((BEASTObject) model1, objects1);
-		Map<String, BEASTObject> objects2 = new HashMap<String, BEASTObject>();
+		Map<String, BEASTInterface> objects2 = new HashMap<String, BEASTInterface>();
 		collectObjects((BEASTObject) model2, objects2);
 
 		// merge those objects in model 2 that have are of the same class
@@ -308,8 +309,8 @@ public class PairedPathSampler extends PathSampler {
 			Set<String> objectSet = new HashSet<String>(); 
 			objectSet.addAll(objects2.keySet());
 			for (String id2 : objectSet) {
-				BEASTObject plugin1 = objects1.get(id2);
-				BEASTObject plugin2 = objects2.get(id2);
+				BEASTInterface plugin1 = objects1.get(id2);
+				BEASTInterface plugin2 = objects2.get(id2);
 				if (plugin1 != null) {
 					if (haveCommonInputs(plugin1, plugin2)) {
 						mergePlugins(plugin1, plugin2);
@@ -327,20 +328,20 @@ public class PairedPathSampler extends PathSampler {
 				while (objects1.keySet().contains(id2 + i)) {
 					i++;
 				}
-				BEASTObject plugin = objects2.get(id2);
+				BEASTInterface plugin = objects2.get(id2);
 				plugin.setID(id2 + i);
 			}
 		}
 	}
 
 	/** replace plugin2 of model2 by plugin1 **/
-	private void mergePlugins(BEASTObject plugin1, BEASTObject plugin2) throws Exception {
+	private void mergePlugins(BEASTInterface plugin1, BEASTInterface plugin2) throws Exception {
 		
 		System.err.println("Merging " + plugin1.getID());
 		mergedSet.add(plugin1.getID());
 		
 		Set<BEASTObject> outputSet = new HashSet<BEASTObject>();
-		outputSet.addAll(plugin2.outputs);
+		outputSet.addAll(plugin2.getOutputs());
 		for (BEASTObject output : outputSet) {
 			boolean found = false;
 			for (Input<?> input : output.listInputs()) {
@@ -368,7 +369,7 @@ public class PairedPathSampler extends PathSampler {
 	}
 
 	/** check whether plugin1 and plugin2 share inputs **/
-	private boolean haveCommonInputs(BEASTObject plugin1, BEASTObject plugin2)
+	private boolean haveCommonInputs(BEASTInterface plugin1, BEASTInterface plugin2)
 			throws IllegalArgumentException, IllegalAccessException, Exception {
 		if (!plugin1.getClass().equals(plugin2.getClass())) {
 			return false;
@@ -411,9 +412,9 @@ public class PairedPathSampler extends PathSampler {
 	 * Put all objects of a model in a map by ID If no ID is specified, an ID is
 	 * generated.
 	 */
-	private void collectObjects(BEASTObject plugin, Map<String, BEASTObject> objects)
+	private void collectObjects(BEASTInterface plugin, Map<String, BEASTInterface> objects)
 			throws IllegalArgumentException, IllegalAccessException {
-		for (BEASTObject plugin2 : plugin.listActivePlugins()) {
+		for (BEASTInterface plugin2 : plugin.listActivePlugins()) {
 			if (plugin2.getID() == null) {
 				String id = plugin2.getClass().getName();
 				if (id.indexOf('.') >= 0) {
