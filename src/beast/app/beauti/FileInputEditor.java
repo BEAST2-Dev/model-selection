@@ -8,6 +8,7 @@ import javax.swing.JButton;
 
 import beast.app.draw.InputEditor;
 import beast.app.util.Utils;
+import beast.core.BEASTInterface;
 import beast.core.BEASTObject;
 import beast.core.Input;
 
@@ -25,7 +26,7 @@ public class FileInputEditor extends InputEditor.Base {
 	}
 
 	@Override
-	public void init(Input<?> input, BEASTObject plugin, int itemNr, ExpandOption bExpandOption, boolean bAddButtons) {
+	public void init(Input<?> input, BEASTInterface plugin, int itemNr, ExpandOption bExpandOption, boolean bAddButtons) {
 		super.init(input, plugin, itemNr, bExpandOption, bAddButtons);
 		m_entry.setText(((File) m_input.get()).getName());
 		

@@ -13,7 +13,7 @@
 	<property name="libMODEL_SELECTION" location="lib" />
 	<property name="release_dir" value="release" />
 	<property name="distMODEL_SELECTION" location="${buildMODEL_SELECTION}/dist" />
-	<property name="beast2path" location="../beast2.1.3" />
+	<property name="beast2path" location="../beast2" />
 	<property name="libBeast2" location="${beast2path}/lib" />
 	<property name="srcBeast2" location="${beast2path}/src" />
 	<property name="beast2classpath" location="${beast2path}/build" />
@@ -29,6 +29,7 @@
         <pathelement path="${buildMODEL_SELECTION}"/>
 		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
 		<fileset dir="${libBeast2}" includes="jam.jar"/>
+		<fileset dir="${libBeast2}" includes="beagle.jar"/>
         <pathelement path="${beast2classpath}"/>
 	</path>
 
@@ -73,8 +74,8 @@
 		       fork="true"
 		       memoryinitialsize="256m"
 		       memorymaximumsize="256m"
-			   source="1.6"
-		       target="1.6">
+			   source="1.8"
+		       target="1.8">
 			<include name="beast/**/**" />
 			<!-- compile JUnit test classes -->
 			<include name="test/beast/**" />
