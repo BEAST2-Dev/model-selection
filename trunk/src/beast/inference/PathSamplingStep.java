@@ -50,6 +50,7 @@ public class PathSamplingStep extends MCMC {
 				throw new Exception("Expected posterior with only likelihood and prior as IDs");
 			}
 		}
+        loggers = loggersInput.get();
 	}
 	
 	
