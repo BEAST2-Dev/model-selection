@@ -218,7 +218,9 @@ public class PathSamplingStep extends MCMC {
             }
             log(iSample);
 
-            operator.optimize(logAlpha);
+            if (iSample >= 0) {
+            	operator.optimize(logAlpha);
+            }
             callUserFunction(iSample);
         }
     }

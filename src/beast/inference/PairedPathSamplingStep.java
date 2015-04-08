@@ -148,7 +148,9 @@ public class PairedPathSamplingStep extends PathSamplingStep implements Loggable
             }
             log(iSample);
 
-            operator.optimize(logAlpha);
+            if (iSample >= 0) {
+            	operator.optimize(logAlpha);
+            }
             callUserFunction(iSample);
         }
     }
