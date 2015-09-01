@@ -222,11 +222,17 @@ public class PathSampler extends beast.core.Runnable {
 							);
 				cmdFiles[i % BeastMCMC.m_nThreads].println(copyCmd);				
 			}
+			if (i / BeastMCMC.m_nThreads == 0) {
+				cmd = cmd.replace("-resume", "-overwrite");
+			}
 			cmdFiles[i % BeastMCMC.m_nThreads].println(cmd);
 			File script = new File(stepDir.getAbsoluteFile() + 
 					(beast.app.util.Utils.isWindows()? "/run.bat": "/run.sh"));
 			script.setExecutable(true);
 		}
+		
+		
+		
     	for (int k = 0; k < BeastMCMC.m_nThreads; k++) {
     		cmdFiles[k].close();
     	}
