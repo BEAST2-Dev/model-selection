@@ -340,9 +340,9 @@ public class PairedPathSampler extends PathSampler {
 		System.err.println("Merging " + plugin1.getID());
 		mergedSet.add(plugin1.getID());
 		
-		Set<BEASTObject> outputSet = new HashSet<BEASTObject>();
+		Set<BEASTInterface> outputSet = new HashSet<BEASTInterface>();
 		outputSet.addAll(plugin2.getOutputs());
-		for (BEASTObject output : outputSet) {
+		for (BEASTInterface output : outputSet) {
 			boolean found = false;
 			for (Input<?> input : output.listInputs()) {
 				if (input.get() != null) {

@@ -27,9 +27,9 @@ public class PairedPathSampleAnalyser {
 				BeautiDoc doc = new BeautiDoc();
 				doc.beautiConfig = new BeautiConfig();
 				doc.beautiConfig.initAndValidate();
-				doc.beautiConfig.suppressPlugins.add(analyser.getClass().getName() + ".mcmc");
-				doc.beautiConfig.suppressPlugins.add(analyser.getClass().getName() + ".value");
-				doc.beautiConfig.suppressPlugins.add(analyser.getClass().getName() + ".hosts");
+				doc.beautiConfig.suppressBEASTObjects.add(analyser.getClass().getName() + ".mcmc");
+				doc.beautiConfig.suppressBEASTObjects.add(analyser.getClass().getName() + ".value");
+				doc.beautiConfig.suppressBEASTObjects.add(analyser.getClass().getName() + ".hosts");
 				String fileSep = System.getProperty("file.separator");
 			
 				BEASTObjectPanel panel = new BEASTObjectPanel(analyser, analyser.getClass(), doc);

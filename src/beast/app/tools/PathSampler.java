@@ -36,9 +36,9 @@ public class PathSampler {
 				doc.beautiConfig.initAndValidate();
 				
 				// suppress a few inputs that we don't want to expose to the user
-				doc.beautiConfig.suppressPlugins.add(sampler.getClass().getName() + ".mcmc");
-				doc.beautiConfig.suppressPlugins.add(sampler.getClass().getName() + ".value");
-				doc.beautiConfig.suppressPlugins.add(sampler.getClass().getName() + ".hosts");
+				doc.beautiConfig.suppressBEASTObjects.add(sampler.getClass().getName() + ".mcmc");
+				doc.beautiConfig.suppressBEASTObjects.add(sampler.getClass().getName() + ".value");
+				doc.beautiConfig.suppressBEASTObjects.add(sampler.getClass().getName() + ".hosts");
 				
 				// check wheter the model1Input is correctly set up
 				String fileSep = System.getProperty("file.separator");
