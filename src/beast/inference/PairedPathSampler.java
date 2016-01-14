@@ -245,9 +245,9 @@ public class PairedPathSampler extends PathSampler {
 			// #steps/#threads
 			// instead of skipping #threads steps every time.
 			if (i >= BeastMCMC.m_nThreads) {
-				String copyCmd = (beast.app.util.Utils.isWindows() ? "copy "
+				String copyCmd = (beast.app.util.Utils.isWindows() ? ("copy "
 						+ getStepDir(i - BeastMCMC.m_nThreads)
-						+ "\\beast.xml.state " + getStepDir(i) : "cp "
+						+ "\\beast.xml.state " + getStepDir(i)).replaceAll("/","\\") : "cp "
 						+ getStepDir(i - BeastMCMC.m_nThreads)
 						+ "/beast.xml.state " + getStepDir(i));
 				cmdFiles[i % BeastMCMC.m_nThreads].println(copyCmd);

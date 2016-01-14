@@ -217,7 +217,7 @@ public class PathSampler extends beast.core.Runnable {
 //instead of skipping #threads steps every time.
 			if (i >= BeastMCMC.m_nThreads) {
 				String copyCmd = (beast.app.util.Utils.isWindows()
-						? "copy " + getStepDir(i - BeastMCMC.m_nThreads) + "\\beast.xml.state " + getStepDir(i)
+						? ("copy " + getStepDir(i - BeastMCMC.m_nThreads) + "\\beast.xml.state " + getStepDir(i)).replaceAll("/", "\\")
 						: "cp " + getStepDir(i - BeastMCMC.m_nThreads) + "/beast.xml.state " + getStepDir(i)
 							);
 				cmdFiles[i % BeastMCMC.m_nThreads].println(copyCmd);				
