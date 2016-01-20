@@ -79,6 +79,11 @@ public class PathSampler extends beast.core.Runnable {
 	
 	@Override
 	public void run() throws Exception {
+		if (rootDirInput.get().startsWith("\\\\")) {
+			Log.warning.println("WARNING: the rootdir starts with \\\\ suggesting this refers to a network drive in Windows. "
+					+ "This probably does not work in Windows: use a local drive, or use map the share to a drive and use the "
+					+ "corresponding drive letter instead.");
+		}
 		// grab info from inputs
 		m_sScript = m_sScriptInput.get();
 		if (m_sScript == null) {

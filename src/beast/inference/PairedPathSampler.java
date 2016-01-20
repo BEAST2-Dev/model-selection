@@ -70,6 +70,12 @@ public class PairedPathSampler extends PathSampler {
 			return;
 		}
 
+		if (rootDirInput.get().startsWith("\\\\")) {
+			Log.warning.println("WARNING: the rootdir starts with \\\\ suggesting this refers to a network drive in Windows. "
+					+ "This probably does not work in Windows: use a local drive, or use map the share to a drive and use the "
+					+ "corresponding drive letter instead.");
+		}
+
 		XMLParser parser1 = new XMLParser();
 		Object o = parser1.parseFile(model1Input.get());
 		if (!(o instanceof MCMC)) {
