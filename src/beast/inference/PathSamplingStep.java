@@ -1,6 +1,11 @@
 package beast.inference;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 import beast.core.Description;
 import beast.core.Distribution;
@@ -55,7 +60,7 @@ public class PathSamplingStep extends MCMC {
 	
 	
     @Override
-    public void run() throws Exception {
+    public void run() throws SAXException, IOException, ParserConfigurationException {
         // set up state (again). Other plugins may have manipulated the
         // StateNodes, e.g. set up bounds or dimensions
         state.initAndValidate();
@@ -95,7 +100,7 @@ public class PathSamplingStep extends MCMC {
         System.err.println("Start likelihood: " + oldLogLikelihood + " " + (nInitiliasiationAttemps > 1 ? "after " + nInitiliasiationAttemps + " initialisation attempts" : ""));
         if (Double.isInfinite(oldLogLikelihood) || Double.isNaN(oldLogLikelihood)) {
             reportLogLikelihoods(posterior, "");
-            throw new Exception("Could not find a proper state to initialise. Perhaps try another seed.");
+            throw new RuntimeException("Could not find a proper state to initialise. Perhaps try another seed.");
         }
 
         // initialises log so that log file headers are written, etc.
@@ -124,7 +129,7 @@ public class PathSamplingStep extends MCMC {
     /**
      * main MCMC loop *
      */
-    protected void doLoop() throws Exception {
+    protected void doLoop() {
     	
         double logPriorProb = prior.calculateLogP();
         double logLikelihood = likelihood.calculateLogP();        

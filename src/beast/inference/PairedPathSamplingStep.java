@@ -49,7 +49,7 @@ public class PairedPathSamplingStep extends PathSamplingStep implements Loggable
 	   /**
      * main MCMC loop *
      */
-    protected void doLoop() throws Exception {
+    protected void doLoop() {
     	posterior = jointPosterior;
     	state.initialise();
 		state.setPosterior(posterior);
@@ -157,7 +157,7 @@ public class PairedPathSamplingStep extends PathSamplingStep implements Loggable
 
 
 	@Override
-	public void init(PrintStream out) throws Exception {
+	public void init(PrintStream out) {
 		out.append("diff-posterior\t");
 	}
 
