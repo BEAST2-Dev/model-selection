@@ -74,7 +74,7 @@ public class PathSampler extends beast.core.Runnable {
 
 
 	@Override
-	public void initAndValidate() throws Exception {
+	public void initAndValidate() {
 	}
 	
 	@Override

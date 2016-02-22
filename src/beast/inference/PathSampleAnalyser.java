@@ -25,7 +25,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 	DecimalFormat formatter;
 	
 	@Override
-	public void initAndValidate() throws Exception {
+	public void initAndValidate() {
 	}
 	
 	/** estimate marginal likelihoods from logs produced by PathSampler

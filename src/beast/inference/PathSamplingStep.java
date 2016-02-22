@@ -25,19 +25,19 @@ public class PathSamplingStep extends MCMC {
 	Distribution likelihood;
 	
 	@Override
-	public void initAndValidate() throws Exception {
+	public void initAndValidate() {
 		super.initAndValidate();
 		
 		beta = betaInput.get();
 		posterior = posteriorInput.get();
 		// expect compound distribution with likelihood and prior
 		if (!(posterior instanceof CompoundDistribution)) {
-			throw new Exception("Expected posterior being a CompoundDistribution");
+			throw new IllegalArgumentException("Expected posterior being a CompoundDistribution");
 		}
 		CompoundDistribution d = (CompoundDistribution) posterior;
 		List<Distribution> list = d.pDistributions.get();
 		if (list.size() != 2) {
-			throw new Exception("Expected posterior with only likelihood and prior as distributions");
+			throw new IllegalArgumentException("Expected posterior with only likelihood and prior as distributions");
 		}
 		if (list.get(0).getID().toLowerCase().startsWith("likelihood")) {
 			prior = list.get(1);
@@ -47,7 +47,7 @@ public class PathSamplingStep extends MCMC {
 				prior = list.get(0);
 				likelihood = list.get(1);
 			} else {
-				throw new Exception("Expected posterior with only likelihood and prior as IDs");
+				throw new IllegalArgumentException("Expected posterior with only likelihood and prior as IDs");
 			}
 		}
         loggers = loggersInput.get();

@@ -25,7 +25,7 @@ public class PairedPathSamplingStep extends PathSamplingStep implements Loggable
 	Distribution jointPosterior;
 	
 	@Override
-	public void initAndValidate() throws Exception {
+	public void initAndValidate() {
 		CompoundDistribution distribution;
 		distribution = new CompoundDistribution();
 		distribution.pDistributions.get().add(posteriorInput.get());
