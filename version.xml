@@ -1,5 +1,5 @@
-<addon name='MODEL-SELECTION' version='1.1.1'>
-	<depends on='beast2' atleast='2.3.0'/>
+<addon name='MODEL_SELECTION' version='1.2.0'>
+	<depends on='beast2' atleast='2.4.0'/>
     <addonapp description="Path sampler"
               class="beast.app.tools.PathSampler"
               args=""
