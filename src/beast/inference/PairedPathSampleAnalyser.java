@@ -5,6 +5,7 @@ import beast.core.Description;
 import beast.core.Input;
 import beast.inference.PairedPathSampler.Scheme;
 import beast.util.LogAnalyser;
+import jam.util.IconUtils;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -164,7 +165,7 @@ public class PairedPathSampleAnalyser extends beast.core.Runnable {
 		// create output window
         String nameString = "PairedPathSampleAnalyser";
         String title = "Paired Path Sample Analyser -- " + rootDirInput.get();
-        consoleApp = new ConsoleApp(nameString, title);
+        consoleApp = new ConsoleApp(nameString, title, IconUtils.getIcon(beast.app.tools.PathSampleAnalyser.class, "ps.png"));
 
 		double marginalL = Double.NaN;
 		try {

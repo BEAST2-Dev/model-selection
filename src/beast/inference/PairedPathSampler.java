@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import beast.app.BeastMCMC;
+import beast.app.util.XMLFile;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.Input.Validate;
@@ -30,12 +31,12 @@ import beast.util.XMLProducer;
 		+ "Uses multiple threads if specified as command line option to BEAST. "
 		+ "This uses the operator schedule of the first model.")
 public class PairedPathSampler extends PathSampler {
-	public Input<File> model1Input = new Input<File>(
+	public Input<XMLFile> model1Input = new Input<>(
 			"model1",
 			"file name of BEAST XML file containing the first model that needs to be compared",
-			new File("examples/normalTest-1.xml"),
+			new XMLFile("examples/normalTest-1.xml"),
 			Validate.REQUIRED);
-	public Input<File> model2Input = new Input<File>("model2",
+	public Input<XMLFile> model2Input = new Input<>("model2",
 			"file name of second model that needs to be compared",
 			//new File("examples/normalTest-2.xml"),
 			Validate.OPTIONAL);

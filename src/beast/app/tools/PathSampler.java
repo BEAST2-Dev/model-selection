@@ -1,6 +1,5 @@
 package beast.app.tools;
 
-import java.io.File;
 
 import beast.app.beauti.Beauti;
 import beast.app.beauti.BeautiConfig;
@@ -9,12 +8,15 @@ import beast.app.draw.BEASTObjectDialog;
 import beast.app.draw.BEASTObjectPanel;
 import beast.app.util.Application;
 import beast.app.util.ConsoleApp;
+import beast.app.util.XMLFile;
 import beast.inference.PathSamplerFromFile;
+import jam.util.IconUtils;
 
 //command line interface to PathSampler
 public class PathSampler {
 	
-		
+	private static ConsoleApp app;
+	
 	public static void main(final String[] args) throws Exception {
 		Application main = null;
 		try {
@@ -43,7 +45,7 @@ public class PathSampler {
 				// check wheter the model1Input is correctly set up
 				String fileSep = System.getProperty("file.separator");
 				if (!sampler.model1Input.get().exists()) {
-					sampler.model1Input.setValue(new File(Beauti.g_sDir + fileSep + "model.xml"), sampler);
+					sampler.model1Input.setValue(new XMLFile(Beauti.g_sDir + fileSep + "model.xml"), sampler);
 				}
 			
 				// create panel with entries for the application
@@ -56,7 +58,9 @@ public class PathSampler {
 				if (dialog.showDialog()) {
 					dialog.accept(sampler, doc);
 					// create a console to show standard error and standard output
-					ConsoleApp app = new ConsoleApp("PathSampler", "Path Sampler: " + sampler.model1Input.get().getPath());
+					app = new ConsoleApp("PathSampler", 
+							"Path Sampler: " + sampler.model1Input.get().getPath(),
+					        IconUtils.getIcon(beast.app.tools.PathSampleAnalyser.class, "ps.png"));
 					sampler.initAndValidate();
 					sampler.run();
 				}

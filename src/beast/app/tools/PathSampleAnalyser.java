@@ -6,6 +6,7 @@ import beast.app.draw.BEASTObjectDialog;
 import beast.app.draw.BEASTObjectPanel;
 import beast.app.util.Application;
 import beast.app.util.ConsoleApp;
+import jam.util.IconUtils;
 
 //command line interface to PathSampleAnalyser
 public class PathSampleAnalyser {
@@ -41,7 +42,8 @@ public class PathSampleAnalyser {
 
 					// create a console to show standard error and standard output
 					analyser.consoleApp = new ConsoleApp("PathSampleAnalyser", // name 
-							"Path Sample Analyser: " + analyser.rootDirInput.get() // console title
+							"Path Sample Analyser: " + analyser.rootDirInput.get(), // console title
+					        IconUtils.getIcon(beast.app.tools.PathSampleAnalyser.class, "ps.png")
 							);
 
 					analyser.run();

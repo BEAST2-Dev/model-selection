@@ -1,12 +1,12 @@
 package beast.inference;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import beast.app.util.XMLFile;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.MCMC;
@@ -15,11 +15,11 @@ import beast.util.XMLParser;
 import beast.util.XMLParserException;
 
 @Description("Path sampler that takes a BEAST MCMC specification from an external file")
-public class PathSamplerFromFile extends beast.inference.PathSampler {
-		public Input<File> model1Input = new Input<File>(
+public class PathSamplerFromFile extends PathSampler {
+		public Input<XMLFile> model1Input = new Input<>(
 				"model1",
 				"file name of BEAST XML file containing the model for which to run the path sampler",
-				new File("examples/normalTest-1XXX.xml"),
+				new XMLFile("examples/normalTest-1XXX.xml"),
 				Validate.REQUIRED);
 		
 		@Override
