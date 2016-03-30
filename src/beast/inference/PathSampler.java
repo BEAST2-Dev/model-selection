@@ -222,7 +222,7 @@ public class PathSampler extends beast.core.Runnable {
 //instead of skipping #threads steps every time.
 			if (i >= BeastMCMC.m_nThreads) {
 				String copyCmd = (beast.app.util.Utils.isWindows()
-						? ("copy " + getStepDir(i - BeastMCMC.m_nThreads) + "\\beast.xml.state " + getStepDir(i)).replaceAll("/", "\\")
+						? getCopyCmd(i)
 						: "cp " + getStepDir(i - BeastMCMC.m_nThreads) + "/beast.xml.state " + getStepDir(i)
 							);
 				cmdFiles[i % BeastMCMC.m_nThreads].println(copyCmd);				
@@ -246,6 +246,22 @@ public class PathSampler extends beast.core.Runnable {
 		
 	} // run
 	
+	private String getCopyCmd(int i) {
+		String cmd = "copy \"";
+		cmd += getStepDir(i - BeastMCMC.m_nThreads);
+		cmd += "\\beast.xml.state\" \"";
+		cmd += getStepDir(i);
+		cmd += "\"";
+		StringBuilder buf = new StringBuilder();
+		for (char a : cmd.toCharArray()) {
+			if (a == '/') {a = '\\';}
+			buf.append(a);
+		}
+		cmd = buf.toString();
+		return cmd;
+	}
+
+
 	private Distribution extractLikelihood(MCMC mcmc) throws Exception {
 		Distribution posterior = mcmc.posteriorInput.get();
 		// expect compound distribution with likelihood and prior
