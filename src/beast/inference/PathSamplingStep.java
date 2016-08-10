@@ -26,7 +26,8 @@ public class PathSamplingStep extends MCMC {
 	public Input<Double> betaInput = new Input<Double>("beta","power used for likelihood: 1 = using full posterior, 0 = using prior only", 1.0);
 
 	double beta;
-	Distribution prior;
+    Distribution prior;
+    Distribution msc;
 	Distribution likelihood;
 	
 	@Override
@@ -41,20 +42,28 @@ public class PathSamplingStep extends MCMC {
 		}
 		CompoundDistribution d = (CompoundDistribution) posterior;
 		List<Distribution> list = d.pDistributions.get();
-		if (list.size() != 2) {
-			throw new IllegalArgumentException("Expected posterior with only likelihood and prior as distributions");
-		}
-		if (list.get(0).getID().toLowerCase().startsWith("likelihood")) {
-			prior = list.get(1);
-			likelihood = list.get(0);
-		} else {
-			if (list.get(0).getID().toLowerCase().startsWith("prior")) {
-				prior = list.get(0);
-				likelihood = list.get(1);
-			} else {
-				throw new IllegalArgumentException("Expected posterior with only likelihood and prior as IDs");
-			}
-		}
+        if (list.size() > 3 || list.size() < 2) {
+            throw new IllegalArgumentException("Expected one prior, one likelihood and an optional multispecies coalescent distribution.");
+        }
+
+        prior = null;
+        msc = null;
+        likelihood = null;
+        for (Distribution subDist: list) {
+            final String distID = subDist.getID().toLowerCase();
+            if (distID.startsWith("prior")) prior = subDist;
+            if (distID.startsWith("speciescoalescent")) msc = subDist;
+            if (distID.startsWith("likelihood")) likelihood = subDist;
+        }
+
+        if (msc == null && list.size() == 3)
+            throw new IllegalArgumentException("Expected one prior, one likelihood and an optional multispecies coalescent distribution.");
+
+        if (prior == null)
+            throw new IllegalArgumentException("No prior distribution found in posterior.");
+        if (likelihood == null)
+            throw new IllegalArgumentException("No likelihood distribution found in posterior.");
+
         loggers = loggersInput.get();
 	}
 	
@@ -132,8 +141,9 @@ public class PathSamplingStep extends MCMC {
     protected void doLoop() {
     	
         double logPriorProb = prior.calculateLogP();
-        double logLikelihood = likelihood.calculateLogP();        
-        oldLogLikelihood = logPriorProb + logLikelihood * beta; 
+        double logMSC = (msc == null) ? 0.0 : msc.calculateLogP();
+        double logLikelihood = likelihood.calculateLogP();
+        oldLogLikelihood = logPriorProb + logMSC + (logLikelihood * beta);
     	
     	
         for (int iSample = -burnIn; iSample <= chainLength; iSample++) {
@@ -185,12 +195,12 @@ public class PathSamplingStep extends MCMC {
                 state.storeCalculationNodes();
                 state.checkCalculationNodesDirtiness();
 
-                
                 posterior.calculateLogP();
                 logPriorProb = prior.getArrayValue();
+                logMSC = (msc == null) ? 0.0 : msc.calculateLogP();
                 logLikelihood = likelihood.getArrayValue();
-                
-                newLogLikelihood = logPriorProb + logLikelihood * beta; 
+
+                newLogLikelihood = logPriorProb + logMSC + (logLikelihood * beta); 
 
                 logAlpha = newLogLikelihood - oldLogLikelihood + fLogHastingsRatio; //CHECK HASTINGS
                 //System.out.println(logAlpha + " " + fNewLogLikelihood + " " + fOldLogLikelihood);

@@ -270,18 +270,29 @@ public class PathSampler extends beast.core.Runnable {
 		}
 		CompoundDistribution d = (CompoundDistribution) posterior;
 		List<Distribution> list = d.pDistributions.get();
-		if (list.size() != 2) {
-			throw new Exception("Expected posterior with only likelihood and prior as distributions");
+		if (list.size() > 3 || list.size() < 2) {
+            throw new Exception("Expected one prior, one likelihood and an optional multispecies coalescent distribution.");
 		}
-		if (list.get(0).getID().toLowerCase().startsWith("likelihood")) {
-			return list.get(0);
-		} else {
-			if (list.get(1).getID().toLowerCase().startsWith("likelihood")) {
-				return list.get(1);
-			} else {
-				throw new Exception("Expected posterior with only likelihood and prior as IDs");
-			}
-		}
+
+		Distribution prior = null;
+		Distribution msc = null;
+		Distribution likelihood = null;
+        for (Distribution subDist: list) {
+            final String distID = subDist.getID().toLowerCase();
+            if (distID.startsWith("prior")) prior = subDist;
+            if (distID.startsWith("speciescoalescent")) msc = subDist;
+            if (distID.startsWith("likelihood")) likelihood = subDist;
+        }
+
+        if (msc == null && list.size() == 3)
+            throw new Exception("Expected one prior, one likelihood and an optional multispecies coalescent distribution.");
+
+        if (prior == null)
+            throw new IllegalArgumentException("No prior distribution found in posterior.");
+        if (likelihood == null)
+            throw new IllegalArgumentException("No likelihood distribution found in posterior.");
+
+        return likelihood;
 	}
 
 	String getCommand(String sStepDir, int iStep) {
