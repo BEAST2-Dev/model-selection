@@ -139,13 +139,11 @@ public class PathSamplingStep extends MCMC {
      * main MCMC loop *
      */
     protected void doLoop() {
-    	
         double logPriorProb = prior.calculateLogP();
         double logMSC = (msc == null) ? 0.0 : msc.calculateLogP();
         double logLikelihood = likelihood.calculateLogP();
         oldLogLikelihood = logPriorProb + logMSC + (logLikelihood * beta);
-    	
-    	
+
         for (int iSample = -burnIn; iSample <= chainLength; iSample++) {
             final int currentState = iSample;
 
@@ -197,7 +195,7 @@ public class PathSamplingStep extends MCMC {
 
                 posterior.calculateLogP();
                 logPriorProb = prior.getArrayValue();
-                logMSC = (msc == null) ? 0.0 : msc.calculateLogP();
+                logMSC = (msc == null) ? 0.0 : msc.getArrayValue();
                 logLikelihood = likelihood.getArrayValue();
 
                 newLogLikelihood = logPriorProb + logMSC + (logLikelihood * beta); 
