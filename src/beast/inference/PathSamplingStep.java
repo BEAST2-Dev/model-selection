@@ -132,7 +132,7 @@ public class PathSamplingStep extends MCMC {
      * main MCMC loop *
      */
     protected void doLoop() {
-        oldLogLikelihood += pDists[0].calculateLogP() * beta; // likelihood
+        oldLogLikelihood = pDists[0].calculateLogP() * beta; // likelihood
         for (int i = 1; i < pDists.length; i++) //priors
             oldLogLikelihood += pDists[i].calculateLogP();
 
@@ -186,7 +186,7 @@ public class PathSamplingStep extends MCMC {
                 state.checkCalculationNodesDirtiness();
 
                 posterior.calculateLogP();
-                newLogLikelihood += pDists[0].getArrayValue() * beta; // likelihood
+                newLogLikelihood = pDists[0].getArrayValue() * beta; // likelihood
                 for (int i = 1; i < pDists.length; i++) //priors
                     newLogLikelihood += pDists[i].getArrayValue();
 
