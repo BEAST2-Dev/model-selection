@@ -270,18 +270,24 @@ public class PathSampler extends beast.core.Runnable {
 		}
 		CompoundDistribution d = (CompoundDistribution) posterior;
 		List<Distribution> list = d.pDistributions.get();
-		if (list.size() != 2) {
-			throw new Exception("Expected posterior with only likelihood and prior as distributions");
+		if (list.size() < 2) {
+            throw new Exception("Expected one likelihood and at least one prior distribution.");
 		}
-		if (list.get(0).getID().toLowerCase().startsWith("likelihood")) {
-			return list.get(0);
-		} else {
-			if (list.get(1).getID().toLowerCase().startsWith("likelihood")) {
-				return list.get(1);
-			} else {
-				throw new Exception("Expected posterior with only likelihood and prior as IDs");
-			}
-		}
+
+		Distribution[] pDists = new Distribution[list.size()];
+		int nextPriorIndex = 1;
+        for (Distribution pDist: list) {
+            final String distID = pDist.getID().toLowerCase();
+            if (distID.startsWith("likelihood")) {
+                if (pDists[0] == null) pDists[0] = pDist; 
+                else throw new Exception("Expected only one likelihood distribution.");
+            } else {
+                pDists[nextPriorIndex] = pDist;
+                nextPriorIndex++;
+            }
+        }
+
+        return pDists[0];
 	}
 
 	String getCommand(String sStepDir, int iStep) {
