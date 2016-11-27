@@ -311,6 +311,18 @@ public class PathSampler extends beast.core.Runnable {
 
 	
 	private String sanitise(String property) {
+		// make absolute paths from relative paths
+		String pathSeparator = System.getProperty("path.separator");
+		String [] paths = property.split(pathSeparator);
+		StringBuilder b = new StringBuilder();
+		for (String path : paths) {
+			File f = new File(path);
+			b.append(f.getAbsolutePath());
+			b.append(pathSeparator);
+		}
+		// chop off last pathSeparator
+		property = b.substring(0, b.length() - 1);
+		
 		// sanitise for windows
 		if (beast.app.util.Utils.isWindows()) {
 			String cwd = System.getProperty("user.dir");
