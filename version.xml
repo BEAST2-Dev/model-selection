@@ -11,6 +11,11 @@
               args=""
               icon="beast/app/tools/ps.png"
             />
+    <addonapp description="Conditional Predictive Ordinates (CPO) Analyser"
+              class="beast.cpo.CPOAnalyser"
+              args=""
+              icon="beast/app/tools/ps.png"
+            />
 <!--
     <addonapp description="Paired path sampler"
               class="beast.app.tools.PairedPathSampler"
