@@ -4,22 +4,19 @@ package beast.gss;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import beast.app.util.Application;
 import beast.core.Distribution;
 import beast.core.*;
-import beast.core.parameter.Parameter;
 import beast.core.util.CompoundDistribution;
 import beast.core.util.Log;
 import beast.cpo.BEASTRunAnalyser;
-import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeDistribution;
+import beast.gss.distributions.CCProbability;
 import beast.gss.distributions.KernelDensityEstimatorDistribution;
 import beast.gss.distributions.MultivariateKDEDistribution;
 import beast.gss.distributions.NormalKDEDistribution;
 import beast.math.distributions.MRCAPrior;
-import beast.math.distributions.Prior;
 import beast.util.LogAnalyser;
 
 public class GeneralisedSteppingStone extends BEASTRunAnalyser {
@@ -44,7 +41,7 @@ public class GeneralisedSteppingStone extends BEASTRunAnalyser {
 		List<Distribution> altPrior = new ArrayList<>();
 		for (Distribution d : prior.pDistributions.get()) {
 			if (d instanceof TreeDistribution) {
-				Distribution altTreeDist = getAltTreeDist(d);
+				Distribution altTreeDist = getAltTreeDist((TreeDistribution) d);
 				altPrior.add(altTreeDist);
 			} else if (d instanceof MRCAPrior) {
 				altPrior.add(d);
@@ -61,9 +58,11 @@ public class GeneralisedSteppingStone extends BEASTRunAnalyser {
 		return cd;
 	}
 	
-	private Distribution getAltTreeDist(Distribution d) {
-		
-		return null;
+	private Distribution getAltTreeDist(TreeDistribution d) {
+		CCProbability ccDistr = new CCProbability(treeFileInput.get(), d.treeInput.get(), 10);
+		CompoundDistribution cd = new CompoundDistribution();
+		cd.initByName("distribution", ccDistr);
+		return cd;
 	}
 
 	private Distribution getAltPriorDist(beast.math.distributions.Prior d, LogAnalyser tracelog) {
