@@ -1,6 +1,7 @@
 package beast.gss.distributions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
@@ -17,9 +18,15 @@ import beast.core.State;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeInterface;
+import beast.evolution.tree.coalescent.TreeIntervals;
 
-@Description("Conditional Clade Distribution for a tree set")
-public class CCProbability extends Distribution {
+@Description("Tree Distribution consisting of a "
+		+ "Conditional Clade Distribution for a tree set (as defined in "
+		+ "Larget B (2013) The estimation of tree posterior probabilities "
+		+ "using conditional clade probability distributions. Systematic Biology "
+		+ "62(4): 501-511. http://dx.doi.org/10.1093/sysbio/syt014) and "
+		+ "tree interval distribution.")
+public class GSSTreeDistribution extends Distribution {
 	private TreeFile treeFile;
 	private TreeInterface tree;
 	private int burninPercentage;
@@ -29,7 +36,7 @@ public class CCProbability extends Distribution {
 	public TreeInterface getTree() {return tree;}
 	public void setTree(TreeInterface tree) {this.tree = tree;}
 	
-    public int getBurnine() {
+    public int getBurnin() {
 		return burninPercentage;
 	}
 	public void setBurnin(int burninPercentage) {
@@ -38,11 +45,13 @@ public class CCProbability extends Distribution {
 
 	protected Map<BitSet, Map<BitSet, Clade>> conditionalCladeMap = new HashMap<>();
     protected Map<BitSet, Clade> cladeMap = new HashMap<>();
+    
+    NormalKDEDistribution [] distrs;  
 
     // log probability for a clade that does not exist in the clade system
     final static double EPSILON = -1e100;
 	
-	public CCProbability(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
+	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
 			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
 			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") int burninPercentage) {
 		this.treeFile = treeFile;
@@ -53,21 +62,28 @@ public class CCProbability extends Distribution {
 		}
 		processTreeFile();
 	}
-
-	@Override
-	public void initAndValidate() {
-		super.initAndValidate();
-	}
 	
-	private void processTreeFile() {
-		
+	private void processTreeFile() {		
 		try {
+
 			TreeSet trees = new TreeAnnotator().new MemoryFriendlyTreeSet(treeFile.getAbsolutePath(), burninPercentage);
 			trees.reset();
+
+			List<List<Double>> intervalLog = new ArrayList<>();
+			Tree tree = trees.next();
+			trees.reset();
+    		for (int i = 0; i < tree.getNodeCount(); i++) {
+    			intervalLog.add(new ArrayList<>());
+    		}
+
 			while (trees.hasNext()) {
-				Tree tree = trees.next();
+				tree = trees.next();
 				addClades(tree.getRoot());
+				addToIntervalLog(tree, intervalLog);
 			}
+			
+			
+			createIntervalDistr(intervalLog);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e.getMessage());
@@ -75,6 +91,28 @@ public class CCProbability extends Distribution {
 	}
 	
 	
+    private void createIntervalDistr(List<List<Double>> intervalLog) {
+		NormalKDEDistribution [] distrs = new NormalKDEDistribution[intervalLog.size()];
+		for (int i = 0; i < distrs.length; i++) {
+			List<Double> current = intervalLog.get(i);
+			int n = current.size();
+			Double [] sample = new Double[n];
+			for (int j = 0; j < n; j++) {
+				sample[j] = current.get(j); 
+			}
+			distrs[i] = new NormalKDEDistribution(sample, null);
+		}
+		this.distrs = distrs;
+	}
+    
+	private void addToIntervalLog(Tree tree, List<List<Double>> intervalLog) {
+    	TreeIntervals intervals = new TreeIntervals(tree);
+    	for (int i = 0; i < intervals.getIntervalCount(); i++) {
+    		List<Double> heights = intervalLog.get(i);
+    		heights.add(intervals.getIntervalTime(i));
+    	}
+	}
+
     private BitSet addClades(Node node) {
 
         BitSet bits = new BitSet();
@@ -133,10 +171,20 @@ public class CCProbability extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = getLogCladeCredibility(tree.getRoot(), new BitSet());
+		logP += getLogIntervalProbability(tree);
 		return logP;
 	}
 	
-    public double getLogCladeCredibility(Node node, BitSet bits) {
+    private double getLogIntervalProbability(TreeInterface tree) {
+		TreeIntervals intervals = new TreeIntervals((Tree) tree);
+		double logP = 0;
+		for (int i = 0; i < intervals.getIntervalCount(); i++) {
+			double t = intervals.getIntervalTime(i);
+			logP += distrs[i].logPdf(t);
+		}
+		return logP;
+	}
+	public double getLogCladeCredibility(Node node, BitSet bits) {
 
         double logCladeCredibility = 0.0;
 

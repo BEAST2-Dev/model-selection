@@ -12,7 +12,7 @@ import beast.core.util.CompoundDistribution;
 import beast.core.util.Log;
 import beast.cpo.BEASTRunAnalyser;
 import beast.evolution.tree.TreeDistribution;
-import beast.gss.distributions.CCProbability;
+import beast.gss.distributions.GSSTreeDistribution;
 import beast.gss.distributions.KernelDensityEstimatorDistribution;
 import beast.gss.distributions.MultivariateKDEDistribution;
 import beast.gss.distributions.NormalKDEDistribution;
@@ -59,7 +59,7 @@ public class GeneralisedSteppingStone extends BEASTRunAnalyser {
 	}
 	
 	private Distribution getAltTreeDist(TreeDistribution d) {
-		CCProbability ccDistr = new CCProbability(treeFileInput.get(), d.treeInput.get(), 10);
+		GSSTreeDistribution ccDistr = new GSSTreeDistribution(treeFileInput.get(), d.treeInput.get(), 10);
 		CompoundDistribution cd = new CompoundDistribution();
 		cd.initByName("distribution", ccDistr);
 		return cd;
