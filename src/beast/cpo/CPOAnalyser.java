@@ -192,7 +192,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 		// collect data
 		MCMC mcmc = getMCMC();
 
-		LogAnalyser tracelog = getTraceLog(mcmc);
+		LogAnalyser tracelog = getTraceLog(mcmc, traceFileInput.get(), burninInput.get());
 
 		TreeAnnotator.TreeSet treeSet = getTreeSet(mcmc);
     	treeSet.reset();

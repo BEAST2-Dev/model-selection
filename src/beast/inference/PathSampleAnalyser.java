@@ -36,7 +36,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 	 * @return log of marginal likelihood
 	 * @throws Exception
 	 */
-	double estimateMarginalLikelihood(int nSteps, double alpha, String rootDir, int burnInPercentage) throws Exception {
+	public double estimateMarginalLikelihood(int nSteps, double alpha, String rootDir, int burnInPercentage) throws Exception {
 		List<List<Double>> logdata = new ArrayList<List<Double>>(); 
 		
 		

@@ -37,7 +37,7 @@ public class BEASTRunAnalyser extends Runnable {
 	}
 
 	
-	protected boolean isSpecified(File file) {
+	static protected boolean isSpecified(File file) {
 		if (file == null || file.getName().equals("[[none]]")) {
 			return false;
 		}
@@ -78,10 +78,10 @@ public class BEASTRunAnalyser extends Runnable {
 		return treeSet;
 	}
 
-	protected LogAnalyser getTraceLog(MCMC mcmc) throws IOException {
+	static public LogAnalyser getTraceLog(MCMC mcmc, File traceFile, int burninPercentage) throws IOException {
 		LogAnalyser tracelog = null;
-		if (isSpecified(traceFileInput.get())) {
-			tracelog = new LogAnalyser(traceFileInput.get().getAbsolutePath(), burninInput.get());
+		if (isSpecified(traceFile)) {
+			tracelog = new LogAnalyser(traceFile.getAbsolutePath(), burninPercentage);
 		} else {
 			for (Logger logger : mcmc.loggersInput.get()) {
 				if (!logger.isLoggingToStdout() && logger.modeInput.get().equals(Logger.LOGMODE.compound)) {
@@ -89,7 +89,7 @@ public class BEASTRunAnalyser extends Runnable {
 						Log.warning("WARNING: multiple trace logs found in XML. Using the first one, but this may fail.");
 					} else {
 						Log.warning("Loading trace log from " + logger.fileNameInput.get());
-						tracelog = new LogAnalyser(logger.fileNameInput.get(), burninInput.get());
+						tracelog = new LogAnalyser(logger.fileNameInput.get(), burninPercentage);
 					}
 				}
 			}
