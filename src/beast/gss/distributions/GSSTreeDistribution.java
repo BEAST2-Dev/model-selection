@@ -72,7 +72,7 @@ public class GSSTreeDistribution extends Distribution {
 			List<List<Double>> intervalLog = new ArrayList<>();
 			Tree tree = trees.next();
 			trees.reset();
-    		for (int i = 0; i < tree.getNodeCount(); i++) {
+    		for (int i = 0; i < tree.getNodeCount() + 1; i++) {
     			intervalLog.add(new ArrayList<>());
     		}
 
@@ -80,6 +80,7 @@ public class GSSTreeDistribution extends Distribution {
 				tree = trees.next();
 				addClades(tree.getRoot());
 				addToIntervalLog(tree, intervalLog);
+				intervalLog.get(intervalLog.size() - 1).add(tree.getRoot().getHeight());
 			}
 			
 			
@@ -180,8 +181,11 @@ public class GSSTreeDistribution extends Distribution {
 		double logP = 0;
 		for (int i = 0; i < intervals.getIntervalCount(); i++) {
 			double t = intervals.getIntervalTime(i);
-			logP += distrs[i].logPdf(t);
+			if (t > 0) {
+				logP += distrs[i].logPdf(t);
+			}
 		}
+		logP += distrs[distrs.length - 1].logPdf(tree.getRoot().getHeight());
 		return logP;
 	}
 	public double getLogCladeCredibility(Node node, BitSet bits) {
@@ -206,7 +210,7 @@ public class GSSTreeDistribution extends Distribution {
                 bits2.set(i, false);
             }
 
-            logCladeCredibility += Math.log(getCladeCredibility(bits2, left, right));
+            logCladeCredibility += getLogCladeCredibility(bits2, left, right);
 
             if (bits != null) {
                 bits.or(bits2);
@@ -216,7 +220,7 @@ public class GSSTreeDistribution extends Distribution {
         return logCladeCredibility;
     }
 	
-    private double getCladeCredibility(BitSet bits, BitSet left, BitSet right) {
+    private double getLogCladeCredibility(BitSet bits, BitSet left, BitSet right) {
     	Clade clade = cladeMap.get(bits);
     	if (clade == null) {
     		return EPSILON;
@@ -234,7 +238,8 @@ public class GSSTreeDistribution extends Distribution {
         Clade rightClade = clades.get(right);
         int rightCount = (rightClade != null ? rightClade.getCount() : 0);
         
-        return Math.log(Math.max(leftCount, rightCount)) - Math.log(cladeCount);
+        double logP = Math.log(Math.max(leftCount, rightCount)) - Math.log(cladeCount);
+        return logP;
     }
 
 	@Override
