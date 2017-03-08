@@ -2,15 +2,16 @@ package beast.gss;
 
 
 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import beast.app.util.Application;
 import beast.app.util.LogFile;
 import beast.app.util.TreeFile;
 import beast.core.*;
 import beast.core.util.CompoundDistribution;
+import beast.core.util.Evaluator;
 import beast.core.util.Log;
 import beast.cpo.BEASTRunAnalyser;
 import beast.evolution.tree.TreeDistribution;
@@ -18,18 +19,19 @@ import beast.gss.distributions.GSSTreeDistribution;
 import beast.gss.distributions.KernelDensityEstimatorDistribution;
 import beast.gss.distributions.MultivariateKDEDistribution;
 import beast.gss.distributions.NormalKDEDistribution;
+import beast.inference.PathSamplingStep;
 import beast.math.distributions.MRCAPrior;
 import beast.util.LogAnalyser;
+import beast.util.Randomizer;
 
 @Description("Calculate marginal likelihood through generalised path sampling for a single step")
-public class GeneralisedSteppingStoneStep extends MCMC {
+public class GeneralisedSteppingStoneStep extends PathSamplingStep {
 	final public Input<LogFile> traceFileInput = new Input<>("logFile","input file containing trace log. If not specified, use trace log file from XML");
 	final public Input<TreeFile> treeFileInput = new Input<>("treeFile","input file containing tree log. If not specified, use tree log file from XML");
 	public Input<Integer> traceBurninInput = new Input<>("traceBurnin", "percentage of the log file to disregard as burn-in (default 10)" , 10);
 
 	@Override
 	public void initAndValidate() {
-		super.initAndValidate();
 
 		LogAnalyser tracelog;
 		try {
@@ -40,11 +42,18 @@ public class GeneralisedSteppingStoneStep extends MCMC {
 		}
 		CompoundDistribution prior = getPrior(this);
 		CompoundDistribution altPrior = getAltPrior(prior, tracelog);
+
+		Distribution posterior = posteriorInput.get();
+		if (posterior instanceof CompoundDistribution) {
+			CompoundDistribution p = (CompoundDistribution) posterior;
+			p.pDistributions.get().add(altPrior);
+		} else {
+			throw new IllegalArgumentException("Expected CompoundDistribution for distribution input");
+		}
+
+		super.initAndValidate();
 	}
 	
-	
-	
-
 	private CompoundDistribution getAltPrior(CompoundDistribution prior, LogAnalyser tracelog) {
 		List<Distribution> altPrior = new ArrayList<>();
 		for (Distribution d : prior.pDistributions.get()) {
@@ -128,7 +137,107 @@ public class GeneralisedSteppingStoneStep extends MCMC {
 	} // getPrior
 
 
-	public static void main(String[] args) throws Exception {
-		new Application(new GeneralisedSteppingStoneStep(), "Generalised Stepping Stone", args);
-	}
+	 /**
+     * main MCMC loop *
+     */
+	@Override
+    protected void doLoop() {
+        oldLogLikelihood = pDists[pDists.length - 1].calculateLogP() * (1.0 - beta); // GSS prior
+        for (int i = 0; i < pDists.length; i++) { // posterior
+            oldLogLikelihood += pDists[i].calculateLogP() * beta;
+		}
+
+        for (int iSample = -burnIn; iSample <= chainLength; iSample++) {
+            final int currentState = iSample;
+
+            state.store(currentState);
+            if (storeEvery > 0 && iSample % storeEvery == 0 && iSample > 0) {
+                state.storeToFile(iSample);
+                // Do not store operator optimisation information
+                // since this may not be valid for the next step
+                // especially when sampling from the prior only
+            	//operatorSchedule.storeToFile();
+            }
+
+            Operator operator = operatorSchedule.selectOperator();
+            //System.out.print("\n" + iSample + " " + operator.getName()+ ":");
+
+            final Distribution evaluatorDistribution = operator.getEvaluatorDistribution();
+            Evaluator evaluator = null;
+
+            if (evaluatorDistribution != null) {
+                evaluator = new Evaluator() {
+                    @Override
+                    public double evaluate() {
+                        double logP = 0.0;
+
+                        state.storeCalculationNodes();
+                        state.checkCalculationNodesDirtiness();
+
+                        try {
+                            logP = evaluatorDistribution.calculateLogP();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.exit(1);
+                        }
+
+                        state.restore();
+                        state.store(currentState);
+
+                        return logP;
+                    }
+                };
+            }
+
+            double fLogHastingsRatio = operator.proposal(evaluator);
+
+            if (fLogHastingsRatio != Double.NEGATIVE_INFINITY) {
+
+                state.storeCalculationNodes();
+                state.checkCalculationNodesDirtiness();
+
+                posterior.calculateLogP();
+                
+                newLogLikelihood = pDists[pDists.length - 1].getArrayValue() * (1.0 - beta); // GSS prior
+                for (int i = 0; i < pDists.length; i++) { // posterior
+                	newLogLikelihood += pDists[i].getArrayValue() * beta;
+        		}
+
+                logAlpha = newLogLikelihood - oldLogLikelihood + fLogHastingsRatio; //CHECK HASTINGS
+                //System.out.println(logAlpha + " " + fNewLogLikelihood + " " + fOldLogLikelihood);
+                if (logAlpha >= 0 || Randomizer.nextDouble() < Math.exp(logAlpha)) {
+                    // accept
+                    oldLogLikelihood = newLogLikelihood;
+                    state.acceptCalculationNodes();
+
+                    if (iSample >= 0) {
+                        operator.accept();
+                    }
+                    //System.out.print(" accept");
+                } else {
+                    // reject
+                    if (iSample >= 0) {
+                        operator.reject();
+                    }
+                    state.restore();
+                    state.restoreCalculationNodes();
+                    //System.out.print(" reject");
+                }
+                state.setEverythingDirty(false);
+            } else {
+                // operation failed
+                if (iSample >= 0) {
+                    operator.reject();
+                }
+                state.restore();
+                //System.out.print(" direct reject");
+            }
+            log(iSample);
+
+            if (iSample >= 0) {
+            	operator.optimize(logAlpha);
+            }
+            callUserFunction(iSample);
+        }
+    }
 }

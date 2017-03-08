@@ -25,8 +25,8 @@ public class PathSamplingStep extends MCMC {
 
 	public Input<Double> betaInput = new Input<Double>("beta","power used for likelihood: 1 = using full posterior, 0 = using prior only", 1.0);
 
-	double beta;
-    Distribution[] pDists;
+	protected double beta;
+	protected Distribution[] pDists;
 	
 	@Override
 	public void initAndValidate() {
@@ -131,6 +131,7 @@ public class PathSamplingStep extends MCMC {
     /**
      * main MCMC loop *
      */
+	@Override
     protected void doLoop() {
         oldLogLikelihood = pDists[0].calculateLogP() * beta; // likelihood
         for (int i = 1; i < pDists.length; i++) //priors

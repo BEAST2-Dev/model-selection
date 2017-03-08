@@ -1,6 +1,7 @@
 package beast.app.tools;
 
 
+
 import beast.app.beauti.Beauti;
 import beast.app.beauti.BeautiConfig;
 import beast.app.beauti.BeautiDoc;
@@ -8,12 +9,13 @@ import beast.app.draw.BEASTObjectDialog;
 import beast.app.draw.BEASTObjectPanel;
 import beast.app.util.Application;
 import beast.app.util.ConsoleApp;
+import beast.app.util.Utils6;
 import beast.app.util.XMLFile;
-import beast.inference.PathSamplerFromFile;
+import beast.gss.GSSFromFile;
 import jam.util.IconUtils;
 
-//command line interface to PathSampler
-public class PathSampler {
+//command line interface to GSS
+public class GeneralisedSteppingStone {
 	
 	private static ConsoleApp app;
 	
@@ -21,13 +23,14 @@ public class PathSampler {
 		Application main = null;
 		try {
 			// create the class with application that we want to launch
-			PathSamplerFromFile sampler = new PathSamplerFromFile();
+			GSSFromFile sampler = new GSSFromFile();
 			
 			if (args.length == 0) {
 				// try the GUI version
-				
+				Utils6.startSplashScreen();
+
 				// need to set the ID of the BEAST-object
-				sampler.setID("GSS");
+				sampler.setID("Generalised Stepping Stone");
 				
 				// then initialise
 				sampler.initAndValidate();
@@ -54,12 +57,13 @@ public class PathSampler {
 				// wrap panel in a dialog
 				BEASTObjectDialog dialog = new BEASTObjectDialog(panel, null);
 
+				Utils6.endSplashScreen();
 				// show the dialog
 				if (dialog.showDialog()) {
 					dialog.accept(sampler, doc);
 					// create a console to show standard error and standard output
-					app = new ConsoleApp("PathSampler", 
-							"Path Sampler: " + sampler.model1Input.get().getPath(),
+					app = new ConsoleApp("Generalised Stepping Stone", 
+							"Generalised Stepping Stone: " + sampler.model1Input.get().getPath(),
 					        IconUtils.getIcon(beast.app.tools.PathSampleAnalyser.class, "ps.png"));
 					sampler.initAndValidate();
 					sampler.run();
