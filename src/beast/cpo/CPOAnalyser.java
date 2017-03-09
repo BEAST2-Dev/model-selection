@@ -240,7 +240,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
     		if (stateNode instanceof Parameter<?> && ((Parameter<?>) stateNode).getDimension() > 1) {
     			Parameter<?> p = ((Parameter<?>) stateNode);
     			id += ".1";
-    			int index = labels.indexOf(id);
+    			int index = labels.indexOf(shortid);
     			if (index < 0) {
         			shortid += ".1";
     				index = labels.indexOf(shortid);

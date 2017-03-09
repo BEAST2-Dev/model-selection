@@ -69,7 +69,8 @@ public class PathSampler extends beast.core.Runnable {
 
 	DecimalFormat formatter;
 	String getStepDir(int iParticle) {
-		return rootDirInput.get() + "/step" + formatter.format(iParticle);
+		File f = new File(rootDirInput.get());
+		return f.getAbsolutePath() + "/step" + formatter.format(iParticle);
 	}
 
 
@@ -262,16 +263,16 @@ public class PathSampler extends beast.core.Runnable {
 	}
 
 
-	private Distribution extractLikelihood(MCMC mcmc) throws Exception {
+	public static Distribution extractLikelihood(MCMC mcmc) {
 		Distribution posterior = mcmc.posteriorInput.get();
 		// expect compound distribution with likelihood and prior
 		if (!(posterior instanceof CompoundDistribution)) {
-			throw new Exception("Expected posterior being a CompoundDistribution");
+			throw new IllegalArgumentException("Expected posterior being a CompoundDistribution");
 		}
 		CompoundDistribution d = (CompoundDistribution) posterior;
 		List<Distribution> list = d.pDistributions.get();
 		if (list.size() < 2) {
-            throw new Exception("Expected one likelihood and at least one prior distribution.");
+            throw new IllegalArgumentException("Expected one likelihood and at least one prior distribution.");
 		}
 
 		Distribution[] pDists = new Distribution[list.size()];
@@ -280,7 +281,7 @@ public class PathSampler extends beast.core.Runnable {
             final String distID = pDist.getID().toLowerCase();
             if (distID.startsWith("likelihood")) {
                 if (pDists[0] == null) pDists[0] = pDist; 
-                else throw new Exception("Expected only one likelihood distribution.");
+                else throw new IllegalArgumentException("Expected only one likelihood distribution.");
             } else {
                 pDists[nextPriorIndex] = pDist;
                 nextPriorIndex++;

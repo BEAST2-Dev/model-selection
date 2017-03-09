@@ -79,7 +79,8 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 
 	DecimalFormat formatter;
 	String getStepDir(int iParticle) {
-		return rootDirInput.get() + "/step" + formatter.format(iParticle);
+		File f = new File(rootDirInput.get());
+		return f.getAbsolutePath() + "/step" + formatter.format(iParticle);
 	}
 
 
@@ -140,8 +141,8 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 		}
 		GeneralisedSteppingStoneStep step = new GeneralisedSteppingStoneStep();
 		step.traceBurninInput.setValue(traceBurninInput.get(), step);
-		step.traceFileInput.setValue(traceFileInput.get(), step);
-		step.treeFileInput.setValue(traceBurninInput.get(), step);
+		step.traceFileInput.setValue(traceFileInput.get().getAbsolutePath(), step);
+		step.treeFileInput.setValue(treeFileInput.get().getAbsolutePath(), step);
 		for (Input<?> input : mcmc.listInputs()) {
 			try {
 				if (input.get() instanceof List) {

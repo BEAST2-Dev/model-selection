@@ -72,6 +72,7 @@ public class GeneralisedSteppingStoneStep extends PathSamplingStep {
 		}
 		CompoundDistribution cd = new CompoundDistribution();
 		cd.initByName("distribution", altPrior);
+		cd.setID("GSSPrior");
 		return cd;
 	}
 	
@@ -89,7 +90,7 @@ public class GeneralisedSteppingStoneStep extends PathSamplingStep {
 		String id = ((BEASTInterface)f).getID();
 		String shortid = id.contains(".") ? id.substring(0, id.lastIndexOf('.')): id;
 		id += ".1";
-		int index = labels.indexOf(id);
+		int index = labels.indexOf(shortid);
 		if (index < 0) {
 			shortid += ".1";
 			index = labels.indexOf(shortid);

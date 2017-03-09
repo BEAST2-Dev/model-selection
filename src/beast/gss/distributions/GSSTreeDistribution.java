@@ -31,8 +31,8 @@ public class GSSTreeDistribution extends Distribution {
 	private TreeInterface tree;
 	private int burninPercentage;
 	
-	public TreeFile getTreeFile() {return treeFile;}
-	public void setTreeFile(TreeFile treeFile) {this.treeFile = treeFile;}
+	public TreeFile getTreefile() {return treeFile;}
+	public void setTreefile(TreeFile treeFile) {this.treeFile = treeFile;}
 	public TreeInterface getTree() {return tree;}
 	public void setTree(TreeInterface tree) {this.tree = tree;}
 	
