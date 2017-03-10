@@ -82,7 +82,7 @@ public class BEASTRunAnalyser extends Runnable {
 		LogAnalyser tracelog = null;
 		if (isSpecified(traceFile)) {
 			tracelog = new LogAnalyser(traceFile.getAbsolutePath(), burninPercentage);
-		} else {
+		} else if (mcmc != null) {
 			for (Logger logger : mcmc.loggersInput.get()) {
 				if (!logger.isLoggingToStdout() && logger.modeInput.get().equals(Logger.LOGMODE.compound)) {
 					if (tracelog != null) {
@@ -96,6 +96,8 @@ public class BEASTRunAnalyser extends Runnable {
 			if (tracelog == null) {
 				throw new IllegalArgumentException("Could not find suitable trace log file in XML");
 			}
+		} else {
+			throw new IllegalArgumentException("Could not find suitable trace log file in " + traceFile.getAbsolutePath() + " or XML");			
 		}
 		return tracelog;
 	}}

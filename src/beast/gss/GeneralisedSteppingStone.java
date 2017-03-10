@@ -1,6 +1,7 @@
 package beast.gss;
 
 
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,8 +18,6 @@ import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
 import beast.app.BeastMCMC;
-import beast.app.util.LogFile;
-import beast.app.util.TreeFile;
 import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Input;
@@ -61,11 +60,15 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 			"This can be useful for setting up an analysis on a cluster", false);
 	
 	public Input<Boolean> deleteOldLogsInpuyt = new Input<Boolean>("deleteOldLogs", "delete existing log files from root dir", false);
+
+	public Input<Distribution> samplingDistributionInput = new Input<>("samplingDistribution",
+			"probability distribution to sample from (e.g. a prior). "
+					+ "If not specified, everything but the likelihood will be used as sampling distribution.");
+
 	
-	
-	final public Input<LogFile> traceFileInput = new Input<>("logFile","input file containing trace log. If not specified, use trace log file from XML");
-	final public Input<TreeFile> treeFileInput = new Input<>("treeFile","input file containing tree log. If not specified, use tree log file from XML");
-	public Input<Integer> traceBurninInput = new Input<>("traceBurnin", "percentage of the log file (specified by logFile and treeFile) to disregard as burn-in (default 10)" , 10);
+//	final public Input<LogFile> traceFileInput = new Input<>("logFile","input file containing trace log. If not specified, use trace log file from XML");
+//	final public Input<TreeFile> treeFileInput = new Input<>("treeFile","input file containing tree log. If not specified, use tree log file from XML");
+//	public Input<Integer> traceBurninInput = new Input<>("traceBurnin", "percentage of the log file (specified by logFile and treeFile) to disregard as burn-in (default 10)" , 10);
 
 	
 	int m_nSteps;
@@ -140,9 +143,6 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 			System.out.println("WARNING: class is not beast.core.MCMC, which may result in unexpected behavior ");
 		}
 		GeneralisedSteppingStoneStep step = new GeneralisedSteppingStoneStep();
-		step.traceBurninInput.setValue(traceBurninInput.get(), step);
-		step.traceFileInput.setValue(traceFileInput.get().getAbsolutePath(), step);
-		step.treeFileInput.setValue(treeFileInput.get().getAbsolutePath(), step);
 		for (Input<?> input : mcmc.listInputs()) {
 			try {
 				if (input.get() instanceof List) {
