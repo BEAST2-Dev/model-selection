@@ -59,7 +59,7 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 	public Input<Boolean> doNotRun = new Input<Boolean>("doNotRun", "Set up all files but do not run analysis if true. " +
 			"This can be useful for setting up an analysis on a cluster", false);
 	
-	public Input<Boolean> deleteOldLogsInpuyt = new Input<Boolean>("deleteOldLogs", "delete existing log files from root dir", false);
+	public Input<Boolean> deleteOldLogsInput = new Input<Boolean>("deleteOldLogs", "delete existing log files from root dir", false);
 
 	public Input<Distribution> samplingDistributionInput = new Input<>("samplingDistribution",
 			"probability distribution to sample from (e.g. a prior). "
@@ -143,6 +143,7 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 			System.out.println("WARNING: class is not beast.core.MCMC, which may result in unexpected behavior ");
 		}
 		GeneralisedSteppingStoneStep step = new GeneralisedSteppingStoneStep();
+		step.setInputValue("samplingDistribution", samplingDistributionInput.get());
 		for (Input<?> input : mcmc.listInputs()) {
 			try {
 				if (input.get() instanceof List) {
@@ -474,7 +475,7 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 		// remove any existing likglihood.log file
 		File logFile = new File(stepDir.getPath() + fileSep + "likelihood.log");
 		if (logFile.exists()) {
-			if (deleteOldLogsInpuyt.get()) {
+			if (deleteOldLogsInput.get()) {
 				System.err.println("WARNING: deleting file " + logFile.getPath());
 				logFile.delete();
 			} else {
@@ -486,7 +487,7 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 		for (File file : stepDir.listFiles()) {
 			if (file.getPath().endsWith(".log") || 
 					file.getPath().endsWith(".trees")) {
-				if (deleteOldLogsInpuyt.get()) {
+				if (deleteOldLogsInput.get()) {
 				System.err.println("WARNING: deleting file " + file.getPath());
 					file.delete();
 				} else {

@@ -27,15 +27,18 @@ package beast.gss.distributions;
 
 import beast.core.Distribution;
 import beast.core.Function;
+import beast.core.Input;
+import beast.gss.TraceLog;
 
 //import dr.math.UnivariateFunction;
 
 /**
  * @author Marc Suchard
  */
-public abstract class KernelDensityEstimatorDistribution extends Distribution {
-
-	private Function p;
+public abstract class KernelDensityEstimatorDistribution extends Distribution {	
+	protected Function p;
+	protected TraceLog traceLog;
+	protected String label;
 
     public KernelDensityEstimatorDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, Function p) {
     	this.p = p;
@@ -167,4 +170,24 @@ public abstract class KernelDensityEstimatorDistribution extends Distribution {
     protected boolean requiresRecalculation() {
     	return true;
     }
+
+
+	public TraceLog getTraceLog() {
+		return traceLog;
+	}
+	public void setTraceLog(TraceLog traceLog) {
+		this.traceLog = traceLog;
+	}
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
+	public Function getX() {
+		return p;
+	}
+	public void setX(Function p) {
+		this.p = p;
+	}
 }

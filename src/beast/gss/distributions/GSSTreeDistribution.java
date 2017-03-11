@@ -29,17 +29,17 @@ import beast.evolution.tree.coalescent.TreeIntervals;
 public class GSSTreeDistribution extends Distribution {
 	private TreeFile treeFile;
 	private TreeInterface tree;
-	private int burninPercentage;
+	private Integer burninPercentage;
 	
 	public TreeFile getTreefile() {return treeFile;}
 	public void setTreefile(TreeFile treeFile) {this.treeFile = treeFile;}
 	public TreeInterface getTree() {return tree;}
 	public void setTree(TreeInterface tree) {this.tree = tree;}
 	
-    public int getBurnin() {
+    public Integer getBurnin() {
 		return burninPercentage;
 	}
-	public void setBurnin(int burninPercentage) {
+	public void setBurnin(Integer burninPercentage) {
 		this.burninPercentage = burninPercentage;
 	}
 
@@ -53,7 +53,7 @@ public class GSSTreeDistribution extends Distribution {
 	
 	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
 			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
-			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") int burninPercentage) {
+			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage) {
 		this.treeFile = treeFile;
 		this.tree = tree;
 		this.burninPercentage = burninPercentage;

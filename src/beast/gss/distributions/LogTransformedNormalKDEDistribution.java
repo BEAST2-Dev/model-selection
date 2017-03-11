@@ -26,7 +26,9 @@
 package beast.gss.distributions;
 
 import beast.core.Function;
+import beast.core.Param;
 import beast.core.State;
+import beast.gss.TraceLog;
 import beast.math.statistic.DiscreteStatistics;
 //import dr.stats.DiscreteStatistics;
 //import dr.util.HeapSort;
@@ -43,6 +45,15 @@ public class LogTransformedNormalKDEDistribution extends KernelDensityEstimatorD
 
     public static final int MINIMUM_GRID_SIZE = 2048;
     public static final boolean DEBUG = false;
+
+	public LogTransformedNormalKDEDistribution(@Param(name="traceLog", description="trace log ") TraceLog traceLog,
+			@Param(name="label",description= "label of the column containing data in the trace file") String label,
+			@Param(name="x", description="function/statistic to take distribution over") Function p) {
+		this(traceLog.getTrace(label), p);
+		this.traceLog = traceLog;
+		this.label = label;
+		this.p = p;
+	}
 
     //the samples should not already be log transformed (the log transformation is done in this class)
     public LogTransformedNormalKDEDistribution(Double[] sample, Function p) {

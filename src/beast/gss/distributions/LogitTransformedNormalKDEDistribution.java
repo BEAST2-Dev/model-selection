@@ -30,7 +30,9 @@ import java.util.List;
 import java.util.Random;
 
 import beast.core.Function;
+import beast.core.Param;
 import beast.core.State;
+import beast.gss.TraceLog;
 import beast.math.statistic.DiscreteStatistics;
 import beast.util.HeapSort;
 //import dr.stats.DiscreteStatistics;
@@ -44,7 +46,16 @@ public class LogitTransformedNormalKDEDistribution extends KernelDensityEstimato
     public static final int MINIMUM_GRID_SIZE = 2048;
     public static final boolean DEBUG = false;
 
-    //the samples should not already be logit transformed (the logit transformation is done in this class)
+	public LogitTransformedNormalKDEDistribution(@Param(name="traceLog", description="trace log ") TraceLog traceLog,
+			@Param(name="label",description= "label of the column containing data in the trace file") String label,
+			@Param(name="x", description="function/statistic to take distribution over") Function p) {
+		this(traceLog.getTrace(label), p);
+		this.traceLog = traceLog;
+		this.label = label;
+		this.p = p;
+	}
+
+	//the samples should not already be logit transformed (the logit transformation is done in this class)
     public LogitTransformedNormalKDEDistribution(Double[] sample, Function p) {
         this(sample, 1.0, null, null, null, p);
     }

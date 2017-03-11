@@ -27,7 +27,9 @@ package beast.gss.distributions;
 
 
 import beast.core.Function;
+import beast.core.Param;
 import beast.core.State;
+import beast.gss.TraceLog;
 import beast.math.statistic.DiscreteStatistics;
 import beast.util.HeapSort;
 //import dr.stats.DiscreteStatistics;
@@ -43,7 +45,17 @@ public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
 
     public static final int MINIMUM_GRID_SIZE = 512;
 
-    public NormalKDEDistribution(Double[] sample, Function p) {
+    
+	public NormalKDEDistribution(@Param(name="traceLog", description="trace log ") TraceLog traceLog,
+			@Param(name="label",description= "label of the column containing data in the trace file") String label,
+			@Param(name="x", description="function/statistic to take distribution over") Function p) {
+		this(traceLog.getTrace(label), p);
+		this.traceLog = traceLog;
+		this.label = label;
+		this.p = p;
+	}
+
+	public NormalKDEDistribution(Double[] sample, Function p) {
         this(sample, null, null, null, p);
     }
 
