@@ -271,9 +271,8 @@ public class MCMC2GSS extends Runnable {
 		// create GSS tree distribution
 		GSSTreeDistribution ccDistr = new GSSTreeDistribution(file, d.treeInput.get(),
 				traceBurninInput.get());
-		CompoundDistribution cd = new CompoundDistribution();
-		cd.initByName("distribution", ccDistr);
-		return cd;
+		ccDistr.setID(d.getID()+ ".gss");
+		return ccDistr;
 	}
 
 	private Distribution getAltPriorDist(beast.math.distributions.Prior d) {
@@ -310,6 +309,7 @@ public class MCMC2GSS extends Runnable {
 		}
 		// EmpiricalDist(d.m_x.get(), trace);
 
+		altDist.setID(d.getID()+ ".gss");
 		return altDist;
 	}
 

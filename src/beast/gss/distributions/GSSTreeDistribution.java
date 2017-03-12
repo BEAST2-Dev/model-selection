@@ -182,10 +182,18 @@ public class GSSTreeDistribution extends Distribution {
 		for (int i = 0; i < intervals.getIntervalCount(); i++) {
 			double t = intervals.getIntervalTime(i);
 			if (t > 0) {
-				logP += distrs[i].logPdf(t);
+				double logPdf = distrs[i].logPdf(t);
+				if (Double.isInfinite(logPdf)) {
+					logPdf = EPSILON;
+				}
+				logP += logPdf;
 			}
 		}
-		logP += distrs[distrs.length - 1].logPdf(tree.getRoot().getHeight());
+		double logPdf = distrs[distrs.length - 1].logPdf(tree.getRoot().getHeight());
+		if (Double.isInfinite(logPdf)) {
+			logPdf = EPSILON;
+		}
+		logP += logPdf;
 		return logP;
 	}
 	public double getLogCladeCredibility(Node node, BitSet bits) {
@@ -238,7 +246,11 @@ public class GSSTreeDistribution extends Distribution {
         Clade rightClade = clades.get(right);
         int rightCount = (rightClade != null ? rightClade.getCount() : 0);
         
-        double logP = Math.log(Math.max(leftCount, rightCount)) - Math.log(cladeCount);
+        int subCladCount = Math.max(leftCount, rightCount);
+        if (subCladCount == 0) {
+        	return EPSILON;
+        }
+        double logP = Math.log(subCladCount) - Math.log(cladeCount);
         return logP;
     }
 
