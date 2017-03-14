@@ -33,9 +33,10 @@ public class GeneralisedSteppingStoneStep extends PathSamplingStep {
      */
 	@Override
     protected void doLoop() {
-        oldLogLikelihood = pDists[pDists.length - 1].calculateLogP() * (1.0 - beta); // GSS prior
-        for (int i = 0; i < pDists.length; i++) { // posterior
-            oldLogLikelihood += pDists[i].calculateLogP() * beta;
+		robustlyCalcPosterior(posterior);
+        oldLogLikelihood = pDists[pDists.length - 1].getArrayValue() * (1.0 - beta); // GSS prior
+        for (int i = 0; i < pDists.length - 1; i++) { // posterior
+            oldLogLikelihood += pDists[i].getArrayValue() * beta;
 		}
 
         for (int iSample = -burnIn; iSample <= chainLength; iSample++) {

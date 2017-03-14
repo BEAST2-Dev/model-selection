@@ -1,5 +1,6 @@
 package beast.gss.distributions;
 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -7,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import org.apache.commons.math.distribution.GammaDistribution;
+import org.apache.commons.math.distribution.GammaDistributionImpl;
 
 import beast.app.treeannotator.TreeAnnotator;
 import beast.app.treeannotator.TreeAnnotator.TreeSet;
@@ -30,6 +34,7 @@ public class GSSTreeDistribution extends Distribution {
 	private TreeFile treeFile;
 	private TreeInterface tree;
 	private Integer burninPercentage;
+	private Boolean useGammaForBranchLengths;
 	
 	public TreeFile getTreefile() {return treeFile;}
 	public void setTreefile(TreeFile treeFile) {this.treeFile = treeFile;}
@@ -46,20 +51,29 @@ public class GSSTreeDistribution extends Distribution {
 	protected Map<BitSet, Map<BitSet, Clade>> conditionalCladeMap = new HashMap<>();
     protected Map<BitSet, Clade> cladeMap = new HashMap<>();
     
-    NormalKDEDistribution [] distrs;  
+    NormalKDEDistribution [] distrs; 
+    GammaDistribution gammaDistr;
 
     // log probability for a clade that does not exist in the clade system
-    final static double EPSILON = -1e100;
+    final static double EPSILON = -1e8;
+	
+//	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
+//			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
+//			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage) {
+//		this(treeFile, tree, burninPercentage, true);
+//	}
 	
 	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
 			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
-			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage) {
+			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage,
+			@Param(name="useGammaForBranchLengths", description="use an empirical gamma distribution for branch length distribution", defaultValue="false", optional=true) Boolean useGammaForBranchLengths) {
 		this.treeFile = treeFile;
 		this.tree = tree;
 		this.burninPercentage = burninPercentage;
 		if (burninPercentage < 0 || burninPercentage >= 100) {
 			throw new IllegalArgumentException("burnin must be a positive number not larger than 100");
 		}
+		this.useGammaForBranchLengths = useGammaForBranchLengths;
 		processTreeFile();
 	}
 	
@@ -79,12 +93,20 @@ public class GSSTreeDistribution extends Distribution {
 			while (trees.hasNext()) {
 				tree = trees.next();
 				addClades(tree.getRoot());
-				addToIntervalLog(tree, intervalLog);
-				intervalLog.get(intervalLog.size() - 1).add(tree.getRoot().getHeight());
+				if (useGammaForBranchLengths) {
+					updateGammaEstimates(tree);					
+				} else {
+					addToIntervalLog(tree, intervalLog);
+					intervalLog.get(intervalLog.size() - 1).add(tree.getRoot().getHeight());
+				}
 			}
 			
 			
-			createIntervalDistr(intervalLog);
+			if (useGammaForBranchLengths) {
+				gammaDistr = createGammaDistr();
+			} else {
+				createIntervalDistr(intervalLog);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e.getMessage());
@@ -92,7 +114,37 @@ public class GSSTreeDistribution extends Distribution {
 	}
 	
 	
-    private void createIntervalDistr(List<List<Double>> intervalLog) {
+	private GammaDistribution createGammaDistr() {
+		meanBranchLen = meanBranchLen / branchLenCount;
+		double s = Math.log(meanBranchLen) - branchLogLen / branchLenCount;
+		double alpha = 3 - s + Math.sqrt((s-3)*(s-3)+24*s)/(12*s); 
+		double beta = meanBranchLen / alpha;
+		
+		GammaDistribution distr = new GammaDistributionImpl(alpha, beta);
+		return distr;
+	}
+
+	public Boolean getUseGammaForBranchLengths() {return useGammaForBranchLengths;}
+	public void setUseGammaForBranchLengths(Boolean useGammaForBranchLengths) {this.useGammaForBranchLengths = useGammaForBranchLengths;}
+	public int getBranchLenCount() {return branchLenCount;}
+	public void setBranchLenCount(int branchLenCount) {this.branchLenCount = branchLenCount;}
+
+	double meanBranchLen = 0;
+	int branchLenCount = 0;
+	double branchLogLen = 0;
+	
+    private void updateGammaEstimates(Tree tree) {
+    	for (Node node : tree.getNodesAsArray()) {
+    		if (!node.isRoot()) {
+    			double len = node.getLength();
+    			meanBranchLen += len;
+    			branchLogLen += Math.log(len);
+    			branchLenCount++;
+    		}
+    	}
+		
+	}
+	private void createIntervalDistr(List<List<Double>> intervalLog) {
 		NormalKDEDistribution [] distrs = new NormalKDEDistribution[intervalLog.size()];
 		for (int i = 0; i < distrs.length; i++) {
 			List<Double> current = intervalLog.get(i);
@@ -172,11 +224,25 @@ public class GSSTreeDistribution extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = getLogCladeCredibility(tree.getRoot(), new BitSet());
-		logP += getLogIntervalProbability(tree);
+		if (useGammaForBranchLengths) {
+			logP += getGammaBranchLengths(tree);
+		} else {
+			logP += getLogIntervalProbability(tree);
+		}
 		return logP;
 	}
 	
-    private double getLogIntervalProbability(TreeInterface tree) {
+    private double getGammaBranchLengths(TreeInterface tree) {
+    	 double logP = 0;
+    	 for (Node node : tree.getNodesAsArray()) {
+    		 double len = node.getLength();
+    		 if (len > 0) {
+    			 logP += gammaDistr.logDensity(len);
+    		 }
+    	 }
+		return logP;
+	}
+	private double getLogIntervalProbability(TreeInterface tree) {
 		TreeIntervals intervals = new TreeIntervals((Tree) tree);
 		double logP = 0;
 		for (int i = 0; i < intervals.getIntervalCount(); i++) {
