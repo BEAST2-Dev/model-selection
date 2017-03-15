@@ -270,7 +270,7 @@ public class MCMC2GSS extends Runnable {
 
 		// create GSS tree distribution
 		GSSTreeDistribution ccDistr = new GSSTreeDistribution(file, d.treeInput.get(),
-				traceBurninInput.get());
+				traceBurninInput.get(), false);
 		ccDistr.setID(d.getID()+ ".gss");
 		return ccDistr;
 	}

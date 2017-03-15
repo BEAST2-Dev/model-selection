@@ -28,7 +28,7 @@ public class GSSTreeDistributionTest extends TestCase {
         tree.close(out);
         out.close();
 
-		GSSTreeDistribution distr  = new GSSTreeDistribution(file, tree, 0);
+		GSSTreeDistribution distr  = new GSSTreeDistribution(file, tree, 0, false);
 		double logP = distr.calculateLogP();
 		assertEquals(4.161503004629573, logP, 1e-10);
 				

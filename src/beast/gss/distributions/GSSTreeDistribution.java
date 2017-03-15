@@ -34,7 +34,7 @@ public class GSSTreeDistribution extends Distribution {
 	private TreeFile treeFile;
 	private TreeInterface tree;
 	private Integer burninPercentage;
-	private Boolean useGammaForBranchLengths;
+	private Boolean useGammaForBranchLengths = false;
 	
 	public TreeFile getTreefile() {return treeFile;}
 	public void setTreefile(TreeFile treeFile) {this.treeFile = treeFile;}
@@ -56,12 +56,6 @@ public class GSSTreeDistribution extends Distribution {
 
     // log probability for a clade that does not exist in the clade system
     final static double EPSILON = -1e8;
-	
-//	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
-//			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
-//			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage) {
-//		this(treeFile, tree, burninPercentage, true);
-//	}
 	
 	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
 			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
