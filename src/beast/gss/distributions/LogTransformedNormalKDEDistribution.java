@@ -25,6 +25,7 @@
 
 package beast.gss.distributions;
 
+import beast.core.Description;
 import beast.core.Function;
 import beast.core.Param;
 import beast.core.State;
@@ -41,6 +42,7 @@ import java.util.Random;
 /**
  * @author Guy Baele
  */
+@Description("Distribution based on kernel density esitmators that does log transform on input variable")
 public class LogTransformedNormalKDEDistribution extends KernelDensityEstimatorDistribution {
 
     public static final int MINIMUM_GRID_SIZE = 2048;

@@ -385,6 +385,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 		return false;
 	}
 
+	@Description("clock model that gets its rates from metadata on a newick tree")
 	class RateByMetaData extends BranchRateModel.Base {
 
 		RateByMetaData(@Param(name="tree",description="beast tree with metadata containing rates")Tree tree) {
@@ -415,6 +416,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 		public void setTree(Tree tree) {this.tree = tree;}
 	}
 	
+	@Description("Class containing CPO read from a log file")
 	class CPOTable {
 		double [][] patternLogProbs;
 		int [] patternWeights;

@@ -29,6 +29,7 @@ package beast.gss.distributions;
 import java.util.List;
 import java.util.Random;
 
+import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Function;
 import beast.core.State;
@@ -36,6 +37,7 @@ import beast.core.State;
 /**
  * @author Guy Baele
  */
+@Description("Multivariate kernel density esitmators that assumes input variable has independent components")
 public class MultivariateKDEDistribution extends Distribution {
 	
 	public static final String TYPE = "multivariateKDE";

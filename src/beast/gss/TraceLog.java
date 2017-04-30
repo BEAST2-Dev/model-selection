@@ -6,10 +6,12 @@ import java.util.List;
 import beast.app.util.LogFile;
 import beast.core.BEASTInterface;
 import beast.core.BEASTObject;
+import beast.core.Description;
 import beast.core.Input;
 import beast.cpo.BEASTRunAnalyser;
 import beast.util.LogAnalyser;
 
+@Description("BEAST object wrapper for LogAnalyser")
 public class TraceLog extends BEASTObject implements BEASTInterface {
 	final public Input<LogFile> traceFileInput = new Input<>("logFile","input file containing tree log.");
 	final public Input<Integer> burnInPercentageInput = new Input<Integer>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);

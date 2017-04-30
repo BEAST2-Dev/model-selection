@@ -28,6 +28,7 @@ package beast.gss.coalescent;
 import java.util.List;
 import java.util.Random;
 
+import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.State;
 import beast.evolution.tree.Tree;
@@ -38,6 +39,7 @@ import beast.evolution.tree.Tree;
  * @author Guy Baele
  */
 
+@Description("Calculates a product of exponential densities and exponential tail probabilities.")
 public class ExponentialProductPosteriorMeansLikelihood extends Distribution { //Likelihood.Abstract {
 	
 	//not used at the moment

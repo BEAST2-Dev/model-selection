@@ -26,6 +26,7 @@
 package beast.gss.distributions;
 
 
+import beast.core.Description;
 import beast.core.Function;
 import beast.core.Param;
 import beast.core.State;
@@ -41,6 +42,7 @@ import java.util.Random;
 /**
  * @author Marc A. Suchard
  */
+@Description("Distribution based on normal kernel density esitmators (and no transform on the input)")
 public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
 
     public static final int MINIMUM_GRID_SIZE = 512;

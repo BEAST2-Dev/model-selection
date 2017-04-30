@@ -18,6 +18,7 @@ import beast.app.util.TreeFile;
 import beast.app.util.XMLFile;
 import beast.core.BEASTInterface;
 import beast.core.BEASTObject;
+import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Function;
 import beast.core.Input;
@@ -40,6 +41,7 @@ import beast.util.JSONProducer;
 import beast.util.XMLParser;
 import beast.util.XMLProducer;
 
+@Description("MCMC-step class based on GSS sample")
 public class MCMC2GSS extends Runnable {
 	public Input<XMLFile> model1Input = new Input<>("xml",
 			"file name of BEAST XML file containing the model for which to create a GSS XML file for",

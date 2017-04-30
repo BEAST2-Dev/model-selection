@@ -29,6 +29,7 @@ package beast.gss.distributions;
 import java.util.List;
 import java.util.Random;
 
+import beast.core.Description;
 import beast.core.Function;
 import beast.core.Param;
 import beast.core.State;
@@ -41,6 +42,7 @@ import beast.util.HeapSort;
 /**
  * @author Guy Baele
  */
+@Description("Distribution based on kernel density esitmators that does logit transform on input variable")
 public class LogitTransformedNormalKDEDistribution extends KernelDensityEstimatorDistribution {
 
     public static final int MINIMUM_GRID_SIZE = 2048;
