@@ -25,6 +25,7 @@
 
 package beast.gss.distributions;
 
+import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Function;
 import beast.core.Input;
@@ -35,6 +36,7 @@ import beast.gss.TraceLog;
 /**
  * @author Marc Suchard
  */
+@Description("Distribution based on kernel density esitmators")
 public abstract class KernelDensityEstimatorDistribution extends Distribution {	
 	protected Function p;
 	protected TraceLog traceLog;
