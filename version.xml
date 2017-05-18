@@ -16,6 +16,11 @@
               args=""
               icon="beast/app/tools/ps.png"
             />
+    <addonapp description="Akaike Information Criterion by MCMC"
+              class="beast.inference.AICMAnalyser"
+              args=""
+              icon="beast/app/tools/ps.png"
+            />
 <!--
     <addonapp description="Paired path sampler"
               class="beast.app.tools.PairedPathSampler"
