@@ -188,7 +188,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private CPOTable getCPOTableFromXML() throws SAXException, IOException, ParserConfigurationException, XMLParserException {
+	public CPOTable getCPOTableFromXML() throws SAXException, IOException, ParserConfigurationException, XMLParserException {
 		// collect data
 		MCMC mcmc = getMCMC();
 
@@ -417,6 +417,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 	}
 	
 	@Description("Class containing CPO read from a log file")
+	public
 	class CPOTable {
 		double [][] patternLogProbs;
 		int [] patternWeights;
@@ -475,11 +476,19 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 			}
 			return true;
 		}
+
+		public double[][] getPatternLogProbs() {
+			return patternLogProbs;
+		}
+
+		public int[] getPatternWeights() {
+			return patternWeights;
+		}
 	}
 	
 	
 	
-	private double calcLPML(int [] order, double[] minLogP, CPOTable cpoTable) {
+	public double calcLPML(int [] order, double[] minLogP, CPOTable cpoTable) {
 		double [][] patterLogProbs = cpoTable.patternLogProbs;
 		int patternCount = patterLogProbs.length;
 		int treeSetSize = patterLogProbs[0].length;

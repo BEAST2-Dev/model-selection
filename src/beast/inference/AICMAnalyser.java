@@ -24,11 +24,15 @@
  */
 package beast.inference;
 
+
+import java.util.Arrays;
+
 import beast.app.util.Application;
 import beast.app.util.LogFile;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.util.Log;
+import beast.math.LogTricks;
 import beast.util.LogAnalyser;
 import beast.util.Randomizer;
 
@@ -46,7 +50,9 @@ public class AICMAnalyser extends beast.core.Runnable {
 	public Input<Integer> burninInput = new Input<>("burnin", "percentage of the log file to disregard as burn-in (default 10)" , 10);
 	public Input<Integer> bootstrapLengthInput = new Input<>("bootstrapLength", "number of bootstrap samples used to calculate variance in AICM estimate" , 1000);
 	final public Input<String> traceInput = new Input<>("trace","name of the trace to use (default likelihood)", "likelihood");
-
+	public enum AnalysisType {aicm, hme, smoothed, aritmatic};
+	final public Input<AnalysisType> typeInput = new Input<>("type", "type of analysis: one of " + Arrays.toString(AnalysisType.values()), AnalysisType.aicm, AnalysisType.values()); 
+	
     private String traceName;
     private Double[] sample;
     //private int burnin;
@@ -108,9 +114,42 @@ public class AICMAnalyser extends beast.core.Runnable {
     public AICMAnalyser() {}
 
     public double calculateLogMarginalLikelihood(Double[] sample) {
-         return logMarginalLikelihoodAICM(sample);
+    	switch (typeInput.get()) {
+    	case aicm:
+            return logMarginalLikelihoodAICM(sample);
+    	case hme:
+    		return logMarginalLikelihoodHarmonic(sample);
+    	case smoothed:
+    		return logMarginalLikelihoodSmoothed(sample);
+    	case aritmatic:
+    		return logMarginalLikelihoodArithmetic(sample);
+    	}
+        return logMarginalLikelihoodAICM(sample);
     }
     
+    /**
+     * Calculates the log marginal likelihood of a model using the arithmetic mean estimator
+     *
+     * @param v a posterior sample of logLikelihoods
+     * @return the log marginal likelihood
+     */
+    public double logMarginalLikelihoodArithmetic(Double [] v) {
+    	
+    	int size = v.length;
+    	
+    	double sum = LogTricks.logZero;
+        
+        for (int i = 0; i < size; i++) {
+            if (!Double.isNaN(v[i]) && !Double.isInfinite(v[i])) {
+                sum = LogTricks.logSum(sum, v[i]);
+            } else {
+                size--;
+            }
+        }
+        
+        return sum - StrictMath.log(size);
+    	
+    }
     /**
      * Calculates the AICM of a model using method-of-moments from Raftery et al. (2007)
      *
@@ -136,6 +175,110 @@ public class AICMAnalyser extends beast.core.Runnable {
 
     }
 
+    public double logMarginalLikelihoodSmoothed(Double [] v) {
+
+        final double delta = 0.01;  // todo make class adjustable by accessor/setter
+
+        // Start with harmonic estimator as first guess
+        double Pdata = logMarginalLikelihoodHarmonic(v);
+
+        double deltaP = 1.0;
+
+        int iterations = 0;
+
+        double dx;
+
+        final double tolerance = 1E-3; // todo make class adjustable by accessor/setter
+
+        while (Math.abs(deltaP) > tolerance) {
+            double g1 = logMarginalLikelihoodSmoothed(v, delta, Pdata) - Pdata;
+            double Pdata2 = Pdata + g1;
+            dx = g1 * 10.0;
+            double g2 = logMarginalLikelihoodSmoothed(v, delta, Pdata + dx) - (Pdata + dx);
+            double dgdx = (g2 - g1) / dx; // find derivative at Pdata
+
+            double Pdata3 = Pdata - g1 / dgdx; // find new evaluation point
+            if (Pdata3 < 2.0 * Pdata || Pdata3 > 0 || Pdata3 > 0.5 * Pdata) // step is too large
+                Pdata3 = Pdata + 10.0 * g1;
+
+            double g3 = logMarginalLikelihoodSmoothed(v, delta, Pdata3) - Pdata3;
+
+            // Try to do a Newton's method step
+            if (Math.abs(g3) <= Math.abs(g2) && ((g3 > 0) || (Math.abs(dgdx) > 0.01))) {
+                deltaP = Pdata3 - Pdata;
+                Pdata = Pdata3;
+            }  // otherwise try to go 10 times as far as one step
+            else if (Math.abs(g2) <= Math.abs(g1)) {
+                Pdata2 += g2;
+                deltaP = Pdata2 - Pdata;
+                Pdata = Pdata2;
+            }  // otherwise go just one step
+            else {
+                deltaP = g1;
+                Pdata += g1;
+            }
+
+            iterations++;
+
+            if (iterations > 400) { // todo make class adjustable by acessor/setter
+                System.err.println("Probabilities are not converging!!!"); // todo should throw exception
+                return LogTricks.logZero;
+            }
+        }
+        return Pdata;
+    }
+
+    /**
+     * Calculates the log marginal likelihood of a model using Newton and Raftery's smoothed estimator
+     *
+     * @param v     a posterior sample of logLikelihood
+     * @param delta proportion of pseudo-samples from the prior
+     * @param Pdata current estimate of the log marginal likelihood
+     * @return the log marginal likelihood
+     */
+    public double logMarginalLikelihoodSmoothed(Double[] v, double delta, double Pdata) {
+
+        final double logDelta = StrictMath.log(delta);
+        final double logInvDelta = StrictMath.log(1.0 - delta);
+        final int n = v.length;
+        final double logN = StrictMath.log(n);
+
+        final double offset = logInvDelta - Pdata;
+
+        double bottom = logN + logDelta - logInvDelta;
+        double top = bottom + Pdata;
+
+        for (int i = 0; i < n; i++) {
+            double weight = -LogTricks.logSum(logDelta, offset + v[i]);
+            top = LogTricks.logSum(top, weight + v[i]);
+            bottom = LogTricks.logSum(bottom, weight);
+        }
+
+        return top - bottom;
+    }
+    
+    /**
+     * Calculates the log marginal likelihood of a model using Newton and Raftery's harmonic mean estimator
+     *
+     * @param v a posterior sample of logLikelihoods
+     * @return the log marginal likelihood
+     */
+
+    public double logMarginalLikelihoodHarmonic(Double[] v) {
+
+        double sum = 0;
+        final int size = v.length;
+        for (int i = 0; i < size; i++)
+            sum += v[i];
+
+        double denominator = LogTricks.logZero;
+
+        for (int i = 0; i < size; i++)
+            denominator = LogTricks.logSum(denominator, sum - v[i]);
+
+        return sum - denominator + StrictMath.log(size);
+    }
+    
     public void calculate() {
 
         logMarginalLikelihood = calculateLogMarginalLikelihood(sample);
@@ -201,18 +344,12 @@ public class AICMAnalyser extends beast.core.Runnable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         
-        //if (analysisType.equals("smoothed")) {
-        //    sb.append("log marginal likelihood (using smoothed harmonic mean)");
-        //}
-        //else if (analysisType.equals("aicm")) {
-            sb.append("AICM");
-        //}
-        //else if (analysisType.equals("arithmetic")) {
-        //	sb.append("log marginal likelihood (using arithmetic mean)");
-        //}
-        //else {
-        //    sb.append("log marginal likelihood (using harmonic mean)");
-        //}
+        switch (typeInput.get()) {
+	        case aicm: sb.append("AICM"); break;
+	        case hme: sb.append("log marginal likelihood (using harmonic mean)"); break;
+	        case smoothed: sb.append("log marginal likelihood (using smoothed harmonic mean)"); break;
+	        case aritmatic: sb.append("log marginal likelihood (using arithmetic mean)");
+        }
         
         sb.append(" from ")
         		.append(traceFileInput.get().getName())
