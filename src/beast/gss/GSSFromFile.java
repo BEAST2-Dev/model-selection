@@ -6,6 +6,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import beast.app.util.Application;
 import beast.app.util.XMLFile;
 import beast.core.Description;
 import beast.core.Input;
@@ -41,4 +42,8 @@ public class GSSFromFile extends GeneralisedSteppingStone {
 			mcmcInput.setValue(o, this);
 			super.initAndValidate();
 		}
-	}
+	
+		public static void main(String[] args) throws Exception {
+			new Application(new GSSFromFile(), "GSS from file", args);
+		}
+}
