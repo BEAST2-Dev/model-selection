@@ -22,9 +22,13 @@ public class GeneralisedSteppingStoneStep extends PathSamplingStep {
 	@Override
 	public void initAndValidate() {
 		samplingDistribution = samplingDistributionInput.get();		
-		CompoundDistribution d = (CompoundDistribution) posteriorInput.get();
-		d.pDistributions.setValue(samplingDistribution, d);
-
+		if (samplingDistribution != null) {
+			CompoundDistribution d = (CompoundDistribution) posteriorInput.get();
+			d.pDistributions.setValue(samplingDistribution, d);
+		} else {
+			samplingDistribution = posteriorInput.get();
+		}
+		
 		super.initAndValidate();
 	}
 
