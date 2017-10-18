@@ -1,10 +1,14 @@
 package beast.inference;
 
 
+import beast.app.util.Application;
 import beast.app.util.ConsoleApp;
 import beast.core.Description;
 import beast.core.Input;
 import beast.util.LogAnalyser;
+import beast.util.Randomizer;
+
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
@@ -21,6 +25,8 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			"If alpha <= 0, uniform intervals are used.", 0.3);
 	public Input<Integer> stepsInput = new Input<Integer>("nrOfSteps", "the number of steps to use, default 8", 8);
 	public Input<Integer> burnInPercentageInput = new Input<Integer>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);
+	public Input<Integer> crossValInput = new Input<Integer>("cross", "the number of cross validation intervals to use for estimating the variance, default 10", 10);
+	public Input<Integer> crossVaRepeatslInput = new Input<Integer>("repeats", "the number of times cross validation is repeated, default 100", 100);
 
 	DecimalFormat formatter;
 	
@@ -62,7 +68,98 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			logdata1.add(analyser.getESS("likelihood"));
 			logdata.add(logdata1);
 		}
+		double logMarginalL = estimateMarginalLikelihood(logdata, marginalLs2, marginalLs, alpha, nSteps, true);
+
+		Double [] [] subMarginalLs = new Double[nSteps][];
+		int n = crossValInput.get();
+		if (n > 1) {
+			// calculate ML for each of the cross validated subsets 
+			for (int i = 0; i < nSteps; i++) {
+				subMarginalLs[i] = new Double[marginalLs2[i].length * (n - 1) / n];
+			}
+			int REPEATS = crossVaRepeatslInput.get();
+			
+			double [][] m = new double[n][REPEATS];
+			
+			for (int repeats = 0; repeats < REPEATS; repeats++) {
+				for (int j = 0; j < nSteps; j++) {
+					randomise(marginalLs2[j]);
+				}				
+				
+				for (int i = 0; i < n; i++) {
+					for (int j = 0; j < nSteps; j++) {
+						int lo = i * marginalLs2[j].length / n;
+						int hi = i+1 * marginalLs2[j].length / n;
+						int k = 0;
+						int r = 0;
+						while (k < lo) {
+							subMarginalLs[j][r] = marginalLs2[j][k];
+							k++;
+							r++;
+						}
+						k = hi;
+						while (r < subMarginalLs[j].length) {
+							subMarginalLs[j][r] = marginalLs2[j][k];
+							k++;
+							r++;
+						}
+						marginalLs[j] = mean(subMarginalLs[j]);
+					}
+					m[i][repeats] = estimateMarginalLikelihood(logdata, subMarginalLs, marginalLs, alpha, nSteps, false);
+				}
+				System.err.print('.');
+			}
+			System.err.println();
+			
+			double mean = 0;
+			for (int repeats = 0; repeats < REPEATS; repeats++) {
+				for (int i = 0; i < n; i++) {
+					mean += m[i][repeats];
+				}
+			}
+			mean /= (n * REPEATS);
+			
+			double var = 0;
+			for (int repeats = 0; repeats < REPEATS; repeats++) {
+				for (int i = 0; i < n; i++) {
+					var += (m[i][repeats] - mean ) * (m[i][repeats] - mean);
+				}
+			}
+			var /= (n * REPEATS - 1);
+			double sd = Math.sqrt(var);
+			// factor compensating for correlation between samples
+			double FUDGE = 2.0;
+			System.out.println("SD: " + sd * FUDGE);
+		}
 		
+		return logMarginalL;
+	}
+	
+	private void randomise(Double[] doubles) {
+		int n = doubles.length;
+		for (int i = 0; i < n; i++) {
+			int t = Randomizer.nextInt(n);
+			double tmp = doubles[i];
+			doubles[i] = doubles[t];
+			doubles[t] = tmp;
+		}
+		
+	}
+
+	private double mean(Double[] doubles) {
+		double sum = 0;
+		for (Double d : doubles) {
+			if (d == null) {
+				int h = 3;
+				h++;
+			}
+			sum += d;
+		}
+		sum /= doubles.length;
+		return sum;
+	}
+
+	private double estimateMarginalLikelihood(List<List<Double>> logdata, Double [] [] marginalLs2, double [] marginalLs, double alpha, int nSteps, boolean verbose) throws MathException, InterruptedException {
 		// combine steps
 		double logMarginalL = 0;
 		if (alpha <= 0) { 
@@ -77,7 +174,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			double [] contrib = new double[nSteps-1];
 			
 			for (int i = 0; i < nSteps - 1; i++) {
-				List<Double> logdata1 = logdata.get(i);;
+				List<Double> logdata1 = logdata.get(i);
 				double beta1 = betaDistribution.inverseCumulativeProbability((nSteps - 1.0 - i)/ (nSteps - 1));
 				double beta2 = betaDistribution.inverseCumulativeProbability((nSteps - 1.0 - (i + 1.0))/ (nSteps - 1));
 				double weight = beta2 - beta1;
@@ -105,27 +202,29 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 						
 		}
 		
-		if (consoleApp != null) {
-			// allow output to flush to app window
-			Thread.sleep(500);
-		}
-
-		System.out.println("\nStep        theta         likelihood   contribution ESS");
-		BetaDistribution betaDistribution = new BetaDistributionImpl(alpha, 1.0);
-		for (int i = 0; i < nSteps; i++) {
-			System.out.print(format(i)+" ");
-			double beta = betaDistribution != null ?
-					betaDistribution.inverseCumulativeProbability((nSteps - 1.0 - i)/ (nSteps - 1)):
-						(nSteps - 1.0 - i)/ (nSteps - 1);
-			System.out.print(format(beta)+" ");
-
-			
-			for (Double d : logdata.get(i)) {
-				System.out.print(format(d) + " ");
+		if (verbose) {
+			if (consoleApp != null) {
+				// allow output to flush to app window
+				Thread.sleep(500);
 			}
+	
+			System.out.println("\nStep        theta         likelihood   contribution ESS");
+			BetaDistribution betaDistribution = new BetaDistributionImpl(alpha, 1.0);
+			for (int i = 0; i < nSteps; i++) {
+				System.out.print(format(i)+" ");
+				double beta = betaDistribution != null ?
+						betaDistribution.inverseCumulativeProbability((nSteps - 1.0 - i)/ (nSteps - 1)):
+							(nSteps - 1.0 - i)/ (nSteps - 1);
+				System.out.print(format(beta)+" ");
+	
+				
+				for (Double d : logdata.get(i)) {
+					System.out.print(format(d) + " ");
+				}
+				System.out.println();
+			}		
 			System.out.println();
-		}		
-		System.out.println();
+		}
 		return -logMarginalL;
 	}
 
@@ -151,13 +250,15 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		PathSampleAnalyser analyser = new PathSampleAnalyser();
-		int nSteps = Integer.parseInt(args[0]);
-		double alpha = Double.parseDouble(args[1]);
-		String rootDir = args[2];
-		int burnInPercentage = Integer.parseInt(args[3]);
-		double marginalL = analyser.estimateMarginalLikelihood(nSteps, alpha, rootDir, burnInPercentage);
-		System.out.println("marginal L estimate = " + marginalL);
+		new Application(new PathSampleAnalyser(), "Path Sample Analyser", args);
+		
+//		PathSampleAnalyser analyser = new PathSampleAnalyser();
+//		int nSteps = Integer.parseInt(args[0]);
+//		double alpha = Double.parseDouble(args[1]);
+//		String rootDir = args[2];
+//		int burnInPercentage = Integer.parseInt(args[3]);
+//		double marginalL = analyser.estimateMarginalLikelihood(nSteps, alpha, rootDir, burnInPercentage);
+//		System.out.println("marginal L estimate = " + marginalL);
 	}
 
     public ConsoleApp consoleApp = null;
