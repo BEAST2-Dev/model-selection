@@ -223,6 +223,11 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 				}
 				System.out.println();
 			}		
+			double sumESS = 0;
+			for (int i = 0; i < nSteps; i++) {
+				sumESS += logdata.get(i).get(2);
+			}
+			System.out.println("sum(ESS) = " + format(sumESS));
 			System.out.println();
 		}
 		return -logMarginalL;
