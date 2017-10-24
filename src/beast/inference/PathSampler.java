@@ -58,6 +58,10 @@ public class PathSampler extends beast.core.Runnable {
 	
 	public Input<Boolean> deleteOldLogsInpuyt = new Input<Boolean>("deleteOldLogs", "delete existing log files from root dir", false);
 	
+	public Input<Boolean> posterior2priorInput = new Input<Boolean>("posterior2prior", "whether to do steps from posterior to prior or the other way around. "
+			+ "Going from posterior to prior is biased towards over estimates, while from prior to posterior the ML estimate "
+			+ "is biased towards under estimates.", true);
+	
 	int m_nSteps;
 	String [] m_sHosts;
 	String m_sScript;
@@ -188,8 +192,10 @@ public class PathSampler extends beast.core.Runnable {
 			}
 			// create XML for a single step
 			double beta = betaDistribution != null ?
+					(posterior2priorInput.get() ?
 					betaDistribution.inverseCumulativeProbability((m_nSteps - 1.0 - i)/ (m_nSteps - 1)):
-						(m_nSteps - 1.0 - i)/ (m_nSteps - 1);
+					betaDistribution.inverseCumulativeProbability((i+0.0)/ (m_nSteps - 1))
+					):(m_nSteps - 1.0 - i)/ (m_nSteps - 1);
 			step.setInputValue("beta", beta);
 			String sXML = producer.toXML(step);
 			File stepDir = new File(getStepDir(i));
