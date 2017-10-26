@@ -84,11 +84,13 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 		}
 		
 		int [] order = new int[nSteps+1];
-		
-				
         HeapSort.sort(beta, order);
         for (int i = 0; i < nSteps/2; i++) {
         	int tmp = order[i]; order[i] = order[nSteps-i]; order[nSteps-i] = tmp;
+        }
+        if (order[nSteps - 1] == nSteps) {
+        	order[nSteps - 1] = order[nSteps];
+        	order[nSteps] = nSteps;
         }
         Arrays.sort(beta); 
         for (int i = 0; i < nSteps/2; i++) {
