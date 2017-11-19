@@ -31,10 +31,13 @@ import beast.evolution.tree.coalescent.TreeIntervals;
 		+ "62(4): 501-511. http://dx.doi.org/10.1093/sysbio/syt014) and "
 		+ "tree interval distribution.")
 public class GSSTreeDistribution extends Distribution {
+	enum BranchLengthDistribution {useGamma, useIntervals, none};
+
 	private TreeFile treeFile;
 	private TreeInterface tree;
 	private Integer burninPercentage;
-	private Boolean useGammaForBranchLengths = false;
+	private BranchLengthDistribution useGammaForBranchLengths = BranchLengthDistribution.none;
+	
 	
 	public TreeFile getTreefile() {return treeFile;}
 	public void setTreefile(TreeFile treeFile) {this.treeFile = treeFile;}
@@ -60,7 +63,7 @@ public class GSSTreeDistribution extends Distribution {
 	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
 			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
 			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage,
-			@Param(name="useGammaForBranchLengths", description="use an empirical gamma distribution for branch length distribution", defaultValue="false", optional=true) Boolean useGammaForBranchLengths) {
+			@Param(name="useGammaForBranchLengths", description="use an empirical gamma distribution for branch length distribution", defaultValue="none", optional=true) BranchLengthDistribution useGammaForBranchLengths) {
 		this.treeFile = treeFile;
 		this.tree = tree;
 		this.burninPercentage = burninPercentage;
@@ -87,19 +90,27 @@ public class GSSTreeDistribution extends Distribution {
 			while (trees.hasNext()) {
 				tree = trees.next();
 				addClades(tree.getRoot());
-				if (useGammaForBranchLengths) {
-					updateGammaEstimates(tree);					
-				} else {
+				switch (useGammaForBranchLengths) {
+				case useGamma:
+					updateGammaEstimates(tree);
+					break;
+				case useIntervals:
 					addToIntervalLog(tree, intervalLog);
 					intervalLog.get(intervalLog.size() - 1).add(tree.getRoot().getHeight());
+					break;
+				case none:
 				}
 			}
 			
 			
-			if (useGammaForBranchLengths) {
+			switch (useGammaForBranchLengths) {
+			case useGamma:
 				gammaDistr = createGammaDistr();
-			} else {
+				break;
+			case useIntervals:
 				createIntervalDistr(intervalLog);
+				break;
+			case none:
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -118,8 +129,8 @@ public class GSSTreeDistribution extends Distribution {
 		return distr;
 	}
 
-	public Boolean getUseGammaForBranchLengths() {return useGammaForBranchLengths;}
-	public void setUseGammaForBranchLengths(Boolean useGammaForBranchLengths) {this.useGammaForBranchLengths = useGammaForBranchLengths;}
+	public BranchLengthDistribution getUseGammaForBranchLengths() {return useGammaForBranchLengths;}
+	public void setUseGammaForBranchLengths(BranchLengthDistribution useGammaForBranchLengths) {this.useGammaForBranchLengths = useGammaForBranchLengths;}
 	public int getBranchLenCount() {return branchLenCount;}
 	public void setBranchLenCount(int branchLenCount) {this.branchLenCount = branchLenCount;}
 
@@ -218,10 +229,15 @@ public class GSSTreeDistribution extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = getLogCladeCredibility(tree.getRoot(), new BitSet());
-		if (useGammaForBranchLengths) {
+		switch (useGammaForBranchLengths) {
+		case useGamma:
 			logP += getGammaBranchLengths(tree);
-		} else {
+			break;
+		case useIntervals:
 			logP += getLogIntervalProbability(tree);
+			break;
+		case none:
+			break;
 		}
 		return logP;
 	}
