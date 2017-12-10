@@ -17,6 +17,7 @@ import beast.app.treeannotator.TreeAnnotator.TreeSet;
 import beast.app.util.TreeFile;
 import beast.core.Description;
 import beast.core.Distribution;
+import beast.core.Input;
 import beast.core.Param;
 import beast.core.State;
 import beast.evolution.tree.Node;
@@ -31,7 +32,15 @@ import beast.evolution.tree.coalescent.TreeIntervals;
 		+ "62(4): 501-511. http://dx.doi.org/10.1093/sysbio/syt014) and "
 		+ "tree interval distribution.")
 public class GSSTreeDistribution extends Distribution {
-	enum BranchLengthDistribution {useGamma, useIntervals, none};
+	public enum BranchLengthDistribution {useGamma, useIntervals, none};
+	
+	public Input<TreeFile> treeFileInput = new Input<>("treefile", "file containing tree set");
+	public Input<TreeInterface> treeInput = new Input<>("tree", "beast tree for which the conditional clade distribution is calculated");
+	public Input<Integer> burninPercentageInput = new Input<>("burnin", "percentage of the tree set to remove from the beginning", 10);
+	public Input<BranchLengthDistribution> useGammaForBranchLengthsInput = new Input<>("useGammaForBranchLengths", "use an empirical gamma distribution for branch length distribution", BranchLengthDistribution.none, BranchLengthDistribution.values());
+
+	
+	
 
 	private TreeFile treeFile;
 	private TreeInterface tree;
@@ -60,17 +69,31 @@ public class GSSTreeDistribution extends Distribution {
     // log probability for a clade that does not exist in the clade system
     final static double EPSILON = -1e8;
 	
-	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
-			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
-			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage,
-			@Param(name="useGammaForBranchLengths", description="use an empirical gamma distribution for branch length distribution", defaultValue="none", optional=true) BranchLengthDistribution useGammaForBranchLengths) {
-		this.treeFile = treeFile;
-		this.tree = tree;
-		this.burninPercentage = burninPercentage;
+    public GSSTreeDistribution() {}
+//	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
+//			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
+//			@Param(name="burnin", description="percentage of the tree set to remove from the beginning") Integer burninPercentage,
+//			@Param(name="useGammaForBranchLengths", description="use an empirical gamma distribution for branch length distribution", defaultValue="none", optional=true) BranchLengthDistribution useGammaForBranchLengths) {
+//		this.treeFile = treeFile;
+//		this.tree = tree;
+//		this.burninPercentage = burninPercentage;
+//		if (burninPercentage < 0 || burninPercentage >= 100) {
+//			throw new IllegalArgumentException("burnin must be a positive number not larger than 100");
+//		}
+//		this.useGammaForBranchLengths = useGammaForBranchLengths;
+//		processTreeFile();
+//	}
+	
+	
+	@Override
+	public void initAndValidate() {
+		this.treeFile = treeFileInput.get();
+		this.tree = treeInput.get();
+		this.burninPercentage = burninPercentageInput.get();
 		if (burninPercentage < 0 || burninPercentage >= 100) {
 			throw new IllegalArgumentException("burnin must be a positive number not larger than 100");
 		}
-		this.useGammaForBranchLengths = useGammaForBranchLengths;
+		this.useGammaForBranchLengths = useGammaForBranchLengthsInput.get();
 		processTreeFile();
 	}
 	
