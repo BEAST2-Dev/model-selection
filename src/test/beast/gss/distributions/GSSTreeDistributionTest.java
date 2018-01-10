@@ -28,7 +28,8 @@ public class GSSTreeDistributionTest extends TestCase {
         tree.close(out);
         out.close();
 
-		GSSTreeDistribution distr  = new GSSTreeDistribution(file, tree, 0, false);
+		GSSTreeDistribution distr  = new GSSTreeDistribution();
+		distr.initByName("treefile", file, "tree", tree, "burnin", 0, "useGammaForBranchLengths", GSSTreeDistribution.BranchLengthDistribution.useIntervals);
 		double logP = distr.calculateLogP();
 		assertEquals(4.161503004629573, logP, 1e-10);
 				

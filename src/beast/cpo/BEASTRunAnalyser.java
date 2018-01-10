@@ -81,7 +81,7 @@ public class BEASTRunAnalyser extends Runnable {
 	static public LogAnalyser getTraceLog(MCMC mcmc, File traceFile, int burninPercentage) throws IOException {
 		LogAnalyser tracelog = null;
 		if (isSpecified(traceFile)) {
-			tracelog = new LogAnalyser(traceFile.getAbsolutePath(), burninPercentage);
+			tracelog = new LogAnalyser(traceFile.getAbsolutePath(), burninPercentage, true, false);
 		} else if (mcmc != null) {
 			for (Logger logger : mcmc.loggersInput.get()) {
 				if (!logger.isLoggingToStdout() && logger.modeInput.get().equals(Logger.LOGMODE.compound)) {

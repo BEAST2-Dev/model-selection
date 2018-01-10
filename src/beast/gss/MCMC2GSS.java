@@ -32,6 +32,7 @@ import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeDistribution;
 import beast.evolution.tree.TreeWithMetaDataLogger;
 import beast.gss.distributions.GSSTreeDistribution;
+import beast.gss.distributions.GSSTreeDistribution.BranchLengthDistribution;
 import beast.gss.distributions.KernelDensityEstimatorDistribution;
 import beast.gss.distributions.MultivariateKDEDistribution;
 import beast.gss.distributions.NormalKDEDistribution;
@@ -271,8 +272,11 @@ public class MCMC2GSS extends Runnable {
 		}
 
 		// create GSS tree distribution
-		GSSTreeDistribution ccDistr = new GSSTreeDistribution(file, d.treeInput.get(),
-				traceBurninInput.get(), false);
+		GSSTreeDistribution ccDistr = new GSSTreeDistribution();
+		ccDistr.initByName("treefile", file, 
+				"tree", d.treeInput.get(),
+				"burnin", traceBurninInput.get(), 
+				"useGammaForBranchLengths", BranchLengthDistribution.none);
 		ccDistr.setID(d.getID()+ ".gss");
 		return ccDistr;
 	}
