@@ -125,6 +125,9 @@ public class GSSTreeDistribution extends Distribution {
 				}
 			}
 			
+			if (this.tree == null) {
+				this.tree = tree;
+			}			
 			
 			switch (useGammaForBranchLengths) {
 			case useGamma:
@@ -407,6 +410,19 @@ public class GSSTreeDistribution extends Distribution {
 
         @Override
         public String toString() {
+        	if (tree != null) {
+        		List<String> taxa = tree.getTaxonset().asStringList();
+        		StringBuilder b = new StringBuilder();
+        		b.append("{");
+        		for (int i = 0; i < taxa.size(); i++) {
+        			if (bits.get(i * 2)) {
+        				b.append(taxa.get((int)i)).append(",");
+        			}
+        		}
+        		b.deleteCharAt(b.length() - 1);
+        		b.append('}');
+        		return b.toString();
+        	}
             return "clade " + bits.toString();
         }
 
@@ -415,4 +431,34 @@ public class GSSTreeDistribution extends Distribution {
         BitSet bits;
         List<Object[]> attributeValues = null;
     }
+
+	public void listConditionalCladeProbabilities() {
+		for (BitSet bitset : conditionalCladeMap.keySet()) {
+			Map<BitSet, Clade> clades = conditionalCladeMap.get(bitset);
+	    	Clade clade = cladeMap.get(bitset);
+	        int cladeCount = clade.getCount();
+
+			
+			for (BitSet left : clades.keySet()) {
+				BitSet right = new BitSet();
+				right.or(bitset);
+				right.xor(left);
+				
+		        Clade leftClade = clades.get(left);
+		        int leftCount = (leftClade != null ? leftClade.getCount() : 0);
+
+		        Clade rightClade = clades.get(right);
+		        int rightCount = (rightClade != null ? rightClade.getCount() : 0);
+		        
+		        int subCladCount = Math.max(leftCount, rightCount);
+		        System.out.print(leftClade + " " + rightClade + " :");
+		        if (subCladCount == 0) {
+		        	System.out.println(EPSILON);
+		        } else {
+		        	System.out.println((double)subCladCount/cladeCount);
+		        }
+			}
+		}		
+	}
+	
 }

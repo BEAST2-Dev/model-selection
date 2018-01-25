@@ -35,4 +35,12 @@ public class GSSTreeDistributionTest extends TestCase {
 				
 	}
 
+	@Test
+	public void testGSSTreeDistribution2() {
+		GSSTreeDistribution distr  = new GSSTreeDistribution();
+		distr.initByName("treefile", "/tmp/one.trees", "tree", null, "burnin", 0, "useGammaForBranchLengths", GSSTreeDistribution.BranchLengthDistribution.none);
+		distr.listConditionalCladeProbabilities();
+		
+	}
+	
 }
