@@ -29,6 +29,7 @@ import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Function;
 import beast.core.Input;
+import beast.core.parameter.Parameter;
 import beast.gss.TraceLog;
 
 //import dr.math.UnivariateFunction;
@@ -82,6 +83,19 @@ public abstract class KernelDensityEstimatorDistribution extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = 0;
+		if (p instanceof Parameter) {
+			for (int i = 0; i < p.getDimension(); i++) {
+				if (p.getArrayValue(i) < (double) ((Parameter)p).getLower()) {
+					logP = Double.NEGATIVE_INFINITY;
+					return logP;
+				}
+				if (p.getArrayValue(i) > (double) ((Parameter)p).getUpper()) {
+					logP = Double.NEGATIVE_INFINITY;
+					return logP;
+				}			
+			}
+		}
+
 		for (int i = 0; i < p.getDimension(); i++) {
 			logP += logPdf(p.getArrayValue(i));
 		}
