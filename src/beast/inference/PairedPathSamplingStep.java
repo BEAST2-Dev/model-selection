@@ -163,7 +163,7 @@ public class PairedPathSamplingStep extends PathSamplingStep implements Loggable
 
 
 	@Override
-	public void log(int nSample, PrintStream out) {
+	public void log(long nSample, PrintStream out) {
 		out.append(model1.getCurrentLogP() - model2.getCurrentLogP() + "\t");
 	}
 
