@@ -81,7 +81,7 @@ public class CPOLogger extends Logger {
 	
 	
 	@Override
-	public void log(int sampleNr) {
+	public void log(long sampleNr) {
 	        if ((sampleNr < 0) || (sampleNr % every > 0)) {
 	            return;
 	        }

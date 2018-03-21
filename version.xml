@@ -1,36 +1,36 @@
-<addon name='MODEL_SELECTION' version='1.3.4'>
-	<depends on='beast2' atleast='2.4.0'/>
-	<depends on='BEASTLabs' atleast='1.5.3'/>
-    <addonapp description="Path sampler"
+<package name='MODEL_SELECTION' version='1.4.0'>
+	<depends on='beast2' atleast='2.5.0'/>
+	<depends on='BEASTLabs' atleast='1.8.0'/>
+    <packageapp description="Path sampler"
               class="beast.app.tools.PathSampler"
               args=""
               icon="beast/app/tools/ps.png"
             />
-    <addonapp description="Path Sample Analyser"
+    <packageapp description="Path Sample Analyser"
               class="beast.app.tools.PathSampleAnalyser"
               args=""
               icon="beast/app/tools/ps.png"
             />
-    <addonapp description="Conditional Predictive Ordinates (CPO) Analyser"
+    <packageapp description="Conditional Predictive Ordinates (CPO) Analyser"
               class="beast.cpo.CPOAnalyser"
               args=""
               icon="beast/app/tools/ps.png"
             />
-    <addonapp description="Akaike Information Criterion by MCMC"
+    <packageapp description="Akaike Information Criterion by MCMC"
               class="beast.inference.AICMAnalyser"
               args=""
               icon="beast/app/tools/ps.png"
             />
 <!--
-    <addonapp description="Paired path sampler"
+    <packageapp description="Paired path sampler"
               class="beast.app.tools.PairedPathSampler"
               args=""
               icon="beast/app/tools/ps.png"
             />
-    <addonapp description="Paired Path Sample Analyser"
+    <packageapp description="Paired Path Sample Analyser"
               class="beast.app.tools.PairedPathSampler"
               args=""
               icon="beast/app/tools/ps.png"
             />
 -->
-</addon>
+</package>
