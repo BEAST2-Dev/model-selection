@@ -66,7 +66,7 @@ public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
         this.N = sample.length;
         lowerBound = Double.NEGATIVE_INFINITY; upperBound = Double.POSITIVE_INFINITY;
         processBounds(lowerBound, upperBound);
-        setBandWidth(bandWidth);
+        setBandWidth(null);
 
     	
     	
