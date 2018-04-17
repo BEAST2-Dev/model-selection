@@ -54,7 +54,11 @@ public abstract class KernelDensityEstimatorDistribution extends Distribution {
         setBandWidth(bandWidth);
     }
 
-    abstract protected double evaluateKernel(double x);
+    public KernelDensityEstimatorDistribution() {
+		// TODO Auto-generated constructor stub
+	}
+
+	abstract protected double evaluateKernel(double x);
 
     abstract protected void processBounds(Double lowerBound, Double upperBound);
 

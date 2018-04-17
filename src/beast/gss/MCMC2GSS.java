@@ -23,6 +23,7 @@ import beast.core.Distribution;
 import beast.core.Function;
 import beast.core.Input;
 import beast.core.Runnable;
+import beast.core.parameter.RealParameter;
 import beast.core.Input.Validate;
 import beast.core.Logger;
 import beast.core.Logger.LOGMODE;
@@ -52,25 +53,25 @@ public class MCMC2GSS extends Runnable {
 	public Input<OutFile> outputInput = new Input<>("output", "where to save the file", new OutFile("beast.xml"));
 
 	
-	public Input<Double> alphaInput = new Input<Double>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
+	public Input<Double> alphaInput = new Input<>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
 			"If alpha <= 0, uniform intervals are used.", 0.3);
-	public Input<Integer> stepsInput = new Input<Integer>("nrOfSteps", "the number of steps to use, default 8", 8);
-	public Input<String> rootDirInput = new Input<String>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
-	public Input<MCMC> mcmcInput = new Input<MCMC>("mcmc", "MCMC analysis used to specify model and operations in each of the particles", Validate.REQUIRED);
-	public Input<Integer> chainLengthInput = new Input<Integer>("chainLength", "number of sample to run a chain for a single step", 100000);
-	public Input<Integer> burnInPercentageInput = new Input<Integer>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);
-	public Input<Integer> preBurnInInput = new Input<Integer>("preBurnin", "number of samples that are discarded for the first step, but not the others", 100000);
-	public Input<String> m_sScriptInput = new Input<String>("value", "script for launching a job. " +
+	public Input<Integer> stepsInput = new Input<>("nrOfSteps", "the number of steps to use, default 8", 8);
+	public Input<String> rootDirInput = new Input<>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
+	public Input<MCMC> mcmcInput = new Input<>("mcmc", "MCMC analysis used to specify model and operations in each of the particles", Validate.REQUIRED);
+	public Input<Long> chainLengthInput = new Input<>("chainLength", "number of sample to run a chain for a single step", 100000l);
+	public Input<Integer> burnInPercentageInput = new Input<>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);
+	public Input<Integer> preBurnInInput = new Input<>("preBurnin", "number of samples that are discarded for the first step, but not the others", 100000);
+	public Input<String> m_sScriptInput = new Input<>("value", "script for launching a job. " +
 			"$(dir) is replaced by the directory associated with the particle " +
 			"$(java.class.path) is replaced by a java class path used to launch this application " +
 			"$(java.library.path) is replaced by a java library path used to launch this application " +
 			"$(seed) is replaced by a random number seed that differs with every launch " +
 			"$(host) is replaced by a host from the list of hosts", Validate.REQUIRED);
-	public Input<String> m_sHostsInput = new Input<String>("hosts", "comma separated list of hosts. " +
+	public Input<String> m_sHostsInput = new Input<>("hosts", "comma separated list of hosts. " +
 			"If there are k hosts in the list, for particle i the term $(host) in the script will be replaced " +
 			"by the (i modulo k) host in the list. " +
 			"Note that whitespace is removed");
-	public Input<Boolean> doNotRun = new Input<Boolean>("doNotRun", "Set up all files but do not run analysis if true. " +
+	public Input<Boolean> doNotRun = new Input<>("doNotRun", "Set up all files but do not run analysis if true. " +
 			"This can be useful for setting up an analysis on a cluster", false);
 	
 	public Input<Boolean> deleteOldLogsInput = new Input<Boolean>("deleteOldLogs", "delete existing log files from root dir", false);
@@ -282,10 +283,10 @@ public class MCMC2GSS extends Runnable {
 	}
 
 	private Distribution getAltPriorDist(beast.math.distributions.Prior d) {
-
 		Function f = d.m_x.get();
 		String id = ((BEASTInterface) f).getID();
 		String shortid = id.contains(".") ? id.substring(0, id.lastIndexOf('.')) : id;
+		String shortid2 = id.contains(":") ? id.substring(0, id.lastIndexOf(':')-1) + id.substring(id.lastIndexOf(':') + 1) : id;
 		TraceLog tracelog = traceLogs.get(shortid);
 		String label = shortid;
 		if (tracelog == null) {
@@ -294,7 +295,16 @@ public class MCMC2GSS extends Runnable {
 		}
 		if (tracelog == null) {
 			label = id;
-			id += ".1";
+			id += "1";
+			tracelog = traceLogs.get(id);
+		}
+		if (tracelog == null) {
+			label = shortid2;
+			tracelog = traceLogs.get(label);
+		}
+		if (tracelog == null) {
+			label = shortid2;
+			id = label + "1";
 			tracelog = traceLogs.get(id);
 		}
 		if (tracelog == null) {
@@ -306,10 +316,26 @@ public class MCMC2GSS extends Runnable {
 		int dim = f.getDimension();
 		if (dim == 1) {
 			altDist = new NormalKDEDistribution(tracelog, label, f);
+			if (f instanceof RealParameter) {
+				RealParameter p = (RealParameter) f;
+				Double mean = tracelog.getMean(label);
+				Log.warning("Set value " + p.getID() + " to " + mean);
+				p.valuesInput.get().set(0, mean);
+			}
 		} else {
 			KernelDensityEstimatorDistribution[] multivariateKDE = new KernelDensityEstimatorDistribution[dim];
 			for (int i = 0; i < dim; i++) {
-				multivariateKDE[i] = new NormalKDEDistribution(tracelog, label + "." + i, null);
+				multivariateKDE[i] = new NormalKDEDistribution(tracelog, label + (i+1), null);
+				if (f instanceof RealParameter) {
+					RealParameter p = (RealParameter) f;
+					Double mean = tracelog.getMean(label + (i+1));
+					Log.warning("Set value " + p.getID() + "[" + (i+1) + "] to " + mean);
+					if (i < p.valuesInput.get().size()) {
+						p.valuesInput.get().set(i, mean);
+					} else {
+						p.valuesInput.get().add(mean);
+					}
+				}
 			}
 			altDist = new MultivariateKDEDistribution(multivariateKDE, f);
 		}

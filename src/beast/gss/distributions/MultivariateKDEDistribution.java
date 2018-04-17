@@ -26,12 +26,15 @@
 package beast.gss.distributions;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Function;
+import beast.core.Input;
+import beast.core.Param;
 import beast.core.State;
 
 /**
@@ -39,6 +42,8 @@ import beast.core.State;
  */
 @Description("Multivariate kernel density esitmators that assumes input variable has independent components")
 public class MultivariateKDEDistribution extends Distribution {
+	public Input<List<KernelDensityEstimatorDistribution>> distInput = new Input<>("dist","distributions, one for each of the dimensions of the parameter", new ArrayList<>());
+	public Input<Function> xInput = new Input<>("x", "parameter to which this distribution applies");
 	
 	public static final String TYPE = "multivariateKDE";
     public static final boolean DEBUG = false;
@@ -47,7 +52,21 @@ public class MultivariateKDEDistribution extends Distribution {
 	private Function p;
 	private int dimension;
 	//private boolean[] flags;
+	
 
+	@Override
+	public void initAndValidate() {
+		this.p = xInput.get();
+		this.multivariateKDE = distInput.get().toArray(new KernelDensityEstimatorDistribution[]{});
+		if (multivariateKDE.length <= 0) {
+			throw new RuntimeException("Creation error in MultivariateKDEDistribution(Distribution[] multivariateKDE)");
+		}
+		this.dimension = multivariateKDE.length;
+		super.initAndValidate();
+	}
+	
+	public MultivariateKDEDistribution () {}
+	
 	public MultivariateKDEDistribution (KernelDensityEstimatorDistribution[] multivariateKDE, Function p) {
 		this.p = p;
 		if (multivariateKDE.length <= 0) {
@@ -56,6 +75,11 @@ public class MultivariateKDEDistribution extends Distribution {
 		
 		this.multivariateKDE = multivariateKDE;
 		this.dimension = multivariateKDE.length;
+		
+		xInput.setValue(p, this);
+		for (KernelDensityEstimatorDistribution k : multivariateKDE) {
+			distInput.get().add(k);
+		}
 		/*for (int i = 0; i < dimension; i++) {
 			flags[i] = true;
 		}*/
@@ -72,6 +96,10 @@ public class MultivariateKDEDistribution extends Distribution {
 		this.dimension = multivariateKDE.length;
 		//this.flags = flags;
 
+		xInput.setValue(p, this);
+		for (KernelDensityEstimatorDistribution k : multivariateKDE) {
+			distInput.get().add(k);
+		}
 	}
 
 	@Override

@@ -460,5 +460,8 @@ public class GSSTreeDistribution extends Distribution {
 			}
 		}		
 	}
-	
+
+	public void setTree(Tree tree) {
+		((Tree) this.tree).assignFrom(tree);
+	}
 }

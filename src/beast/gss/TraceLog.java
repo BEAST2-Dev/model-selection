@@ -52,4 +52,13 @@ public class TraceLog extends BEASTObject implements BEASTInterface {
 		}
 		return tracelog.getLabels();
 	}
+	
+	public Double getMean(String label) {
+		double sum = 0;
+		Double [] data = tracelog.getTrace(label);
+		for (Double d : data) {
+			sum += d;
+		}
+		return sum / data.length;
+	}
 }

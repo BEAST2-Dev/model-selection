@@ -28,6 +28,8 @@ package beast.gss.distributions;
 
 import beast.core.Description;
 import beast.core.Function;
+import beast.core.Input;
+import beast.core.Input.Validate;
 import beast.core.Param;
 import beast.core.State;
 import beast.gss.TraceLog;
@@ -44,17 +46,57 @@ import java.util.Random;
  */
 @Description("Distribution based on normal kernel density esitmators (and no transform on the input)")
 public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
+	public Input<TraceLog> traceLogInput = new Input<>("traceLog", "trace log", Validate.REQUIRED);
+	public Input<String> labelInput = new Input<>("label", "label of the column containing data in the trace file", Validate.REQUIRED);
+	public Input<Function> xInput = new Input<>("x", "function/statistic to take distribution over");
 
     public static final int MINIMUM_GRID_SIZE = 512;
 
+    @Override
+    public void initAndValidate() {
+    	this.p = xInput.get();
+		this.traceLog = traceLogInput.get();
+		this.label = labelInput.get();
+
+		Double [] sample = traceLog.getTrace(label); 
+        this.sample = new double[sample.length];
+        for (int i = 0; i < sample.length; i++) {
+            this.sample[i] = sample[i];
+        }
+        this.N = sample.length;
+        lowerBound = Double.NEGATIVE_INFINITY; upperBound = Double.POSITIVE_INFINITY;
+        processBounds(lowerBound, upperBound);
+        setBandWidth(bandWidth);
+
+    	
+    	
+        this.gridSize = MINIMUM_GRID_SIZE;
+        if (this.gridSize > MINIMUM_GRID_SIZE) {
+            this.gridSize = (int) Math.pow(2, Math.ceil(Math.log(this.gridSize) / Math.log(2.0)));
+        }
+        this.cut = 3.0;
+
+        from = DiscreteStatistics.min(super.sample) - this.cut * this.bandWidth;
+        to = DiscreteStatistics.max(super.sample) + this.cut * this.bandWidth;
+
+        lo = from - 4.0 * this.bandWidth;
+        up = to + 4.0 * this.bandWidth;
+
+        densityKnown = false;    	super.initAndValidate();
+    }
+    public NormalKDEDistribution() {}
     
-	public NormalKDEDistribution(@Param(name="traceLog", description="trace log ") TraceLog traceLog,
-			@Param(name="label",description= "label of the column containing data in the trace file") String label,
-			@Param(name="x", description="function/statistic to take distribution over") Function p) {
+	public NormalKDEDistribution(TraceLog traceLog,
+			String label,
+			Function p) {		
 		this(traceLog.getTrace(label), p);
 		this.traceLog = traceLog;
 		this.label = label;
 		this.p = p;
+		
+		traceLogInput.setValue(traceLog, this);
+		labelInput.setValue(label, this);
+		xInput.setValue(p, this);
 	}
 
 	public NormalKDEDistribution(Double[] sample, Function p) {
