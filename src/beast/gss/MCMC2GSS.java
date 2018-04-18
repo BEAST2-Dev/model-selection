@@ -1,5 +1,6 @@
 package beast.gss;
 
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,6 +24,8 @@ import beast.core.Distribution;
 import beast.core.Function;
 import beast.core.Input;
 import beast.core.Runnable;
+import beast.core.State;
+import beast.core.StateNode;
 import beast.core.parameter.RealParameter;
 import beast.core.Input.Validate;
 import beast.core.Logger;
@@ -31,6 +34,7 @@ import beast.core.util.CompoundDistribution;
 import beast.core.util.Log;
 import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeDistribution;
+import beast.evolution.tree.TreeInterface;
 import beast.evolution.tree.TreeWithMetaDataLogger;
 import beast.gss.distributions.GSSTreeDistribution;
 import beast.gss.distributions.GSSTreeDistribution.BranchLengthDistribution;
@@ -106,7 +110,7 @@ public class MCMC2GSS extends Runnable {
 		gss.mcmcInput.setValue(mcmc, gss);
 
 		CompoundDistribution prior = getPrior(mcmc);
-		Distribution samplingDistribution = getAltPrior(prior);
+		Distribution samplingDistribution = getAltPrior(prior, mcmc.startStateInput.get());
 		gss.samplingDistributionInput.setValue(samplingDistribution, gss);
 
 		String required = getRequiredAttribute();
@@ -202,23 +206,50 @@ public class MCMC2GSS extends Runnable {
 		return xml + "\n";
 	}
 
-	private CompoundDistribution getAltPrior(CompoundDistribution prior) {
+	private CompoundDistribution getAltPrior(CompoundDistribution prior, State state) {
+		List<StateNode> stateNodes = new ArrayList<>();
+		stateNodes.addAll(state.stateNodeInput.get());
+		
 		List<Distribution> altPrior = new ArrayList<>();
 		for (Distribution d : prior.pDistributions.get()) {
 			if (d instanceof TreeDistribution) {
 				Distribution altTreeDist = getAltTreeDist((TreeDistribution) d);
 				altPrior.add(altTreeDist);
+				
+				TreeInterface tree = ((TreeDistribution) d).treeInput.get();
+				if (tree == null) {
+					tree = ((TreeDistribution) d).treeIntervalsInput.get().treeInput.get();
+				}
+				stateNodes.remove(tree);
 			} else if (d instanceof MRCAPrior) {
 				altPrior.add(d);
 			} else if (d instanceof beast.math.distributions.Prior) {
-				Distribution altPriorDist = getAltPriorDist((beast.math.distributions.Prior) d);
+				beast.math.distributions.Prior p = (beast.math.distributions.Prior) d;
+				Distribution altPriorDist = getAltPriorDist(p.m_x.get(), p.getID());
 				altPrior.add(altPriorDist);
+				Object o = ((beast.math.distributions.Prior) d).m_x.get();
+				stateNodes.remove(o);
 			} else {
 				throw new IllegalArgumentException(
 						"Don't know how to handle distributio " + d.getID() + " of type " + d.getClass().getName());
 			}
 
 		}
+		for (int i = stateNodes.size() - 1; i >= 0; i--) {
+			StateNode s = stateNodes.get(i);
+			if (s instanceof RealParameter) {
+				Distribution altPriorDist = getAltPriorDist(s, s.getID() + "Prior");
+				altPrior.add(altPriorDist);
+				stateNodes.remove(s);
+			}
+		}
+		for (StateNode s : stateNodes) {
+			Log.warning("No working distribution for " + s.getID());
+		}
+		
+		
+		
+		
 		CompoundDistribution cd = new CompoundDistribution();
 		cd.initByName("distribution", altPrior);
 		cd.setID("GSSPrior");
@@ -282,8 +313,8 @@ public class MCMC2GSS extends Runnable {
 		return ccDistr;
 	}
 
-	private Distribution getAltPriorDist(beast.math.distributions.Prior d) {
-		Function f = d.m_x.get();
+	private Distribution getAltPriorDist(Function f, String priorID) { //beast.math.distributions.Prior d) {
+		//Function f = 
 		String id = ((BEASTInterface) f).getID();
 		String shortid = id.contains(".") ? id.substring(0, id.lastIndexOf('.')) : id;
 		String shortid2 = id.contains(":") ? id.substring(0, id.lastIndexOf(':')-1) + id.substring(id.lastIndexOf(':') + 1) : id;
@@ -341,7 +372,7 @@ public class MCMC2GSS extends Runnable {
 		}
 		// EmpiricalDist(d.m_x.get(), trace);
 
-		altDist.setID(d.getID()+ ".gss");
+		altDist.setID(priorID + ".gss");
 		return altDist;
 	}
 
