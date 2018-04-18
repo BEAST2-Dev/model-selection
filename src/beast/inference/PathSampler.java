@@ -40,9 +40,9 @@ public class PathSampler extends beast.core.Runnable {
 	public Input<Integer> stepsInput = new Input<Integer>("nrOfSteps", "the number of steps to use, default 8", 8);
 	public Input<String> rootDirInput = new Input<String>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
 	public Input<MCMC> mcmcInput = new Input<MCMC>("mcmc", "MCMC analysis used to specify model and operations in each of the particles", Validate.REQUIRED);
-	public Input<Integer> chainLengthInput = new Input<Integer>("chainLength", "number of sample to run a chain for a single step", 100000);
+	public Input<Long> chainLengthInput = new Input<>("chainLength", "number of sample to run a chain for a single step", 100000L);
 	public Input<Integer> burnInPercentageInput = new Input<Integer>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);
-	public Input<Integer> preBurnInInput = new Input<Integer>("preBurnin", "number of samples that are discarded for the first step, but not the others", 100000);
+	public Input<Integer> preBurnInInput = new Input<>("preBurnin", "number of samples that are discarded for the first step, but not the others", 100000);
 	public Input<String> m_sScriptInput = new Input<String>("value", "script for launching a job. " +
 			"$(dir) is replaced by the directory associated with the particle " +
 			"$(java.class.path) is replaced by a java class path used to launch this application " +
@@ -149,7 +149,7 @@ public class PathSampler extends beast.core.Runnable {
 		}
 		mcmc = step;
 		
-		int chainLength = chainLengthInput.get();
+		long chainLength = chainLengthInput.get();
 		// set up chain length for a single step
 		mcmc.burnInInput.setValue(0, mcmc);
 		mcmc.chainLengthInput.setValue(chainLength, mcmc);
@@ -157,7 +157,7 @@ public class PathSampler extends beast.core.Runnable {
 		// add posterior logger
 		Logger logger = new Logger();
 		Distribution likelihood = extractLikelihood(mcmc); 
-		logger.initByName("fileName", LIKELIHOOD_LOG_FILE, "log", likelihood, "logEvery", chainLength/1000);
+		logger.initByName("fileName", LIKELIHOOD_LOG_FILE, "log", likelihood, "logEvery", (int)(chainLength/1000));
 		mcmc.loggersInput.setValue(logger, mcmc);
 
 		// set up directories with beast.xml files in each of them

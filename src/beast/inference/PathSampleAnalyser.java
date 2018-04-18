@@ -30,7 +30,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			"If alpha <= 0, uniform intervals are used.", 0.3);
 	public Input<Integer> stepsInput = new Input<>("nrOfSteps", "the number of steps to use, default 8", 8);
 	public Input<Integer> burnInPercentageInput = new Input<>("burnInPercentage", "burn-In Percentage used for analysing log files", 50);
-	public Input<Integer> crossValInput = new Input<>("cross", "the number of cross validation intervals to use for estimating the variance, default 10", 10);
+	public Input<Integer> crossValInput = new Input<>("cross", "the number of cross validation intervals to use for estimating the variance, default 0, no variance estimate is provided", 0);
 	public Input<Integer> crossVaRepeatslInput = new Input<>("repeats", "the number of times cross validation is repeated, default 100", 100);
 	public Input<Boolean> getBetaFromFileInput = new Input<>("betaFromFile", "get beta values from XML file instead of assuming they are from a Beta distirbution", false);
 	

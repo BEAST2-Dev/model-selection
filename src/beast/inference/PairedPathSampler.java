@@ -175,7 +175,7 @@ public class PairedPathSampler extends PathSampler {
 		}
 		step.posterior2Input.setValue(model2.posteriorInput.get(), step);
 
-		int chainLength = chainLengthInput.get();
+		long chainLength = chainLengthInput.get();
 		// set up chain length for a single step
 		step.burnInInput.setValue(0, step);
 		step.chainLengthInput.setValue(chainLength, step);
