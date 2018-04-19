@@ -26,12 +26,15 @@ import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.State;
 import beast.core.StateNode;
+import beast.core.StateNodeInitialiser;
 import beast.core.parameter.RealParameter;
 import beast.core.Input.Validate;
 import beast.core.Logger;
 import beast.core.Logger.LOGMODE;
 import beast.core.util.CompoundDistribution;
 import beast.core.util.Log;
+import beast.evolution.tree.RandomTree;
+import beast.evolution.tree.SimpleRandomTree;
 import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeDistribution;
 import beast.evolution.tree.TreeInterface;
@@ -44,8 +47,10 @@ import beast.gss.distributions.NormalKDEDistribution;
 import beast.math.distributions.MRCAPrior;
 import beast.core.MCMC;
 import beast.util.JSONProducer;
+import beast.util.TreeParser;
 import beast.util.XMLParser;
 import beast.util.XMLProducer;
+import beast.util.treeparser.NewickParser;
 
 @Description("MCMC-step class based on GSS sample")
 public class MCMC2GSS extends Runnable {
@@ -112,6 +117,7 @@ public class MCMC2GSS extends Runnable {
 		CompoundDistribution prior = getPrior(mcmc);
 		Distribution samplingDistribution = getAltPrior(prior, mcmc.startStateInput.get());
 		gss.samplingDistributionInput.setValue(samplingDistribution, gss);
+		setUpInitialisers(mcmc.initialisersInput.get());
 
 		String required = getRequiredAttribute();
 		// save
@@ -134,6 +140,33 @@ public class MCMC2GSS extends Runnable {
 			gss.run();
 		}
 	} // save
+
+	private void setUpInitialisers(List<StateNodeInitialiser> initialiser) {
+		for (int i = 0; i < initialiser.size(); i++) {
+			StateNodeInitialiser init = initialiser.get(i);
+			if (init instanceof RandomTree || init instanceof SimpleRandomTree) {				
+				// grab last tree from log file
+				TreeParser newInit = new TreeParser();
+				Tree tree = (Tree) ((BEASTInterface)init).getInput("initial").get();
+				String newick = null;
+				for (BEASTInterface o : tree.getOutputs()) {
+					if (o instanceof GSSTreeDistribution) {
+						newick = ((GSSTreeDistribution)o).getLastTre().getRoot().toNewick();
+					}
+				}
+				newick = newick.replaceAll("\\[[^\\[\\]]+\\]", "");
+				if (newick != null) {
+					newInit.initByName("newick", newick, 
+							"IsLabelledNewick", true, 
+							"initial", tree,
+							"taxa",  ((BEASTInterface)init).getInput("taxa").get());
+					newInit.m_taxonset.set(null);
+					newInit.setID(((BEASTInterface)init).getID());
+					initialiser.set(i, newInit);
+				}
+			}
+		}
+	}
 
 	/** create map with log labels to trace logs **/
 	private void processTraceLogs(MCMC mcmc) {

@@ -47,6 +47,8 @@ public class GSSTreeDistribution extends Distribution {
 	private Integer burninPercentage;
 	private BranchLengthDistribution useGammaForBranchLengths = BranchLengthDistribution.none;
 	
+	private Tree lastTree;
+	public Tree getLastTre() {return lastTree;}
 	
 	public TreeFile getTreefile() {return treeFile;}
 	public void setTreefile(TreeFile treeFile) {this.treeFile = treeFile;}
@@ -109,6 +111,7 @@ public class GSSTreeDistribution extends Distribution {
     		for (int i = 0; i < tree.getNodeCount() + 1; i++) {
     			intervalLog.add(new ArrayList<>());
     		}
+    		lastTree = tree;
 
 			while (trees.hasNext()) {
 				tree = trees.next();
