@@ -2,12 +2,7 @@ package beast.gss.distributions;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 import org.apache.commons.math.distribution.GammaDistribution;
 import org.apache.commons.math.distribution.GammaDistributionImpl;
@@ -18,7 +13,6 @@ import beast.app.util.TreeFile;
 import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Input;
-import beast.core.Param;
 import beast.core.State;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.Tree;
@@ -63,7 +57,9 @@ public class GSSTreeDistribution extends Distribution {
 	}
 
 	protected Map<BitSet, Map<BitSet, Clade>> conditionalCladeMap = new HashMap<>();
-    protected Map<BitSet, Clade> cladeMap = new HashMap<>();
+    protected Map<BitSet, Clade> cladeMap = new LinkedHashMap<>();
+    
+    private Map<String, Integer> mapTaxonIDToNr = new LinkedHashMap<>();
     
     NormalKDEDistribution [] distrs; 
     GammaDistribution gammaDistr;
@@ -91,6 +87,13 @@ public class GSSTreeDistribution extends Distribution {
 	public void initAndValidate() {
 		this.treeFile = treeFileInput.get();
 		this.tree = treeInput.get();
+		
+		for (Node n : tree.getNodesAsArray()) {
+			if (n.isLeaf()) {
+				mapTaxonIDToNr.put(n.getID(), n.getNr());
+			}
+		}
+				
 		this.burninPercentage = burninPercentageInput.get();
 		if (burninPercentage < 0 || burninPercentage >= 100) {
 			throw new IllegalArgumentException("burnin must be a positive number not larger than 100");
@@ -116,6 +119,7 @@ public class GSSTreeDistribution extends Distribution {
 			while (trees.hasNext()) {
 				tree = trees.next();
 				addClades(tree.getRoot());
+				
 				switch (useGammaForBranchLengths) {
 				case useGamma:
 					updateGammaEstimates(tree);
@@ -127,6 +131,10 @@ public class GSSTreeDistribution extends Distribution {
 				case none:
 				}
 			}
+
+//			for(BitSet b : cladeMap.keySet()) {
+//				System.out.println(b + " " + cladeMap.get(b).count);
+//			}
 			
 			if (this.tree == null) {
 				this.tree = tree;
@@ -206,8 +214,8 @@ public class GSSTreeDistribution extends Distribution {
 
         if (node.isLeaf()) {
 
-            int index = node.getNr();
-            bits.set(2*index);
+            int index = mapTaxonIDToNr.get(node.getID());
+            bits.set(index);
 
         } else {
 
@@ -216,9 +224,9 @@ public class GSSTreeDistribution extends Distribution {
             bits.or(left);
             bits.or(right);
 
-            for (int i=1; i<bits.length(); i=i+2) {
-                bits.set(i, false);
-            }
+//            for (int i=1; i<bits.length(); i=i+2) {
+//                bits.set(i, false);
+//            }
             addClade(bits, left, right);
         }
 
@@ -258,6 +266,7 @@ public class GSSTreeDistribution extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = getLogCladeCredibility(tree.getRoot(), new BitSet());
+		//System.err.print("GSST logp = " + logP);
 		switch (useGammaForBranchLengths) {
 		case useGamma:
 			logP += getGammaBranchLengths(tree);
@@ -268,6 +277,7 @@ public class GSSTreeDistribution extends Distribution {
 		case none:
 			break;
 		}
+		//System.err.println(" GSST logp = " + logP);
 		return logP;
 	}
 	
@@ -301,13 +311,88 @@ public class GSSTreeDistribution extends Distribution {
 		logP += logPdf;
 		return logP;
 	}
+	
+//	class BitSet {
+//		boolean [] b;
+//		BitSet() {
+//			b = new boolean[tree.getNodeCount()];
+//		}
+//		boolean get(int i) {
+//			return b[i];
+//		}
+//		void set(int i) {
+//			b[i] = true;
+//		}
+//		void set(int i, boolean value) {
+//			b[i] = value;
+//		}
+//		void or(BitSet other) {
+//			for (int i = 0;i < b.length; i++) {
+//				b[i] |= other.b[i];
+//			}
+//		}
+//		void xor(BitSet other) {
+//			for (int i = 0;i < b.length; i++) {
+//				if (!b[i] && other.b[i]) {
+//					b[i] = true;
+//				} else if (b[i] && !other.b[i]) {
+//					b[i] = true;
+//				} else {
+//					b[i] = false;
+//				}
+//			}
+//		}
+//		int length() {
+//			return b.length;
+//		}
+//		
+//		@Override
+//		public String toString() {
+//			StringBuilder buf = new StringBuilder();
+//			buf.append("{");
+//			for (int i = 0; i < b.length; i++) {
+//				if (b[i]) {
+//					buf.append(i);
+//					buf.append(' ');
+//					buf.append(tree.getNode(i).getID());
+//					buf.append(", ");
+//				}
+//			}
+//			if (buf.length() > 1) {
+//				buf.delete(buf.length()-2, buf.length()-1);
+//			}
+//			buf.append("}");					
+//			return buf.toString();
+//		}
+//		
+//		@Override
+//		public boolean equals(Object obj) {
+//			if (obj == null || !(obj instanceof BitSet)) {
+//				return false;
+//			}
+//			BitSet other = (BitSet) obj;
+//			if (other.b.length != b.length) {
+//				return false;
+//			}
+//			if (obj == this) {
+//				return true;
+//			}
+//			for (int i = 0; i < b.length; i++) {
+//				if (b[i] != other.b[i]) {
+//					return false;
+//				}
+//			}
+// 			return true;
+//		}
+//	}
+	
 	public double getLogCladeCredibility(Node node, BitSet bits) {
 
         double logCladeCredibility = 0.0;
 
         if (node.isLeaf()) {
             int index = node.getNr();
-            bits.set(2*index);
+            bits.set(index);
         } else {
 
             BitSet bits2 = new BitSet();
@@ -319,9 +404,9 @@ public class GSSTreeDistribution extends Distribution {
             bits2.or(left);
             bits2.or(right);
 
-            for (int i=1; i<bits2.length(); i=i+2) {
-                bits2.set(i, false);
-            }
+//            for (int i=1; i<bits2.length(); i=i+2) {
+//                bits2.set(i, false);
+//            }
 
             logCladeCredibility += getLogCladeCredibility(bits2, left, right);
 
@@ -330,6 +415,7 @@ public class GSSTreeDistribution extends Distribution {
             }
         }
 
+        //System.err.println(node.getNr() + " " + logCladeCredibility);
         return logCladeCredibility;
     }
 	
