@@ -99,15 +99,14 @@ abstract public class MCMC2IS extends Runnable {
 		gss.setInputValue("samplingDistribution",samplingDistribution);
 		setUpInitialisers(mcmc.initialisersInput.get());
 
-		String required = getRequiredAttribute();
 		// save
 		// String xml = new XMLProducer().toXML(mcmc.get(), );
 		String spec = null;
 		OutFile file = outputInput.get();
 		if (file.getPath().toLowerCase().endsWith(".json")) {
-			spec = toJSON(gss, required);
+			spec = toJSON(gss);
 		} else {
-			spec = toXML(gss, required);
+			spec = toXML(gss);
 		}
 		FileWriter outfile = new FileWriter(file);
 		outfile.write(spec);
@@ -180,45 +179,16 @@ abstract public class MCMC2IS extends Runnable {
 
 	}
 
-	private String getRequiredAttribute() throws IOException {
-		BufferedReader fin = new BufferedReader(new FileReader(model1Input.get()));
-		StringBuffer buf = new StringBuffer();
-		String str = null;
-		while (fin.ready()) {
-			str = fin.readLine();
-			buf.append(str);
-			buf.append('\n');
-		}
-		fin.close();
-		String xml = buf.toString();
-		if (xml.matches("required=['\"]")) {
-			int start = xml.indexOf("required=") + 10;
-			int end = xml.indexOf("'", start);
-			int end2 = xml.indexOf("\"", start);
-			if (end > 0 && end2 > 0) {
-				end = Math.min(end, end2);
-			} else if (end < 0) {
-				end = end2;
-			}
-			String required = xml.substring(start, end);
-			return required;
-		}
-		return "";
-	}
-
-	private String toJSON(BEASTObject gss, String required) {
+	private String toJSON(BEASTObject gss) {
 		Set<BEASTInterface> beastObjects = new HashSet<>();
 		String json = new JSONProducer().toJSON(gss, beastObjects);
 
-		json = json.replaceFirst("\\{", "{ required:\"" + required + "\", ");
 		return json + "\n";
 	}
 
-	public String toXML(BEASTObject gss, String required) {
+	public String toXML(BEASTObject gss) {
 		Set<BEASTInterface> beastObjects = new HashSet<>();
 		String xml = new XMLProducer().toXML(gss, beastObjects);
-
-		xml = xml.replaceFirst("<beast ", "<beast required='" + required + "' ");
 		return xml + "\n";
 	}
 
