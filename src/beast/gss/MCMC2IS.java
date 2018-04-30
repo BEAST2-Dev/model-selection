@@ -304,6 +304,7 @@ abstract public class MCMC2IS extends Runnable {
 		String id = ((BEASTInterface) f).getID();
 		String shortid = id.contains(".") ? id.substring(0, id.lastIndexOf('.')) : id;
 		String shortid2 = id.contains(":") ? id.substring(0, id.lastIndexOf(':')-1) + id.substring(id.lastIndexOf(':') + 1) : id;
+		String shortid3 = id.contains(".") ? id.substring(0, id.lastIndexOf('.') + 1) : id;
 		TraceLog tracelog = traceLogs.get(shortid);
 		String label = shortid;
 		if (tracelog == null) {
@@ -321,6 +322,15 @@ abstract public class MCMC2IS extends Runnable {
 		}
 		if (tracelog == null) {
 			label = shortid2;
+			id = label + "1";
+			tracelog = traceLogs.get(id);
+		}
+		if (tracelog == null) {
+			label = shortid3;
+			tracelog = traceLogs.get(label);
+		}
+		if (tracelog == null) {
+			label = shortid3;
 			id = label + "1";
 			tracelog = traceLogs.get(id);
 		}
