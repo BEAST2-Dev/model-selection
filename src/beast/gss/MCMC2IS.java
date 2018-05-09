@@ -97,7 +97,8 @@ abstract public class MCMC2IS extends Runnable {
 		CompoundDistribution prior = getPrior(mcmc);
 		Distribution samplingDistribution = getAltPrior(prior, mcmc.startStateInput.get());
 		gss.setInputValue("samplingDistribution",samplingDistribution);
-		setUpInitialisers(mcmc.initialisersInput.get());
+		setUpInitialisers((List<StateNodeInitialiser>) gss.getInput("init").get());
+		//setUpInitialisers(mcmc.initialisersInput.get());
 
 		// save
 		// String xml = new XMLProducer().toXML(mcmc.get(), );
