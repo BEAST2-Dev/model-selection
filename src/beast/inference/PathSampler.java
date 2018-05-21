@@ -73,6 +73,11 @@ public class PathSampler extends beast.core.Runnable {
 
 	DecimalFormat formatter;
 	String getStepDir(int iParticle) {
+		if (rootDirInput.get().equals("")) {
+			Log.warning("WARNING: empty rootdir found. This means the top level of the file system "
+					+ "will be used for the step directories. Consider specifying the rootdir attribute "
+					+ "with a non-empty string.");
+		}
 		File f = new File(rootDirInput.get());
 		return f.getAbsolutePath() + "/step" + formatter.format(iParticle);
 	}
