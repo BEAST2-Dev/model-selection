@@ -7,6 +7,11 @@ import beast.core.util.Evaluator;
 import beast.inference.PathSamplingStep;
 import beast.util.Randomizer;
 
+@Citation(value= "Xie, W., Lewis, P. O., Fan, Y., Kuo, L., & Chen, M. H. (2011).\n" +
+        "Improving marginal likelihood estimation for Bayesian phylogenetic model selection.\n" +
+        "Systematic biology, 60(2), 150-160."
+        , year = 2011, firstAuthorSurname = "Xie",
+        DOI="10.1093/sysbio/syq085")
 @Description("Calculate marginal likelihood through generalised path sampling for a single step")
 public class GeneralisedSteppingStoneStep extends PathSamplingStep {
 //	final public Input<LogFile> traceFileInput = new Input<>("logFile","input file containing trace log. If not specified, use trace log file from XML");

@@ -1,25 +1,21 @@
 package beast.inference;
 
-import java.io.IOException;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.Logger;
-import beast.core.MCMC;
-import beast.core.Operator;
-import beast.core.StateNodeInitialiser;
+import beast.core.*;
 import beast.core.util.CompoundDistribution;
 import beast.core.util.Evaluator;
 import beast.util.Randomizer;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
+import java.util.List;
 
 
-
+@Citation(value= "Lartillot, N., & Philippe, H. (2006).\n" +
+                "Computing Bayes factors using thermodynamic integration.\n" +
+                "Systematic biology, 55(2), 195-207."
+        , year = 2006, firstAuthorSurname = "Lartillot",
+        DOI="10.1080/10635150500433722")
 @Description("Calculate marginal likelihood through path sampling for a single step")
 public class PathSamplingStep extends MCMC {
 
