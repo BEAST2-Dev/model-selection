@@ -1,11 +1,13 @@
 package beast.gss;
 
 import beast.app.util.Application;
+import beast.core.Description;
 import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.Input.Validate;
 import beast.core.MCMC;
 
+@Description("Convert MCMC analysis to GSS analysis and optionally run the analysis")
 public class MCMC2GSS extends MCMC2IS {
 	
 	public Input<Double> alphaInput = new Input<>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +

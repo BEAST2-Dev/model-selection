@@ -42,27 +42,27 @@ public class GSSTreeDistributionTest extends TestCase {
 				
 	}
 
-	@Test
-	public void testGSSTreeDistribution2() throws IOException {
-		GSSTreeDistribution distr  = new GSSTreeDistribution();
-		distr.initByName("treefile", "/tmp/one.trees", "tree", null, "burnin", 0, "useGammaForBranchLengths", GSSTreeDistribution.BranchLengthDistribution.none);
-		distr.listConditionalCladeProbabilities();
-		
-		TreeSet trees = new TreeAnnotator().new MemoryFriendlyTreeSet("/tmp/one.trees", 0);
-		trees.reset();
-
-		List<List<Double>> intervalLog = new ArrayList<>();
-		Tree tree = trees.next();
-		trees.reset();
-		for (int i = 0; i < tree.getNodeCount() + 1; i++) {
-			intervalLog.add(new ArrayList<>());
-		}
-
-		while (trees.hasNext()) {
-			tree = trees.next();
-			distr.setTree(tree);
-			System.out.println(tree.getRoot().toNewick(true) + " " + distr.calculateLogP());
-		}
-	}
+//	@Test
+//	public void testGSSTreeDistribution2() throws IOException {
+//		GSSTreeDistribution distr  = new GSSTreeDistribution();
+//		distr.initByName("treefile", "/tmp/one.trees", "tree", null, "burnin", 0, "useGammaForBranchLengths", GSSTreeDistribution.BranchLengthDistribution.none);
+//		distr.listConditionalCladeProbabilities();
+//		
+//		TreeSet trees = new TreeAnnotator().new MemoryFriendlyTreeSet("/tmp/one.trees", 0);
+//		trees.reset();
+//
+//		List<List<Double>> intervalLog = new ArrayList<>();
+//		Tree tree = trees.next();
+//		trees.reset();
+//		for (int i = 0; i < tree.getNodeCount() + 1; i++) {
+//			intervalLog.add(new ArrayList<>());
+//		}
+//
+//		while (trees.hasNext()) {
+//			tree = trees.next();
+//			distr.setTree(tree);
+//			System.out.println(tree.getRoot().toNewick(true) + " " + distr.calculateLogP());
+//		}
+//	}
 	
 }

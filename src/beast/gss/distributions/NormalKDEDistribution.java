@@ -46,7 +46,7 @@ import java.util.Random;
  */
 @Description("Distribution based on normal kernel density esitmators (and no transform on the input)")
 public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
-	public Input<TraceLog> traceLogInput = new Input<>("traceLog", "trace log", Validate.REQUIRED);
+	public Input<TraceLog> traceLogInput = new Input<>("traceLog", "file containing trace log", Validate.REQUIRED);
 	public Input<String> labelInput = new Input<>("label", "label of the column containing data in the trace file", Validate.REQUIRED);
 	public Input<Function> xInput = new Input<>("x", "function/statistic to take distribution over");
 

@@ -51,7 +51,7 @@ import beast.util.TreeParser;
 import beast.util.XMLParser;
 import beast.util.XMLProducer;
 
-@Description("Convert MCMC analysis to GSS analysis and optionally run the analysis")
+@Description("Convert MCMC analysis to importance sampling analysis like GSS and optionally run the analysis")
 abstract public class MCMC2IS extends Runnable {
 	public Input<XMLFile> model1Input = new Input<>("xml",
 			"file name of BEAST XML file containing the model for which to create a GSS XML file for",

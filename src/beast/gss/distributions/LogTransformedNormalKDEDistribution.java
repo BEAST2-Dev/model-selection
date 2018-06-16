@@ -48,7 +48,7 @@ public class LogTransformedNormalKDEDistribution extends KernelDensityEstimatorD
     public static final int MINIMUM_GRID_SIZE = 2048;
     public static final boolean DEBUG = false;
 
-	public LogTransformedNormalKDEDistribution(@Param(name="traceLog", description="trace log ") TraceLog traceLog,
+	public LogTransformedNormalKDEDistribution(@Param(name="traceLog", description="file containing trace log ") TraceLog traceLog,
 			@Param(name="label",description= "label of the column containing data in the trace file") String label,
 			@Param(name="x", description="function/statistic to take distribution over") Function p) {
 		this(traceLog.getTrace(label), p);
