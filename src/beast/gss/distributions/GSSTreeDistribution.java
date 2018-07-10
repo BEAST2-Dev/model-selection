@@ -4,6 +4,9 @@ package beast.gss.distributions;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.math.distribution.ContinuousDistribution;
+import org.apache.commons.math.distribution.ExponentialDistribution;
+import org.apache.commons.math.distribution.ExponentialDistributionImpl;
 import org.apache.commons.math.distribution.GammaDistribution;
 import org.apache.commons.math.distribution.GammaDistributionImpl;
 
@@ -18,6 +21,7 @@ import beast.evolution.tree.Node;
 import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeInterface;
 import beast.evolution.tree.coalescent.TreeIntervals;
+import beast.math.distributions.ParametricDistribution;
 
 @Description("Tree Distribution consisting of a "
 		+ "Conditional Clade Distribution for a tree set (as defined in "
@@ -26,13 +30,14 @@ import beast.evolution.tree.coalescent.TreeIntervals;
 		+ "62(4): 501-511. http://dx.doi.org/10.1093/sysbio/syt014) and "
 		+ "tree interval distribution.")
 public class GSSTreeDistribution extends Distribution {
-	public enum BranchLengthDistribution {useGamma, useIntervals, none};
+	public enum BranchLengthDistribution {useGamma, useExp, useUniform, useIntervals, none};
 	
 	public Input<TreeFile> treeFileInput = new Input<>("treefile", "file containing tree set");
 	public Input<TreeInterface> treeInput = new Input<>("tree", "beast tree for which the conditional clade distribution is calculated");
 	public Input<Integer> burninPercentageInput = new Input<>("burnin", "percentage of the tree set to remove from the beginning", 10);
 	public Input<BranchLengthDistribution> useGammaForBranchLengthsInput = new Input<>("useGammaForBranchLengths", "use an empirical gamma distribution for branch length distribution", BranchLengthDistribution.none, BranchLengthDistribution.values());
 
+	public Input<Boolean> useCCDInput = new Input<>("useCCD", "include conditional clade distribution", true);
 	
 	
 
@@ -40,7 +45,9 @@ public class GSSTreeDistribution extends Distribution {
 	private TreeInterface tree;
 	private Integer burninPercentage;
 	private BranchLengthDistribution useGammaForBranchLengths = BranchLengthDistribution.none;
-	
+	private double lower = Double.POSITIVE_INFINITY;
+	private double upper = Double.NEGATIVE_INFINITY;
+
 	private Tree lastTree;
 	public Tree getLastTre() {return lastTree;}
 	
@@ -62,10 +69,11 @@ public class GSSTreeDistribution extends Distribution {
     private Map<String, Integer> mapTaxonIDToNr = new LinkedHashMap<>();
     
     NormalKDEDistribution [] distrs; 
-    GammaDistribution gammaDistr;
+    ContinuousDistribution branchLengthDistr;
 
     // log probability for a clade that does not exist in the clade system
-    final static double EPSILON = -1e8;
+    final static double EPSILON = -8;    
+    //double [] epsilon;
 	
     public GSSTreeDistribution() {}
 //	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
@@ -100,6 +108,12 @@ public class GSSTreeDistribution extends Distribution {
 		}
 		this.useGammaForBranchLengths = useGammaForBranchLengthsInput.get();
 		processTreeFile();
+		
+//		x
+//		epsilon = new double[tree.getLeafNodeCount()];
+//		for (int i = 0; i < epsilon.length; i++) {
+//			epsilon[i] = -Math.log(2* i);
+//		}
 	}
 	
 	private void processTreeFile() {		
@@ -115,6 +129,9 @@ public class GSSTreeDistribution extends Distribution {
     			intervalLog.add(new ArrayList<>());
     		}
     		lastTree = tree;
+    		
+    		lower = Double.POSITIVE_INFINITY;
+    		upper = Double.NEGATIVE_INFINITY;
 
 			while (trees.hasNext()) {
 				tree = trees.next();
@@ -122,7 +139,13 @@ public class GSSTreeDistribution extends Distribution {
 				
 				switch (useGammaForBranchLengths) {
 				case useGamma:
+				case useExp:
 					updateGammaEstimates(tree);
+					break;
+				case useUniform:
+					double len = getTreeLength(tree);
+					lower = Math.min(len, lower);
+					upper = Math.max(len, upper);
 					break;
 				case useIntervals:
 					addToIntervalLog(tree, intervalLog);
@@ -141,8 +164,13 @@ public class GSSTreeDistribution extends Distribution {
 			}			
 			
 			switch (useGammaForBranchLengths) {
+			case useUniform:
+				break;
+			case useExp:
+				branchLengthDistr = createExpDistr();
+				break;
 			case useGamma:
-				gammaDistr = createGammaDistr();
+				branchLengthDistr = createGammaDistr();
 				break;
 			case useIntervals:
 				createIntervalDistr(intervalLog);
@@ -157,35 +185,39 @@ public class GSSTreeDistribution extends Distribution {
 	
 	
 	private GammaDistribution createGammaDistr() {
-		meanBranchLen = meanBranchLen / branchLenCount;
-		double s = Math.log(meanBranchLen) - branchLogLen / branchLenCount;
+		// ML estimate per https://en.wikipedia.org/wiki/Gamma_distribution#Maximum_likelihood_estimation
+		meanLength = meanLength / lengthCount;
+		double s = Math.log(meanLength) - logLength / lengthCount;
 		double alpha = 3 - s + Math.sqrt((s-3)*(s-3)+24*s)/(12*s); 
-		double beta = meanBranchLen / alpha;
+		double beta = meanLength / alpha;
 		
 		GammaDistribution distr = new GammaDistributionImpl(alpha, beta);
 		return distr;
 	}
 
+	private ExponentialDistribution createExpDistr() {
+		meanLength = meanLength / lengthCount;
+		ExponentialDistribution distr = new ExponentialDistributionImpl(meanLength);
+		return distr;
+	}
+
+	
 	public BranchLengthDistribution getUseGammaForBranchLengths() {return useGammaForBranchLengths;}
 	public void setUseGammaForBranchLengths(BranchLengthDistribution useGammaForBranchLengths) {this.useGammaForBranchLengths = useGammaForBranchLengths;}
-	public int getBranchLenCount() {return branchLenCount;}
-	public void setBranchLenCount(int branchLenCount) {this.branchLenCount = branchLenCount;}
+	public int getBranchLenCount() {return lengthCount;}
+	public void setBranchLenCount(int branchLenCount) {this.lengthCount = branchLenCount;}
 
-	double meanBranchLen = 0;
-	int branchLenCount = 0;
-	double branchLogLen = 0;
+	double meanLength = 0;
+	int lengthCount = 0;
+	double logLength = 0;
 	
     private void updateGammaEstimates(Tree tree) {
-    	for (Node node : tree.getNodesAsArray()) {
-    		if (!node.isRoot()) {
-    			double len = node.getLength();
-    			meanBranchLen += len;
-    			branchLogLen += Math.log(len);
-    			branchLenCount++;
-    		}
-    	}
-		
+    	double len = getTreeLength(tree);
+		meanLength += len;
+		logLength += Math.log(len);
+		lengthCount++;
 	}
+    
 	private void createIntervalDistr(List<List<Double>> intervalLog) {
 		NormalKDEDistribution [] distrs = new NormalKDEDistribution[intervalLog.size()];
 		for (int i = 0; i < distrs.length; i++) {
@@ -262,14 +294,31 @@ public class GSSTreeDistribution extends Distribution {
         }
         clade.setCount(clade.getCount() + 1);
     }
+    
+    @Override
+    public double getCurrentLogP() {
+    	calculateLogP();
+    	return super.getCurrentLogP();
+    }
 	
 	@Override
 	public double calculateLogP() {
-		logP = getLogCladeCredibility(tree.getRoot(), new BitSet());
+		logP = 0;
+		if (useCCDInput.get()) {
+			logP = getLogCladeCredibility(tree.getRoot(), new BitSet());
+		}
+		
 		//System.err.print("GSST logp = " + logP);
 		switch (useGammaForBranchLengths) {
+		case useExp:
 		case useGamma:
 			logP += getGammaBranchLengths(tree);
+			break;
+		case useUniform:
+			double len = getTreeLength(tree);
+			if (len < lower || len > upper) {
+				logP = Double.NEGATIVE_INFINITY;
+			}
 			break;
 		case useIntervals:
 			logP += getLogIntervalProbability(tree);
@@ -283,14 +332,21 @@ public class GSSTreeDistribution extends Distribution {
 	
     private double getGammaBranchLengths(TreeInterface tree) {
     	 double logP = 0;
-    	 for (Node node : tree.getNodesAsArray()) {
-    		 double len = node.getLength();
-    		 if (len > 0) {
-    			 logP += gammaDistr.logDensity(len);
-    		 }
-    	 }
+    	 double len = getTreeLength(tree);
+		logP += branchLengthDistr.logDensity(len);
 		return logP;
 	}
+    
+	private double getTreeLength(TreeInterface tree) {
+		double len = 0;
+	   	for (Node node : tree.getNodesAsArray()) {
+			 if (!node.isRoot()) {
+	    		 len += node.getLength();
+			 }
+	   	}
+		return len;
+	}
+
 	private double getLogIntervalProbability(TreeInterface tree) {
 		TreeIntervals intervals = new TreeIntervals((Tree) tree);
 		double logP = 0;
