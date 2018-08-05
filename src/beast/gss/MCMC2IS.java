@@ -1,18 +1,14 @@
 package beast.gss;
 
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import beast.app.util.Application;
 import beast.app.util.LogFile;
 import beast.app.util.OutFile;
 import beast.app.util.TreeFile;
@@ -134,7 +130,7 @@ abstract public class MCMC2IS extends Runnable {
 				String newick = null;
 				for (BEASTInterface o : tree.getOutputs()) {
 					if (o instanceof GSSTreeDistribution) {
-						newick = ((GSSTreeDistribution)o).getLastTre().getRoot().toNewick();
+						newick = ((GSSTreeDistribution)o).getLastTree().getRoot().toNewick();
 					}
 				}
 				newick = newick.replaceAll("\\[[^\\[\\]]+\\]", "");
@@ -203,10 +199,7 @@ abstract public class MCMC2IS extends Runnable {
 				Distribution altTreeDist = getAltTreeDist((TreeDistribution) d);
 				altPrior.add(altTreeDist);
 				
-				TreeInterface tree = ((TreeDistribution) d).treeInput.get();
-				if (tree == null) {
-					tree = ((TreeDistribution) d).treeIntervalsInput.get().treeInput.get();
-				}
+				TreeInterface tree = getTree((TreeDistribution) d);
 				stateNodes.remove(tree);
 			} else if (d instanceof MRCAPrior) {
 				altPrior.add(d);
@@ -217,8 +210,9 @@ abstract public class MCMC2IS extends Runnable {
 				Object o = ((beast.math.distributions.Prior) d).m_x.get();
 				stateNodes.remove(o);
 			} else {
-				throw new IllegalArgumentException(
-						"Don't know how to handle distributio " + d.getID() + " of type " + d.getClass().getName());
+				Log.warning("Don't know how to handle distributio " + d.getID() + " of type " + d.getClass().getName());
+				Log.warning("Using "+ d.getID() + " as working distribution");
+				altPrior.add(d);
 			}
 
 		}
@@ -247,8 +241,8 @@ abstract public class MCMC2IS extends Runnable {
 		// attempt to find associated tree log
 		String fileName = null;
 		Logger l = null;
-		Tree tree = (Tree) d.getInput("tree").get();
-		for (BEASTInterface o : tree.getOutputs()) {
+		TreeInterface tree = getTree(d); 
+		for (BEASTInterface o : ((BEASTObject)tree).getOutputs()) {
 			if (o instanceof Logger) {
 				l = (Logger) o;
 				if (l.modeInput.get().equals(LOGMODE.tree)) {
@@ -293,11 +287,19 @@ abstract public class MCMC2IS extends Runnable {
 		// create GSS tree distribution
 		GSSTreeDistribution ccDistr = new GSSTreeDistribution();
 		ccDistr.initByName("treefile", file, 
-				"tree", d.treeInput.get(),
+				"tree", getTree(d),
 				"burnin", traceBurninInput.get(), 
 				"useGammaForBranchLengths", BranchLengthDistribution.useGamma);
 		ccDistr.setID(d.getID()+ ".gss");
 		return ccDistr;
+	}
+
+	private TreeInterface getTree(TreeDistribution d) {
+		TreeInterface tree = ((TreeDistribution) d).treeInput.get();
+		if (tree == null) {
+			tree = ((TreeDistribution) d).treeIntervalsInput.get().treeInput.get();
+		}
+		return tree;
 	}
 
 	private Distribution getAltPriorDist(Function f, String priorID) { //beast.math.distributions.Prior d) {

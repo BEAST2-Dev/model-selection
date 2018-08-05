@@ -17,11 +17,13 @@ import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Input;
 import beast.core.State;
+import beast.core.util.Log;
 import beast.evolution.tree.Node;
 import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeInterface;
 import beast.evolution.tree.coalescent.TreeIntervals;
 import beast.math.distributions.ParametricDistribution;
+import beast.util.Randomizer;
 
 @Description("Tree Distribution consisting of a "
 		+ "Conditional Clade Distribution for a tree set (as defined in "
@@ -49,7 +51,25 @@ public class GSSTreeDistribution extends Distribution {
 	private double upper = Double.NEGATIVE_INFINITY;
 
 	private Tree lastTree;
-	public Tree getLastTre() {return lastTree;}
+	private int treeCount;
+	public Tree getLastTree() {return lastTree;}
+
+	public Tree getRandomTree() {
+		try {
+			TreeSet trees = new TreeAnnotator().new MemoryFriendlyTreeSet(treeFile.getAbsolutePath(), burninPercentage);
+			trees.reset();
+			int n = Randomizer.nextInt(treeCount);
+			Log.warning("Drawing tree " + n + " from " + treeFileInput.getName());
+			for (int i = 0; i < n; i++) {
+				trees.next();
+			}
+			Tree tree = trees.next();
+			return tree;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return lastTree;
+	}
 	
 	public TreeFile getTreefile() {return treeFile;}
 	public void setTreefile(TreeFile treeFile) {this.treeFile = treeFile;}
@@ -118,7 +138,6 @@ public class GSSTreeDistribution extends Distribution {
 	
 	private void processTreeFile() {		
 		try {
-
 			TreeSet trees = new TreeAnnotator().new MemoryFriendlyTreeSet(treeFile.getAbsolutePath(), burninPercentage);
 			trees.reset();
 
@@ -133,8 +152,10 @@ public class GSSTreeDistribution extends Distribution {
     		lower = Double.POSITIVE_INFINITY;
     		upper = Double.NEGATIVE_INFINITY;
 
+			treeCount = 0;
 			while (trees.hasNext()) {
 				tree = trees.next();
+				treeCount++;
 				addClades(tree.getRoot());
 				
 				switch (useGammaForBranchLengths) {
@@ -317,7 +338,12 @@ public class GSSTreeDistribution extends Distribution {
 		case useUniform:
 			double len = getTreeLength(tree);
 			if (len < lower || len > upper) {
-				logP = Double.NEGATIVE_INFINITY;
+				// System.err.println(len);
+				double centre = (lower + upper) / 2.0;
+				logP += -100000 * (len-centre) * (len-centre);
+				//logP = Double.NEGATIVE_INFINITY;
+			} else {
+				logP += 0;
 			}
 			break;
 		case useIntervals:
