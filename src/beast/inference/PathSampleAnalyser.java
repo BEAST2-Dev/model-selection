@@ -58,7 +58,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 		List<List<Double>> logdata = new ArrayList<List<Double>>(); 
 		
 		
-		double [] beta = new double[nSteps + 1];
+		double [] beta = new double[nSteps];
 		if (getBetaFromFileInput.get()) {
 			for (int i = 0; i < nSteps; i++) {
 				beta[i] = 1.0;
@@ -83,20 +83,9 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			}
 		}
 		
-		int [] order = new int[nSteps+1];
+		int [] order = new int[nSteps];
         HeapSort.sort(beta, order);
-        for (int i = 0; i < nSteps/2; i++) {
-        	int tmp = order[i]; order[i] = order[nSteps-i]; order[nSteps-i] = tmp;
-        }
-        if (order[nSteps - 1] == nSteps) {
-        	order[nSteps - 1] = order[nSteps];
-        	order[nSteps] = nSteps;
-        }
-        Arrays.sort(beta); 
-        for (int i = 0; i < nSteps/2; i++) {
-        	double tmp = beta[i]; beta[i] = beta[nSteps-i]; beta[nSteps-i] = tmp;
-        }
-        
+        Arrays.sort(beta);
 
 		// collect likelihood estimates for each step
 		double [] marginalLs = new double[nSteps];
@@ -219,7 +208,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			double [] contrib = new double[nSteps-1];
 			
 			for (int i = 0; i < nSteps - 1; i++) {
-				List<Double> logdata1 = logdata.get(i);
+				List<Double> logdata1 = logdata.get(nSteps-i-1);
 				double beta1 = betas[i]; 
 				double beta2 = betas[i+1]; 
 				double weight = beta2 - beta1;
@@ -239,8 +228,8 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 				}
 				logMarginalL += Math.log(x/n);
 
-				contrib[i] = -(weight * logLmax + Math.log(x/n));
-				logdata1.set(1, -(weight * logLmax + Math.log(x/n)));
+				contrib[i] = (weight * logLmax + Math.log(x/n));
+				logdata1.set(1, (weight * logLmax + Math.log(x/n)));
 
 //				logMarginalL += weight * marginalLs[i]; 
 			}
@@ -275,7 +264,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			System.out.println("sum(ESS) = " + format(sumESS));
 			System.out.println();
 		}
-		return -logMarginalL;
+		return logMarginalL;
 	}
 
 	private String format(double d) {
