@@ -372,18 +372,25 @@ public class GSSTreeDistribution extends Distribution {
 	   	}
 		return len;
 	}
+	
+	TreeIntervals intervals;
 
 	private double getLogIntervalProbability(TreeInterface tree) {
-		TreeIntervals intervals = new TreeIntervals((Tree) tree);
+		if (intervals == null) {
+			intervals = new TreeIntervals();
+		}
+		intervals.treeInput.setValue(tree, intervals);
+		intervals.initAndValidate();
 		double logP = 0;
 		for (int i = 0; i < intervals.getIntervalCount(); i++) {
 			double t = intervals.getIntervalTime(i);
-			if (t > 0) {
+			if (t > 1e-9) { // ignore tips at t=0
 				double logPdf = distrs[i].logPdf(t);
 				if (Double.isInfinite(logPdf)) {
 					logPdf = EPSILON;
 				}
 				logP += logPdf;
+				// System.out.println(i + " " + logP + " " + logPdf);
 			}
 		}
 		double logPdf = distrs[distrs.length - 1].logPdf(tree.getRoot().getHeight());

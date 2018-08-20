@@ -59,7 +59,7 @@ abstract public class MCMC2IS extends Runnable {
 
 	public Input<MCMC> mcmcInput = new Input<>("mcmc", "MCMC analysis used to specify model and operations in each of the particles", Validate.REQUIRED);
 	public Input<Long> chainLengthInput = new Input<>("chainLength", "number of sample to run a chain for a single step", 100000l);
-	public Input<Integer> preBurnInInput = new Input<>("preBurnin", "number of samples that are discarded for the first step, but not the others", 100000);
+	public Input<Integer> preBurnInInput = new Input<>("preBurnin", "number of samples that are discarded for the first step, but not the others", 0);
 	public Input<Boolean> doNotRun = new Input<>("doNotRun", "Set up all files but do not run analysis if true. " +
 			"This can be useful for setting up an analysis on a cluster", false);
 	
