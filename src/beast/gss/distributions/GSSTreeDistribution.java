@@ -29,7 +29,7 @@ import beast.util.Randomizer;
 		+ "Conditional Clade Distribution for a tree set (as defined in "
 		+ "Larget B (2013) The estimation of tree posterior probabilities "
 		+ "using conditional clade probability distributions. Systematic Biology "
-		+ "62(4): 501-511. http://dx.doi.org/10.1093/sysbio/syt014) and "
+		+ "62(4): 501-511. https://doi.org/10.1093/sysbio/syt014) and "
 		+ "tree interval distribution.")
 public class GSSTreeDistribution extends Distribution {
 	public enum BranchLengthDistribution {useGamma, useExp, useUniform, useIntervals, none};
