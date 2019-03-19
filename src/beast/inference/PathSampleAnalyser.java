@@ -33,6 +33,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 	public Input<Integer> crossValInput = new Input<>("cross", "the number of cross validation intervals to use for estimating the variance, default 0, no variance estimate is provided", 0);
 	public Input<Integer> crossVaRepeatslInput = new Input<>("repeats", "the number of times cross validation is repeated, default 100", 100);
 	public Input<Boolean> getBetaFromFileInput = new Input<>("betaFromFile", "get beta values from XML file instead of assuming they are from a Beta distirbution", false);
+	public Input<String> tagInput = new Input<>("tag", "label of the column in the likelihood.log file", "likelihood");
 	
 	DecimalFormat formatter;
 	
@@ -49,6 +50,10 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 	 * @throws Exception
 	 */
 	public double estimateMarginalLikelihood(int nSteps, double alpha, String rootDir, int burnInPercentage) throws Exception {
+		return estimateMarginalLikelihood(nSteps, alpha, rootDir, burnInPercentage, "likelihood");
+	}
+	
+	public double estimateMarginalLikelihood(int nSteps, double alpha, String rootDir, int burnInPercentage, String tag) throws Exception {
 		String sFormat = "";
 		for (int i = nSteps; i > 0; i /= 10) {
 			sFormat += "#";
@@ -77,9 +82,16 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 		        fin.close();
 			}
 		} else {
-			BetaDistribution betaDistribution = new BetaDistributionImpl(alpha, 1.0);
+			BetaDistribution betaDistribution = null;
+			if (alphaInput.get() > 0){
+				betaDistribution = new BetaDistributionImpl(alphaInput.get(), 1.0);
+			}
+
 			for (int i = 0; i < nSteps; i++) {
-				beta[i] = betaDistribution.inverseCumulativeProbability((nSteps - 1.0 - i)/ (nSteps - 1));
+				beta[i] = betaDistribution != null ?
+						betaDistribution.inverseCumulativeProbability((nSteps - 1.0 - i)/ (nSteps - 1))
+						:(nSteps - 1.0 - i)/ (nSteps - 1);
+
 			}
 		}
 		
@@ -94,13 +106,13 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			List<Double> logdata1 = new ArrayList<Double>();
 			String logFile = getStepDir(rootDir, i) + "/" + PathSampler.LIKELIHOOD_LOG_FILE;
 			LogAnalyser analyser = new LogAnalyser(new String[] {logFile}, burnInPercentage);
-			marginalLs[order[i]] = analyser.getMean("likelihood");
-			marginalLs2[order[i]] = analyser.getTrace("likelihood");
+			marginalLs[order[i]] = analyser.getMean(tag);
+			marginalLs2[order[i]] = analyser.getTrace(tag);
 			System.out.println("marginalLs[" + i + " ] = " + marginalLs[order[i]]);
 
 			logdata1.add(marginalLs[order[i]]);
 			logdata1.add(0.0);
-			logdata1.add(analyser.getESS("likelihood"));
+			logdata1.add(analyser.getESS(tag));
 			logdata.add(logdata1);
 		}
 		double logMarginalL = estimateMarginalLikelihood(logdata, marginalLs2, marginalLs, alpha, nSteps, beta, true);
@@ -314,7 +326,8 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 				stepsInput.get(), 
 				alphaInput.get(), 
 				rootDirInput.get(), 
-				burnInPercentageInput.get());
+				burnInPercentageInput.get(),
+				tagInput.get());
         
         
 		Thread.sleep(500);
