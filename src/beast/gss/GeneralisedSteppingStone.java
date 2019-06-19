@@ -171,8 +171,9 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 		
 		// add posterior logger
 		Logger logger = new Logger();
-		Distribution likelihood = extractLikelihood(mcmc); 
+		Distribution likelihood = extractLikelihood(mcmc);
 		logger.initByName("fileName", LIKELIHOOD_LOG_FILE, "log", likelihood, "logEvery", (int)(chainLength/1000));
+		logger.setID("GSSLikelihoodLogger");
 		mcmc.loggersInput.setValue(logger, mcmc);
 
 		// set up directories with beast.xml files in each of them
@@ -211,6 +212,10 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 						(m_nSteps - 1.0 - i)/ (m_nSteps - 1);
 			step.setInputValue("beta", beta);
 			String sXML = producer.toXML(step);
+			
+	        sXML = sXML.replaceAll("<logger id=\"GSSLikelihoodLogger.*>", "<logger id='GSSLikelihoodLogger' fileName='" + LIKELIHOOD_LOG_FILE +"' logEvery='" + (int)(chainLength/1000) +"'>\n" +	        		
+	        		"<log id='GSSLikelihood' spec='beast.util.Script' expression='likelihood + prior - GSSPrior'>\n<x idref='likelihood'/>\n<x idref='prior'/>\n<x idref='GSSPrior'/>\n</log>");
+			
 			File stepDir = new File(getStepDir(i));
 			if (!stepDir.exists() && !stepDir.mkdir()) {
 				throw new Exception("Failed to make directory " + stepDir.getName());
@@ -461,7 +466,7 @@ public class GeneralisedSteppingStone extends beast.core.Runnable {
 
 	void analyse() throws Exception {
     	PathSampleAnalyser analyser = new PathSampleAnalyser();
-    	double marginalL = analyser.estimateMarginalLikelihood(m_nSteps, alphaInput.get(), rootDirInput.get(), burnInPercentage);
+    	double marginalL = analyser.estimateMarginalLikelihood(m_nSteps, alphaInput.get(), rootDirInput.get(), burnInPercentage, "GSSLikelihood");
 		System.out.println("marginal L estimate = " + marginalL);
 	}
 
