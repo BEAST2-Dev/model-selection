@@ -98,7 +98,7 @@ public class PathSampler extends beast.core.Runnable {
 		m_sScript = m_sScriptInput.get();
 		if (m_sScript == null) {
 			m_sScript = "cd $(dir)\n" +
-					"java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml\n";
+					"java -cp $(java.class.path) beast.app.beastapp.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml\n";
 		}
 		if (m_sHostsInput.get() != null) {
 			m_sHosts = m_sHostsInput.get().split(",");
@@ -309,7 +309,9 @@ public class PathSampler extends beast.core.Runnable {
 			sCommand = sCommand.replaceAll("\\$\\(seed\\)", Math.abs(Randomizer.nextInt())+"");
 		//}
 		sCommand = sCommand.replaceAll("\\$\\(java.library.path\\)",  "\"" + sanitise(System.getProperty("java.library.path")) + "\"");
-		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(System.getProperty("java.class.path")) + "\"");
+//		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(System.getProperty("java.class.path")) + "\"");
+		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(getLauncherJarPath()) + "\"");
+		sCommand = sCommand.replaceAll("beast.app.beastapp.BeastMain", "beast.app.beastapp.BeastLauncher");
 		if (m_sHosts != null) {
 			sCommand = sCommand.replaceAll("\\$\\(host\\)", m_sHosts[iStep % m_sHosts.length]);
 		}
@@ -322,6 +324,19 @@ public class PathSampler extends beast.core.Runnable {
 	}
 
 	
+	private String getLauncherJarPath() {
+		String property = System.getProperty("java.class.path");
+		String pathSeparator = System.getProperty("path.separator");
+		String [] paths = property.split(pathSeparator);
+		for (String path : paths) {
+			if (path.toLowerCase().endsWith("launcher.jar")) {
+				return path;
+			}
+		}
+		return null;
+	}
+
+
 	private String sanitise(String property) {
 		// make absolute paths from relative paths
 		String pathSeparator = System.getProperty("path.separator");
