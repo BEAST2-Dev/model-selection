@@ -1,11 +1,9 @@
 package beast.inference;
 
-import java.io.PrintStream;
 import java.util.List;
 
 import beast.core.Description;
 import beast.core.Distribution;
-import beast.core.Loggable;
 import beast.core.util.Evaluator;
 import beast.core.Input;
 import beast.core.Operator;
@@ -14,7 +12,7 @@ import beast.core.util.CompoundDistribution;
 import beast.util.Randomizer;
 
 @Description("Calculate marginal likelihood through path sampling for a single step when comparing two models")
-public class PairedPathSamplingStep extends PathSamplingStep implements Loggable {
+public class PairedPathSamplingStep extends PathSamplingStep {
 	public Input<Distribution> posterior2Input = new Input<Distribution>("posterior2", "posterior of the second model, the " +
 			"first one is represented by 'posterior'.", Validate.REQUIRED);
 	
@@ -154,23 +152,4 @@ public class PairedPathSamplingStep extends PathSamplingStep implements Loggable
             callUserFunction(iSample);
         }
     }
-
-
-	@Override
-	public void init(PrintStream out) {
-		out.append("diff-posterior\t");
-	}
-
-
-	@Override
-	public void log(long nSample, PrintStream out) {
-		out.append(model1.getCurrentLogP() - model2.getCurrentLogP() + "\t");
-	}
-
-
-	@Override
-	public void close(PrintStream out) {
-		// nothing to do
-	}
-
 }

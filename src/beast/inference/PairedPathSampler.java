@@ -14,6 +14,7 @@ import java.util.Set;
 import beast.app.BeastMCMC;
 import beast.app.util.XMLFile;
 import beast.core.Description;
+import beast.core.Distribution;
 import beast.core.Input;
 import beast.core.Input.Validate;
 import beast.core.util.Log;
@@ -23,6 +24,7 @@ import beast.core.Logger;
 import beast.core.MCMC;
 import beast.core.Operator;
 import beast.core.StateNode;
+import beast.util.Script;
 import beast.util.XMLParser;
 import beast.util.XMLProducer;
 
@@ -182,9 +184,12 @@ public class PairedPathSampler extends PathSampler {
 
 		// add posterior logger
 		Logger logger = new Logger();
+		Distribution post1 = model1.posteriorInput.get();
+		Distribution post2 = model2.posteriorInput.get();
+		DiffLogger diffLogger = new DiffLogger(post1, post2);
 		logger.initByName("fileName", LIKELIHOOD_LOG_FILE, 
-				"log", step,
-				"logEvery", chainLength / 1000);
+				"log", diffLogger,
+				"logEvery", (int)(chainLength / 1000));
 		step.loggersInput.setValue(logger, step);
 
 		// set up directories with beast.xml files in each of them
