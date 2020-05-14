@@ -213,6 +213,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			// uniform intervals
 			for (int i = 0; i < nSteps - 1; i++) {
 				logMarginalL += (marginalLs[i] + marginalLs[i + 1]); 
+				logdata.get(i).set(1, (marginalLs[i] + marginalLs[i + 1])/(2.0 * (nSteps - 1)));
 			}		
 			logMarginalL = logMarginalL / (2.0 * (nSteps - 1));
 		} else {
@@ -255,7 +256,7 @@ public class PathSampleAnalyser extends beast.core.Runnable {
 			}
 	
 			System.out.println("\nStep        theta         likelihood   contribution ESS");
-			BetaDistribution betaDistribution = new BetaDistributionImpl(alpha, 1.0);
+			BetaDistribution betaDistribution = alpha > 0 ? new BetaDistributionImpl(alpha, 1.0) : null;
 			for (int i = 0; i < nSteps; i++) {
 				System.out.print(format(i)+" ");
 				double beta = betaDistribution != null ?

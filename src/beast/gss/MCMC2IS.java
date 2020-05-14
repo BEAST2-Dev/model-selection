@@ -210,7 +210,7 @@ abstract public class MCMC2IS extends Runnable {
 				Object o = ((beast.math.distributions.Prior) d).m_x.get();
 				stateNodes.remove(o);
 			} else {
-				Log.warning("Don't know how to handle distributio " + d.getID() + " of type " + d.getClass().getName());
+				Log.warning("Don't know how to handle distribution " + d.getID() + " of type " + d.getClass().getName());
 				Log.warning("Using "+ d.getID() + " as working distribution");
 				altPrior.add(d);
 			}

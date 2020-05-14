@@ -1,4 +1,4 @@
-<package name='MODEL_SELECTION' version='1.5.2'>
+<package name='MODEL_SELECTION' version='1.5.3'>
 	<depends on='beast2' atleast='2.6.0'/>
 	<depends on='BEASTLabs' atleast='1.9.0'/>
     <packageapp description="Path sampler"
