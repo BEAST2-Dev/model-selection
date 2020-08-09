@@ -8,12 +8,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import beast.cpo.CPOAnalyser;
-import beast.cpo.CPOAnalyser.CPOTable;
-import beast.inference.AICMAnalyser;
-import beast.inference.AICMAnalyser.AnalysisType;
 import beast.util.LogAnalyser;
 import beast.util.XMLParserException;
+import modelselection.cpo.CPOAnalyser;
+import modelselection.cpo.CPOAnalyser.CPOTable;
+import modelselection.inference.AICMAnalyser;
+import modelselection.inference.AICMAnalyser.AnalysisType;
 
 public class Analyse {
 
