@@ -46,34 +46,34 @@
 	<map from="beast.cpo.BEASTRunAnalyser" to="modelselection.cpo.BEASTRunAnalyser"/>
 	<map from="beast.cpo.CPOAnalyser" to="modelselection.cpo.CPOAnalyser"/>
 
-	<map from="beast.inferece.AICMAnalyser" to="modelselecetion.inference.AICMAnalyser"/>
-	<map from="beast.inferece.DiffLogger" to="modelselecetion.inference.DiffLogger"/>
-	<map from="beast.inferece.PairedPathSampleAnalyser" to="modelselecetion.inference.PairedPathSampleAnalyser"/>
-	<map from="beast.inferece.PairedPathSampler" to="modelselecetion.inference.PairedPathSampler"/>
-	<map from="beast.inferece.PairedPathSamplingStep" to="modelselecetion.inference.PairedPathSamplingStep"/>
-	<map from="beast.inferece.PathSampleAnalyser" to="modelselecetion.inference.PathSampleAnalyser"/>
-	<map from="beast.inferece.PathSamplerFromFile" to="modelselecetion.inference.PathSamplerFromFile"/>
-	<map from="beast.inferece.PathSampler" to="modelselecetion.inference.PathSampler"/>
-	<map from="beast.inferece.PathSamplingStep" to="modelselecetion.inference.PathSamplingStep"/>
+	<map from="beast.inference.AICMAnalyser" to="modelselection.inference.AICMAnalyser"/>
+	<map from="beast.inference.DiffLogger" to="modelselection.inference.DiffLogger"/>
+	<map from="beast.inference.PairedPathSampleAnalyser" to="modelselection.inference.PairedPathSampleAnalyser"/>
+	<map from="beast.inference.PairedPathSampler" to="modelselection.inference.PairedPathSampler"/>
+	<map from="beast.inference.PairedPathSamplingStep" to="modelselection.inference.PairedPathSamplingStep"/>
+	<map from="beast.inference.PathSampleAnalyser" to="modelselection.inference.PathSampleAnalyser"/>
+	<map from="beast.inference.PathSamplerFromFile" to="modelselection.inference.PathSamplerFromFile"/>
+	<map from="beast.inference.PathSampler" to="modelselection.inference.PathSampler"/>
+	<map from="beast.inference.PathSamplingStep" to="modelselection.inference.PathSamplingStep"/>
 
-	<map from="beast.gss.GeneralisedSteppingStone.java" to="modelselection.gss.GeneralisedSteppingStone.java"/>
-	<map from="beast.gss.GeneralisedSteppingStoneStep.java" to="modelselection.gss.GeneralisedSteppingStoneStep.java"/>
-	<map from="beast.gss.GSSFromFile.java" to="modelselection.gss.GSSFromFile.java"/>
-	<map from="beast.gss.MCMC2GSS.java" to="modelselection.gss.MCMC2GSS.java"/>
-	<map from="beast.gss.MCMC2IS.java" to="modelselection.gss.MCMC2IS.java"/>
-	<map from="beast.gss.TraceLog.java" to="modelselection.gss.TraceLog.java"/>
-	<map from="beast.gss.TreeFromTreeSetFileInitialiser.java" to="modelselection.gss.TreeFromTreeSetFileInitialiser.java"/>
+	<map from="beast.gss.GeneralisedSteppingStone" to="modelselection.gss.GeneralisedSteppingStone"/>
+	<map from="beast.gss.GeneralisedSteppingStoneStep" to="modelselection.gss.GeneralisedSteppingStoneStep"/>
+	<map from="beast.gss.GSSFromFile" to="modelselection.gss.GSSFromFile"/>
+	<map from="beast.gss.MCMC2GSS" to="modelselection.gss.MCMC2GSS"/>
+	<map from="beast.gss.MCMC2IS" to="modelselection.gss.MCMC2IS"/>
+	<map from="beast.gss.TraceLog" to="modelselection.gss.TraceLog"/>
+	<map from="beast.gss.TreeFromTreeSetFileInitialiser" to="modelselection.gss.TreeFromTreeSetFileInitialiser"/>
 
-	<map from="beast.gss.CoalescentTreeIntervalStatistic.java" to="modelselection.gss.CoalescentTreeIntervalStatistic.java"/>
-	<map from="beast.gss.ExponentialProductPosteriorMeansLikelihood.java" to="modelselection.gss.ExponentialProductPosteriorMeansLikelihood.java"/>
+	<map from="beast.gss.coalescent.CoalescentTreeIntervalStatistic" to="modelselection.gss.coalescent.CoalescentTreeIntervalStatistic"/>
+	<map from="beast.gss.coalescent.ExponentialProductPosteriorMeansLikelihood" to="modelselection.gss.coalescent.ExponentialProductPosteriorMeansLikelihood"/>
 
-	<map from="beast.gss.ComplexArray.java" to="modelselection.gss.ComplexArray.java"/>
-	<map from="beast.gss.FastFourierTransform.java" to="modelselection.gss.FastFourierTransform.java"/>
-	<map from="beast.gss.GSSTreeDistribution.java" to="modelselection.gss.GSSTreeDistribution.java"/>
-	<map from="beast.gss.KernelDensityEstimatorDistribution.java" to="modelselection.gss.KernelDensityEstimatorDistribution.java"/>
-	<map from="beast.gss.LogitTransformedNormalKDEDistribution.java" to="modelselection.gss.LogitTransformedNormalKDEDistribution.java"/>
-	<map from="beast.gss.LogTransformedNormalKDEDistribution.java" to="modelselection.gss.LogTransformedNormalKDEDistribution.java"/>
-	<map from="beast.gss.MultivariateKDEDistribution.java" to="modelselection.gss.MultivariateKDEDistribution.java"/>
-	<map from="beast.gss.NormalKDEDistribution.java" to="modelselection.gss.NormalKDEDistribution.java"/>
+	<map from="beast.gss.distribution.ComplexArray" to="modelselection.gss.distribution.ComplexArray"/>
+	<map from="beast.gss.distribution.FastFourierTransform" to="modelselection.gss.distribution.FastFourierTransform"/>
+	<map from="beast.gss.distribution.GSSTreeDistribution" to="modelselection.gss.distribution.GSSTreeDistribution"/>
+	<map from="beast.gss.distribution.KernelDensityEstimatorDistribution" to="modelselection.gss.distribution.KernelDensityEstimatorDistribution"/>
+	<map from="beast.gss.distribution.LogitTransformedNormalKDEDistribution" to="modelselection.gss.distribution.LogitTransformedNormalKDEDistribution"/>
+	<map from="beast.gss.distribution.LogTransformedNormalKDEDistribution" to="modelselection.gss.distribution.LogTransformedNormalKDEDistribution"/>
+	<map from="beast.gss.distribution.MultivariateKDEDistribution" to="modelselection.gss.distribution.MultivariateKDEDistribution"/>
+	<map from="beast.gss.distribution.NormalKDEDistribution" to="modelselection.gss.distribution.NormalKDEDistribution"/>
 
 </package>
