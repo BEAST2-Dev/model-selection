@@ -2,14 +2,14 @@ package modelselection.inference;
 
 import java.util.List;
 
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.util.Evaluator;
-import beast.core.Input;
-import beast.core.Operator;
-import beast.core.Input.Validate;
-import beast.core.util.CompoundDistribution;
-import beast.util.Randomizer;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.inference.Evaluator;
+import beast.base.core.Input;
+import beast.base.inference.Operator;
+import beast.base.core.Input.Validate;
+import beast.base.inference.CompoundDistribution;
+import beast.base.util.Randomizer;
 
 @Description("Calculate marginal likelihood through path sampling for a single step when comparing two models")
 public class PairedPathSamplingStep extends PathSamplingStep {

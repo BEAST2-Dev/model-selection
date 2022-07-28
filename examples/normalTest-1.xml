@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" version="2.0">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.alignment:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" version="2.0">
     
-<map name="Gamma">beast.math.distributions.Gamma</map>
-<map name="Normal">beast.math.distributions.Normal</map>
-<map name='prior'>beast.math.distributions.Prior</map>
+<map name="Gamma">beast.base.inference.distribution.Gamma</map>
+<map name="Normal">beast.base.inference.distribution.Normal</map>
+<map name='prior'>beast.base.inference.distribution.Prior</map>
 
 
 
@@ -12,9 +12,9 @@
         <parameter id="tau" lower='0' name="stateNode">2.0</parameter>
     </state>
 
-    <distribution id="posterior" spec="util.CompoundDistribution">
+    <distribution id="posterior" spec="beast.base.inference.CompoundDistribution">
 
-        <distribution id="prior" spec="util.CompoundDistribution">
+        <distribution id="prior" spec="beast.base.inference.CompoundDistribution">
             <prior id="meanPrior" name="distribution" x="@mean">
                 <Normal name="distr" tau="@tau" mean='2.0'/>
             </prior>
@@ -25,7 +25,7 @@
             </prior>
         </distribution>
 
-        <distribution id="likelihood" spec="util.CompoundDistribution">
+        <distribution id="likelihood" spec="beast.base.inference.CompoundDistribution">
             <prior id="dataLikelihood" name="distribution" >
 		        <parameter id="data" name="x">-1.532150246 0.04074889315 0.3764286126 -1.273536386 -0.09245518809 -0.08052089396 -0.8836752794 -1.751806433 0.4095952282 1.628965147 0.665399023 0.1235472142 0.7869642234 0.1178040049 0.139374006 2.299191912 -0.3189984415 -0.4214709484 -2.282972059 0.01863195228</parameter>
                 <Normal mean="@mean" tau="@tau" name="distr"/>

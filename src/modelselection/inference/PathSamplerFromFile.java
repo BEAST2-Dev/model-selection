@@ -1,18 +1,19 @@
 package modelselection.inference;
 
+
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import beast.app.util.XMLFile;
-import beast.core.Description;
-import beast.core.Input;
-import beast.core.MCMC;
-import beast.core.Input.Validate;
-import beast.util.XMLParser;
-import beast.util.XMLParserException;
+import beastfx.app.util.XMLFile;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.inference.MCMC;
+import beast.base.core.Input.Validate;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLParserException;
 
 @Description("Path sampler that takes a BEAST MCMC specification from an external file")
 public class PathSamplerFromFile extends PathSampler {

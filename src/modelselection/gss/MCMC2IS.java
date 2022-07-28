@@ -9,38 +9,36 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
-import beast.app.util.LogFile;
-import beast.app.util.OutFile;
-import beast.app.util.TreeFile;
-import beast.app.util.XMLFile;
-import beast.core.BEASTInterface;
-import beast.core.BEASTObject;
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Function;
-import beast.core.Input;
-import beast.core.Runnable;
-import beast.core.State;
-import beast.core.StateNode;
-import beast.core.StateNodeInitialiser;
-import beast.core.parameter.RealParameter;
-import beast.core.Input.Validate;
-import beast.core.Logger;
-import beast.core.Logger.LOGMODE;
-import beast.core.util.CompoundDistribution;
-import beast.core.util.Log;
-import beast.evolution.tree.RandomTree;
-import beast.evolution.tree.SimpleRandomTree;
-import beast.evolution.tree.Tree;
-import beast.evolution.tree.TreeDistribution;
-import beast.evolution.tree.TreeInterface;
-import beast.evolution.tree.TreeWithMetaDataLogger;
-import beast.math.distributions.MRCAPrior;
-import beast.core.MCMC;
-import beast.util.JSONProducer;
-import beast.util.TreeParser;
-import beast.util.XMLParser;
-import beast.util.XMLProducer;
+import beastfx.app.util.LogFile;
+import beastfx.app.util.OutFile;
+import beastfx.app.util.TreeFile;
+import beastfx.app.util.XMLFile;
+import beast.base.core.BEASTInterface;
+import beast.base.core.BEASTObject;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Function;
+import beast.base.core.Input;
+import beast.base.inference.Runnable;
+import beast.base.inference.State;
+import beast.base.inference.StateNode;
+import beast.base.inference.StateNodeInitialiser;
+import beast.base.inference.parameter.RealParameter;
+import beast.base.core.Input.Validate;
+import beast.base.inference.Logger;
+import beast.base.inference.Logger.LOGMODE;
+import beast.base.inference.CompoundDistribution;
+import beast.base.core.Log;
+import beast.base.evolution.tree.coalescent.RandomTree;
+import beast.base.evolution.tree.Tree;
+import beast.base.evolution.tree.TreeDistribution;
+import beast.base.evolution.tree.TreeInterface;
+import beast.base.evolution.tree.MRCAPrior;
+import beast.base.inference.MCMC;
+import beast.base.parser.JSONProducer;
+import beast.base.evolution.tree.TreeParser;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLProducer;
 import modelselection.gss.distribution.GSSTreeDistribution;
 import modelselection.gss.distribution.KernelDensityEstimatorDistribution;
 import modelselection.gss.distribution.MultivariateKDEDistribution;
@@ -203,11 +201,11 @@ abstract public class MCMC2IS extends Runnable {
 				stateNodes.remove(tree);
 			} else if (d instanceof MRCAPrior) {
 				altPrior.add(d);
-			} else if (d instanceof beast.math.distributions.Prior) {
-				beast.math.distributions.Prior p = (beast.math.distributions.Prior) d;
+			} else if (d instanceof beast.base.inference.distribution.Prior) {
+				beast.base.inference.distribution.Prior p = (beast.base.inference.distribution.Prior) d;
 				Distribution altPriorDist = getAltPriorDist(p.m_x.get(), p.getID());
 				altPrior.add(altPriorDist);
-				Object o = ((beast.math.distributions.Prior) d).m_x.get();
+				Object o = ((beast.base.inference.distribution.Prior) d).m_x.get();
 				stateNodes.remove(o);
 			} else {
 				Log.warning("Don't know how to handle distribution " + d.getID() + " of type " + d.getClass().getName());
@@ -302,7 +300,7 @@ abstract public class MCMC2IS extends Runnable {
 		return tree;
 	}
 
-	private Distribution getAltPriorDist(Function f, String priorID) { //beast.math.distributions.Prior d) {
+	private Distribution getAltPriorDist(Function f, String priorID) { //beast.base.inference.distribution.Prior d) {
 		//Function f = 
 		String id = ((BEASTInterface) f).getID();
 		String shortid = id.contains(".") ? id.substring(0, id.lastIndexOf('.')) : id;

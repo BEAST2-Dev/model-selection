@@ -25,14 +25,14 @@
 
 package modelselection.gss.distribution;
 
-import beast.core.Description;
-import beast.core.Function;
-import beast.core.Param;
-import beast.core.State;
-import beast.math.statistic.DiscreteStatistics;
+import beast.base.core.Description;
+import beast.base.core.Function;
+import beast.base.core.Param;
+import beast.base.inference.State;
+import beast.base.util.DiscreteStatistics;
 //import dr.stats.DiscreteStatistics;
 //import dr.util.HeapSort;
-import beast.util.Randomizer;
+import beast.base.util.Randomizer;
 import modelselection.gss.TraceLog;
 
 import java.util.Arrays;
@@ -419,7 +419,7 @@ public class LogTransformedNormalKDEDistribution extends KernelDensityEstimatorD
 
     public double bandwidthNRD(double[] x) {
         int[] indices = new int[x.length];
-        beast.util.HeapSort.sort(x, indices);
+        beast.base.util.HeapSort.sort(x, indices);
 
         final double h =
                 (DiscreteStatistics.quantile(0.75, x, indices) - DiscreteStatistics.quantile(0.25, x, indices)) / 1.34;

@@ -1,9 +1,8 @@
 package modelselection.inference;
 
-import beast.app.util.ConsoleApp;
-import beast.core.Description;
-import beast.core.Input;
-import beast.util.LogAnalyser;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beastfx.app.tools.LogAnalyser;
 import jam.util.IconUtils;
 import modelselection.inference.PairedPathSampler.Scheme;
 
@@ -15,7 +14,7 @@ import java.util.List;
 
 
 @Description("Reads logs produces through PairedPathSampler and estimates Bayes factor of the pair of models")
-public class PairedPathSampleAnalyser extends beast.core.Runnable {
+public class PairedPathSampleAnalyser extends beast.base.inference.Runnable {
 	public Input<String> rootDirInput = new Input<String>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
 	public Input<Double> alphaInput = new Input<Double>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
 			"If alpha <= 0, uniform intervals are used.", 0.3);

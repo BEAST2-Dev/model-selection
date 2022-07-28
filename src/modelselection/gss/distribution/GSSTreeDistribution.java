@@ -10,20 +10,20 @@ import org.apache.commons.math.distribution.ExponentialDistributionImpl;
 import org.apache.commons.math.distribution.GammaDistribution;
 import org.apache.commons.math.distribution.GammaDistributionImpl;
 
-import beast.app.treeannotator.TreeAnnotator;
-import beast.app.treeannotator.TreeAnnotator.TreeSet;
-import beast.app.util.TreeFile;
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.State;
-import beast.core.util.Log;
-import beast.evolution.tree.Node;
-import beast.evolution.tree.Tree;
-import beast.evolution.tree.TreeInterface;
-import beast.evolution.tree.coalescent.TreeIntervals;
-import beast.math.distributions.ParametricDistribution;
-import beast.util.Randomizer;
+import beastfx.app.treeannotator.TreeAnnotator;
+import beastfx.app.treeannotator.TreeAnnotator.TreeSet;
+import beastfx.app.util.TreeFile;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Input;
+import beast.base.inference.State;
+import beast.base.core.Log;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.evolution.tree.TreeInterface;
+import beast.base.evolution.tree.TreeIntervals;
+import beast.base.inference.distribution.ParametricDistribution;
+import beast.base.util.Randomizer;
 
 @Description("Tree Distribution consisting of a "
 		+ "Conditional Clade Distribution for a tree set (as defined in "

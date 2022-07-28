@@ -1,10 +1,14 @@
 package modelselection.gss;
 
 
-import beast.core.*;
-import beast.core.util.CompoundDistribution;
-import beast.core.util.Evaluator;
-import beast.util.Randomizer;
+import beast.base.core.Citation;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.inference.CompoundDistribution;
+import beast.base.inference.Distribution;
+import beast.base.inference.Evaluator;
+import beast.base.inference.Operator;
+import beast.base.util.Randomizer;
 import modelselection.inference.PathSamplingStep;
 
 @Citation(value= "Xie, W., Lewis, P. O., Fan, Y., Kuo, L., & Chen, M. H. (2011).\n" +

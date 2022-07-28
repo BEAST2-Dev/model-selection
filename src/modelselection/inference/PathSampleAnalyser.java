@@ -1,13 +1,12 @@
 package modelselection.inference;
 
 
-import beast.app.util.Application;
-import beast.app.util.ConsoleApp;
-import beast.core.Description;
-import beast.core.Input;
-import beast.util.HeapSort;
-import beast.util.LogAnalyser;
-import beast.util.Randomizer;
+import beastfx.app.tools.Application;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.util.HeapSort;
+import beastfx.app.tools.LogAnalyser;
+import beast.base.util.Randomizer;
 
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.BetaDistribution;
@@ -24,7 +23,7 @@ import java.util.List;
 
 
 @Description("Reads logs produces through PathSampler and estimates marginal likelihood")
-public class PathSampleAnalyser extends beast.core.Runnable {
+public class PathSampleAnalyser extends beast.base.inference.Runnable {
 	public Input<String> rootDirInput = new Input<>("rootdir", "root directory for storing particle states and log files (default /tmp)", "/tmp");
 	public Input<Double> alphaInput = new Input<>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
 			"If alpha <= 0, uniform intervals are used.", 0.3);

@@ -7,16 +7,19 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import beast.app.treeannotator.TreeAnnotator;
-import beast.app.util.LogFile;
-import beast.app.util.TreeFile;
-import beast.app.util.XMLFile;
-import beast.core.*;
-import beast.core.Runnable;
-import beast.core.util.Log;
-import beast.util.LogAnalyser;
-import beast.util.XMLParser;
-import beast.util.XMLParserException;
+import beastfx.app.treeannotator.TreeAnnotator;
+import beastfx.app.util.LogFile;
+import beastfx.app.util.TreeFile;
+import beastfx.app.util.XMLFile;
+import beast.base.inference.Logger;
+import beast.base.inference.MCMC;
+import beast.base.inference.Runnable;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.core.Log;
+import beastfx.app.tools.LogAnalyser;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLParserException;
 
 @Description("Analyse trace and tree log of an XML analysis")
 public class BEASTRunAnalyser extends Runnable {

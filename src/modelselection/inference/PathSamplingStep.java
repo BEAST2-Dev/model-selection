@@ -1,9 +1,16 @@
 package modelselection.inference;
 
-import beast.core.*;
-import beast.core.util.CompoundDistribution;
-import beast.core.util.Evaluator;
-import beast.util.Randomizer;
+import beast.base.core.Citation;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.inference.CompoundDistribution;
+import beast.base.inference.Distribution;
+import beast.base.inference.Evaluator;
+import beast.base.inference.Logger;
+import beast.base.inference.MCMC;
+import beast.base.inference.Operator;
+import beast.base.inference.StateNodeInitialiser;
+import beast.base.util.Randomizer;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -19,7 +26,7 @@ import java.util.List;
 @Description("Calculate marginal likelihood through path sampling for a single step")
 public class PathSamplingStep extends MCMC {
 
-	public Input<Double> betaInput = new Input<Double>("beta","power used for likelihood: 1 = using full posterior, 0 = using prior only", 1.0);
+	public Input<Double> betaInput = new Input<>("beta","power used for likelihood: 1 = using full posterior, 0 = using prior only", 1.0);
 
 	protected double beta;
 	protected Distribution[] pDists;

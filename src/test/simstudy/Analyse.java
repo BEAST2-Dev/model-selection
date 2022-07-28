@@ -8,8 +8,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import beast.util.LogAnalyser;
-import beast.util.XMLParserException;
+import beastfx.app.tools.LogAnalyser;
+import beast.base.parser.XMLParserException;
 import modelselection.cpo.CPOAnalyser;
 import modelselection.cpo.CPOAnalyser.CPOTable;
 import modelselection.inference.AICMAnalyser;

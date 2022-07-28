@@ -2,15 +2,14 @@ package modelselection.app.tools;
 
 
 
-import beast.app.beauti.Beauti;
-import beast.app.beauti.BeautiConfig;
-import beast.app.beauti.BeautiDoc;
-import beast.app.draw.BEASTObjectDialog;
-import beast.app.draw.BEASTObjectPanel;
-import beast.app.util.Application;
-import beast.app.util.ConsoleApp;
-import beast.app.util.Utils6;
-import beast.app.util.XMLFile;
+import beastfx.app.beauti.Beauti;
+import beastfx.app.inputeditor.BeautiConfig;
+import beastfx.app.inputeditor.BeautiDoc;
+import beastfx.app.inputeditor.BEASTObjectDialog;
+import beastfx.app.inputeditor.BEASTObjectPanel;
+import beastfx.app.tools.Application;
+import beast.pkgmgmt.Utils6;
+import beastfx.app.util.XMLFile;
 import jam.util.IconUtils;
 import modelselection.gss.GSSFromFile;
 
@@ -48,7 +47,7 @@ public class GeneralisedSteppingStone {
 				// check wheter the model1Input is correctly set up
 				String fileSep = System.getProperty("file.separator");
 				if (!sampler.model1Input.get().exists()) {
-					sampler.model1Input.setValue(new XMLFile(Beauti.g_sDir + fileSep + "model.xml"), sampler);
+					sampler.model1Input.setValue(new XMLFile(ProgramStatus.g_sDir + fileSep + "model.xml"), sampler);
 				}
 			
 				// create panel with entries for the application

@@ -13,31 +13,34 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import beast.app.treeannotator.TreeAnnotator;
-import beast.app.treeannotator.TreeAnnotator.TreeSet;
-import beast.app.util.Application;
-import beast.app.util.LogFile;
-import beast.core.BEASTInterface;
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.Logger;
-import beast.core.MCMC;
-import beast.core.Param;
-import beast.core.Runnable;
-import beast.core.State;
-import beast.core.StateNode;
-import beast.core.parameter.Parameter;
-import beast.core.util.CompoundDistribution;
-import beast.core.util.Log;
-import beast.evolution.branchratemodel.*;
-import beast.evolution.likelihood.*;
-import beast.evolution.tree.Node;
-import beast.evolution.tree.Tree;
-import beast.util.LogAnalyser;
-import beast.util.Randomizer;
-import beast.util.XMLParser;
-import beast.util.XMLParserException;
+import beastfx.app.treeannotator.TreeAnnotator;
+import beastfx.app.treeannotator.TreeAnnotator.TreeSet;
+import beastfx.app.methodsection.implementation.BranchRateModelMethodsText;
+import beastfx.app.tools.Application;
+import beastfx.app.util.LogFile;
+import beast.base.core.BEASTInterface;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Input;
+import beast.base.inference.Logger;
+import beast.base.inference.MCMC;
+import beast.base.core.Param;
+import beast.base.inference.Runnable;
+import beast.base.inference.State;
+import beast.base.inference.StateNode;
+import beast.base.inference.parameter.Parameter;
+import beast.base.inference.CompoundDistribution;
+import beast.base.core.Log;
+import beast.base.evolution.branchratemodel.BranchRateModel;
+import beast.base.evolution.likelihood.GenericTreeLikelihood;
+import beast.base.evolution.likelihood.ThreadedTreeLikelihood;
+import beast.base.evolution.likelihood.TreeLikelihood;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beastfx.app.tools.LogAnalyser;
+import beast.base.util.Randomizer;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLParserException;
 import modelselection.core.CPOLogger;
 
 @Description("Calculate Conditional Predictive Ordinates (CPO), which is a leave one out cross validation measure of fit "
@@ -401,7 +404,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 			Node src = tree.getNode(node.getNr());
 			Object o = src.getMetaData("rate");
 			if (o == null) {
-				return meanRateInput.get().getValue();
+				return meanRateInput.get().getArrayValue();
 			}
 			if (o instanceof Double) {
 				return (Double) o;

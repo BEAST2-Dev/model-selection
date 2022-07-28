@@ -2,14 +2,14 @@ package modelselection.gss;
 
 import java.util.List;
 
-import beast.core.BEASTObject;
-import beast.core.Description;
-import beast.core.Input;
-import beast.core.StateNode;
-import beast.core.StateNodeInitialiser;
-import beast.evolution.tree.Tree;
+import beast.base.core.BEASTObject;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.inference.StateNode;
+import beast.base.inference.StateNodeInitialiser;
+import beast.base.evolution.tree.Tree;
 import modelselection.gss.distribution.GSSTreeDistribution;
-import beast.core.Input.Validate;
+import beast.base.core.Input.Validate;
 
 @Description("Initialises tree by randomly picking one from a tree file")
 public class TreeFromTreeSetFileInitialiser extends BEASTObject implements StateNodeInitialiser {

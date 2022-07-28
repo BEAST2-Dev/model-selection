@@ -8,12 +8,12 @@ import java.util.List;
 
 import org.junit.Test;
 
-import beast.app.treeannotator.TreeAnnotator;
-import beast.app.treeannotator.TreeAnnotator.MemoryFriendlyTreeSet;
-import beast.app.treeannotator.TreeAnnotator.TreeSet;
-import beast.app.util.TreeFile;
-import beast.evolution.tree.Tree;
-import beast.util.TreeParser;
+import beastfx.app.treeannotator.TreeAnnotator;
+import beastfx.app.treeannotator.TreeAnnotator.MemoryFriendlyTreeSet;
+import beastfx.app.treeannotator.TreeAnnotator.TreeSet;
+import beastfx.app.util.TreeFile;
+import beast.base.evolution.tree.Tree;
+import beast.base.evolution.tree.TreeParser;
 import junit.framework.TestCase;
 import modelselection.gss.distribution.GSSTreeDistribution;
 

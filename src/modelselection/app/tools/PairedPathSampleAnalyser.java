@@ -2,14 +2,14 @@ package modelselection.app.tools;
 
 import java.io.File;
 
-import beast.app.beauti.Beauti;
-import beast.app.beauti.BeautiConfig;
-import beast.app.beauti.BeautiDoc;
-import beast.app.draw.BEASTObjectDialog;
-import beast.app.draw.BEASTObjectPanel;
-import beast.app.util.Application;
-import beast.core.BEASTObject;
-import beast.core.Input;
+import beastfx.app.beauti.Beauti;
+import beastfx.app.inputeditor.BeautiConfig;
+import beastfx.app.inputeditor.BeautiDoc;
+import beastfx.app.inputeditor.BEASTObjectDialog;
+import beastfx.app.inputeditor.BEASTObjectPanel;
+import beastfx.app.tools.Application;
+import beast.base.core.BEASTObject;
+import beast.base.core.Input;
 import modelselection.inference.PathSamplerFromFile;
 
 //command line interface to PathSampler

@@ -3,12 +3,13 @@ package modelselection.app.tools;
 
 import java.io.File;
 
-import beast.app.beauti.Beauti;
-import beast.app.beauti.BeautiConfig;
-import beast.app.beauti.BeautiDoc;
-import beast.app.draw.BEASTObjectDialog;
-import beast.app.draw.BEASTObjectPanel;
-import beast.app.util.Application;
+import beast.base.core.ProgramStatus;
+import beastfx.app.beauti.Beauti;
+import beastfx.app.inputeditor.BeautiConfig;
+import beastfx.app.inputeditor.BeautiDoc;
+import beastfx.app.inputeditor.BEASTObjectDialog;
+import beastfx.app.inputeditor.BEASTObjectPanel;
+import beastfx.app.tools.Application;
 
 // command line interface to PairedPathSampler
 public class PairedPathSampler {
@@ -30,8 +31,8 @@ public class PairedPathSampler {
 				doc.beautiConfig.suppressBEASTObjects.add(sampler.getClass().getName() + ".hosts");
 				String fileSep = System.getProperty("file.separator");
 				if (!sampler.model1Input.get().exists()) {
-					sampler.model1Input.setValue(new File(Beauti.g_sDir + fileSep + "model1.xml"), sampler);
-					sampler.model2Input.setValue(new File(Beauti.g_sDir + fileSep + "model2.xml"), sampler);
+					sampler.model1Input.setValue(new File(ProgramStatus.g_sDir + fileSep + "model1.xml"), sampler);
+					sampler.model2Input.setValue(new File(ProgramStatus.g_sDir + fileSep + "model2.xml"), sampler);
 				}
 				
 				BEASTObjectPanel panel = new BEASTObjectPanel(sampler, sampler.getClass(), doc);

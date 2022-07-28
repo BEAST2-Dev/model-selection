@@ -29,8 +29,8 @@
 
 package modelselection.gss.coalescent;
 
-import beast.evolution.tree.Tree;
-import beast.evolution.tree.coalescent.TreeIntervals;
+import beast.base.evolution.tree.Tree;
+import beast.base.evolution.tree.TreeIntervals;
 
 /**
 * @author Guy Baele

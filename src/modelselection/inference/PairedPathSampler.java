@@ -11,22 +11,23 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import beast.app.BeastMCMC;
-import beast.app.util.XMLFile;
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.Input.Validate;
-import beast.core.util.Log;
-import beast.core.BEASTInterface;
-import beast.core.BEASTObject;
-import beast.core.Logger;
-import beast.core.MCMC;
-import beast.core.Operator;
-import beast.core.StateNode;
-import beast.util.Script;
-import beast.util.XMLParser;
-import beast.util.XMLProducer;
+import beastfx.app.beast.BeastMCMC;
+import beastfx.app.util.Utils;
+import beastfx.app.util.XMLFile;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Input;
+import beast.base.core.Input.Validate;
+import beast.base.core.Log;
+import beast.base.core.ProgramStatus;
+import beast.base.core.BEASTInterface;
+import beast.base.core.BEASTObject;
+import beast.base.inference.Logger;
+import beast.base.inference.MCMC;
+import beast.base.inference.Operator;
+import beast.base.inference.StateNode;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLProducer;
 
 @Description("Calculate marginal likelihood through path/stepping stone sampling for comparing two models. "
 		+ "Perform multiple steps and calculate estimate."
@@ -201,9 +202,9 @@ public class PairedPathSampler extends PathSampler {
 
 		XMLProducer producer = new XMLProducer();
 
-		PrintStream[] cmdFiles = new PrintStream[BeastMCMC.m_nThreads];
-		for (int i = 0; i < BeastMCMC.m_nThreads; i++) {
-			FileOutputStream outStream = (beast.app.util.Utils.isWindows() ? new FileOutputStream(
+		PrintStream[] cmdFiles = new PrintStream[ProgramStatus.m_nThreads];
+		for (int i = 0; i < ProgramStatus.m_nThreads; i++) {
+			FileOutputStream outStream = (Utils.isWindows() ? new FileOutputStream(
 					rootDirInput.get() + "/run" + i + ".bat")
 					: new FileOutputStream(rootDirInput.get() + "/run" + i
 							+ ".sh"));
@@ -211,7 +212,7 @@ public class PairedPathSampler extends PathSampler {
 		}
 
 		for (int i = 0; i < m_nSteps; i++) {
-			if (i < BeastMCMC.m_nThreads) {
+			if (i < ProgramStatus.m_nThreads) {
 				step.burnInInput.setValue(preBurnIn, step);
 			} else {
 				step.burnInInput.setValue(0, step);
@@ -237,7 +238,7 @@ public class PairedPathSampler extends PathSampler {
 			out.close();
 
 			String cmd = getCommand(stepDir.getAbsolutePath(), i);
-			FileOutputStream cmdFile = (beast.app.util.Utils.isWindows() ? new FileOutputStream(
+			FileOutputStream cmdFile = (Utils.isWindows() ? new FileOutputStream(
 					stepDir.getAbsoluteFile() + "/run.bat")
 					: new FileOutputStream(stepDir.getAbsoluteFile()
 							+ "/run.sh"));
@@ -245,7 +246,7 @@ public class PairedPathSampler extends PathSampler {
 			out2.println(cmd);
 			out2.close();
 
-			cmdFile = (beast.app.util.Utils.isWindows() ? new FileOutputStream(
+			cmdFile = (Utils.isWindows() ? new FileOutputStream(
 					stepDir.getAbsoluteFile() + "/resume.bat")
 					: new FileOutputStream(stepDir.getAbsoluteFile()
 							+ "/resume.sh"));
@@ -256,21 +257,21 @@ public class PairedPathSampler extends PathSampler {
 			// TODO: probably more efficient to group cmdFiles in block of
 			// #steps/#threads
 			// instead of skipping #threads steps every time.
-			if (i >= BeastMCMC.m_nThreads) {
-				String copyCmd = (beast.app.util.Utils.isWindows() ? ("copy "
-						+ getStepDir(i - BeastMCMC.m_nThreads)
+			if (i >= ProgramStatus.m_nThreads) {
+				String copyCmd = (Utils.isWindows() ? ("copy "
+						+ getStepDir(i - ProgramStatus.m_nThreads)
 						+ "\\beast.xml.state " + getStepDir(i)).replaceAll("/","\\") : "cp "
-						+ getStepDir(i - BeastMCMC.m_nThreads)
+						+ getStepDir(i - ProgramStatus.m_nThreads)
 						+ "/beast.xml.state " + getStepDir(i));
-				cmdFiles[i % BeastMCMC.m_nThreads].println(copyCmd);
+				cmdFiles[i % ProgramStatus.m_nThreads].println(copyCmd);
 			}
-			cmdFiles[i % BeastMCMC.m_nThreads].println(cmd);
+			cmdFiles[i % ProgramStatus.m_nThreads].println(cmd);
 			File script = new File(stepDir.getAbsoluteFile()
-					+ (beast.app.util.Utils.isWindows() ? "/run.bat"
+					+ (Utils.isWindows() ? "/run.bat"
 							: "/run.sh"));
 			script.setExecutable(true);
 		}
-		for (int k = 0; k < BeastMCMC.m_nThreads; k++) {
+		for (int k = 0; k < ProgramStatus.m_nThreads; k++) {
 			cmdFiles[k].close();
 		}
 	} // initAndValidate

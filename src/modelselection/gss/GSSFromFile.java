@@ -6,14 +6,14 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import beast.app.util.Application;
-import beast.app.util.XMLFile;
-import beast.core.Description;
-import beast.core.Input;
-import beast.core.MCMC;
-import beast.core.Input.Validate;
-import beast.util.XMLParser;
-import beast.util.XMLParserException;
+import beastfx.app.tools.Application;
+import beastfx.app.util.XMLFile;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.inference.MCMC;
+import beast.base.core.Input.Validate;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLParserException;
 
 @Description("Generalised stepping stone that takes a BEAST MCMC specification from an external file")
 public class GSSFromFile extends GeneralisedSteppingStone {

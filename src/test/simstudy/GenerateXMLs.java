@@ -3,16 +3,19 @@ package test.simstudy;
 // Requirements: the file analysis.xml must be in the directory
 // from where this script is run.
 
-import beast.evolution.substitutionmodel.*;
-import beast.evolution.tree.Tree;
-import beast.evolution.sitemodel.*;
-import beast.evolution.alignment.*;
-import beast.evolution.branchratemodel.StrictClockModel;
-import beast.util.*;
-import beast.app.seqgen.MergeDataWith;
-import beast.app.seqgen.SequenceSimulator;
-import beast.core.*;
-import beast.core.parameter.*;
+import beast.base.evolution.tree.Tree;
+import beast.base.inference.Logger;
+import beast.base.inference.parameter.RealParameter;
+import beast.base.parser.NexusParser;
+import beast.base.parser.XMLParserException;
+import beast.base.evolution.alignment.Alignment;
+import beast.base.evolution.alignment.Sequence;
+import beast.base.evolution.branchratemodel.StrictClockModel;
+import beast.base.evolution.sitemodel.SiteModel;
+import beast.base.evolution.substitutionmodel.Frequencies;
+import beast.base.evolution.substitutionmodel.HKY;
+import beastfx.app.seqgen.MergeDataWith;
+import beastfx.app.seqgen.SequenceSimulator;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,20 +105,20 @@ public class GenerateXMLs {
 		Frequencies f = new Frequencies();
 		f.initByName("frequencies",freqs);
 		
-		HKY hky = new beast.evolution.substitutionmodel.HKY();
+		HKY hky = new beast.base.evolution.substitutionmodel.HKY();
 		hky.initByName("frequencies", f, 
 			"kappa", "1.0"
 		);
-		StrictClockModel clockmodel = new beast.evolution.branchratemodel.StrictClockModel();
+		StrictClockModel clockmodel = new beast.base.evolution.branchratemodel.StrictClockModel();
 		clockmodel.initByName("clock.rate","1.0");
 
 
 		// change gammaCategoryCount=1 for generating without gamma rate categories
 		SiteModel sitemodel = new SiteModel();
 		sitemodel.initByName("gammaCategoryCount", 1, "substModel", hky, "shape", "1.0", "proportionInvariant", "0.0");
-		MergeDataWith mergewith = new beast.app.seqgen.MergeDataWith();
+		MergeDataWith mergewith = new MergeDataWith();
 		mergewith.initByName("template", template, "output", dir + "/analysis-out" + i + ".xml");
-		SequenceSimulator sim = new beast.app.seqgen.SequenceSimulator();
+		SequenceSimulator sim = new SequenceSimulator();
 		sim.initByName("data", data, "tree", tree, "sequencelength", 2000, "outputFileName", 
 				"gammaShapeSequence.xml", "siteModel", sitemodel, "branchRateModel", clockmodel, 
 				"merge", mergewith);
@@ -133,7 +136,7 @@ public class GenerateXMLs {
 
 			public static void main(String[] args) throws IOException, IllegalArgumentException, IllegalAccessException, XMLParserException {
 		
-		Logger.FILE_MODE = beast.core.Logger.LogFileMode.overwrite;
+		Logger.FILE_MODE = beast.base.inference.Logger.LogFileMode.overwrite;
 
 		// set up flags for BEAGLE -- YMMV
 		long beagleFlags = BeagleFlag.VECTOR_SSE.getMask() | BeagleFlag.PROCESSOR_CPU.getMask();
@@ -141,7 +144,7 @@ public class GenerateXMLs {
 		
 
 		for (String in : new String[] {"cc", "ec0.01", "ec0.025", "ec0.05", "ec0.1"}) {
-			NexusParser parser = new beast.util.NexusParser();
+			NexusParser parser = new beast.base.parser.NexusParser();
 			File fin = new File(wdir + "/input/" + in + ".trees");
 			parser.parseFile(fin);
 			trees = parser.trees;

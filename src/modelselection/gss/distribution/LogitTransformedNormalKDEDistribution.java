@@ -29,12 +29,12 @@ package modelselection.gss.distribution;
 import java.util.List;
 import java.util.Random;
 
-import beast.core.Description;
-import beast.core.Function;
-import beast.core.Param;
-import beast.core.State;
-import beast.math.statistic.DiscreteStatistics;
-import beast.util.HeapSort;
+import beast.base.core.Description;
+import beast.base.core.Function;
+import beast.base.core.Param;
+import beast.base.inference.State;
+import beast.base.util.DiscreteStatistics;
+import beast.base.util.HeapSort;
 //import dr.stats.DiscreteStatistics;
 //import dr.util.HeapSort;
 import modelselection.gss.TraceLog;

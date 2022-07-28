@@ -25,11 +25,11 @@
 
 package modelselection.gss.distribution;
 
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Function;
-import beast.core.Input;
-import beast.core.parameter.Parameter;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Function;
+import beast.base.core.Input;
+import beast.base.inference.parameter.Parameter;
 import modelselection.gss.TraceLog;
 
 //import dr.math.UnivariateFunction;

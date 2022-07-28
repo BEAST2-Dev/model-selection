@@ -30,12 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Function;
-import beast.core.Input;
-import beast.core.Param;
-import beast.core.State;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Function;
+import beast.base.core.Input;
+import beast.base.core.Param;
+import beast.base.inference.State;
 
 /**
  * @author Guy Baele

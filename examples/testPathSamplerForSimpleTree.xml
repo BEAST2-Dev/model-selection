@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<beast beautitemplate='Standard' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" version="2.0">
-<map name="Gamma">beast.math.distributions.Gamma</map>
-<map name="prior">beast.math.distributions.Prior</map>
+<beast beautitemplate='Standard' namespace="beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.alignment:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" version="2.0">
+<map name="Gamma">beast.base.inference.distribution.Gamma</map>
+<map name="prior">beast.base.inference.distribution.Prior</map>
 
 <!-- this analysis mimics the examples/release/tesetTreePathSampling.xml file from BEAST1 -->
 
@@ -28,8 +28,8 @@ java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -ja
         <parameter dimension="4" id="freqParameter.s:alignment" lower="0.0" name="stateNode" upper="1.0" value="0.25"/>
     </state>
 
-    <distribution id="posterior" spec="util.CompoundDistribution">
-        <distribution id="prior" spec="util.CompoundDistribution">
+    <distribution id="posterior" spec="beast.base.inference.CompoundDistribution">
+        <distribution id="prior" spec="beast.base.inference.CompoundDistribution">
             <prior id="KappaPrior.s:alignment" name="distribution" x="@kappa.s:alignment">
                 <Gamma id="Gamma.0" name="distr" alpha='0.1' beta='1.0'/>
             </prior>
@@ -37,7 +37,7 @@ java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -ja
                 <Gamma id="Gamma.1" name="distr" alpha='1.0' beta='1.0'/>
             </prior>
         </distribution>
-        <distribution id="likelihood" spec="util.CompoundDistribution">
+        <distribution id="likelihood" spec="beast.base.inference.CompoundDistribution">
             <distribution data="@alignment" id="treeLikelihood.alignment" spec="TreeLikelihood" tree="@Tree.t:alignment">
                 <siteModel id="SiteModel.s:alignment" spec="SiteModel">
                     <parameter estimate="false" id="mutationRate.s:alignment" name="mutationRate" value="1.0"/>
@@ -47,7 +47,7 @@ java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -ja
                         <frequencies frequencies="@freqParameter.s:alignment" id="estimatedFreqs.s:alignment" spec="Frequencies"/>
                     </substModel>
                 </siteModel>
-                <branchRateModel id="StrictClock.c:alignment" spec="beast.evolution.branchratemodel.StrictClockModel">
+                <branchRateModel id="StrictClock.c:alignment" spec="beast.base.evolution.branchratemodel.StrictClockModel">
                     <parameter estimate="false" id="clockRate.c:alignment" name="clock.rate" value="1.0"/>
                 </branchRateModel>
             </distribution>
@@ -68,7 +68,7 @@ java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -ja
         <log idref="likelihood"/>
         <log idref="prior"/>
         <log idref="treeLikelihood.alignment"/>
-        <log id="TreeHeight.t:alignment" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:alignment"/>
+        <log id="TreeHeight.t:alignment" spec="beast.base.evolution.tree.TreeHeightLogger" tree="@Tree.t:alignment"/>
         <parameter idref="kappa.s:alignment" name="log"/>
     </logger>
 
@@ -80,10 +80,10 @@ java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -ja
     </logger>
 
     <logger fileName="$(tree).$(seed).trees" id="treelog.t:alignment" logEvery="1000" mode="tree">
-        <log id="TreeWithMetaDataLogger.t:alignment" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:alignment"/>
+        <log id="TreeWithMetaDataLogger.t:alignment" spec="beast.base.evolution.TreeWithMetaDataLogger" tree="@Tree.t:alignment"/>
     </logger>
 
-    <init estimate="false" id="RandomTree.t:alignment" initial="@Tree.t:alignment" spec="beast.evolution.tree.RandomTree" taxa="@alignment">
+    <init estimate="false" id="RandomTree.t:alignment" initial="@Tree.t:alignment" spec="beast.base.evolution.tree.coalescent.RandomTree" taxa="@alignment">
         <populationModel id="ConstantPopulation0.t:alignment" spec="ConstantPopulation">
             <parameter id="randomPopSize.t:alignment" name="popSize" value="1"/>
         </populationModel>

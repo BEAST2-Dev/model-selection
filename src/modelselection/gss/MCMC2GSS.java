@@ -1,11 +1,11 @@
 package modelselection.gss;
 
-import beast.app.util.Application;
-import beast.core.Description;
-import beast.core.Input;
-import beast.core.Runnable;
-import beast.core.Input.Validate;
-import beast.core.MCMC;
+import beastfx.app.tools.Application;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.inference.Runnable;
+import beast.base.core.Input.Validate;
+import beast.base.inference.MCMC;
 
 @Description("Convert MCMC analysis to GSS analysis and optionally run the analysis")
 public class MCMC2GSS extends MCMC2IS {

@@ -1,14 +1,15 @@
 package modelselection.gss;
 
+
 import java.io.IOException;
 import java.util.List;
 
-import beast.app.util.LogFile;
-import beast.core.BEASTInterface;
-import beast.core.BEASTObject;
-import beast.core.Description;
-import beast.core.Input;
-import beast.util.LogAnalyser;
+import beastfx.app.util.LogFile;
+import beast.base.core.BEASTInterface;
+import beast.base.core.BEASTObject;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beastfx.app.tools.LogAnalyser;
 import modelselection.cpo.BEASTRunAnalyser;
 
 @Description("BEAST object wrapper for LogAnalyser")

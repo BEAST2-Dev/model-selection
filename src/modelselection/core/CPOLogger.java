@@ -7,16 +7,16 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.Logger;
-import beast.core.Input.Validate;
-import beast.core.parameter.RealParameter;
-import beast.core.util.CompoundDistribution;
-import beast.evolution.likelihood.GenericTreeLikelihood;
-import beast.evolution.likelihood.ThreadedTreeLikelihood;
-import beast.evolution.likelihood.TreeLikelihood;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Input;
+import beast.base.inference.Logger;
+import beast.base.core.Input.Validate;
+import beast.base.inference.parameter.RealParameter;
+import beast.base.inference.CompoundDistribution;
+import beast.base.evolution.likelihood.GenericTreeLikelihood;
+import beast.base.evolution.likelihood.ThreadedTreeLikelihood;
+import beast.base.evolution.likelihood.TreeLikelihood;
 
 @Description("Logs data for pseudo marginal likelihood estimate (see CPOAnalyser for details)")
 public class CPOLogger extends Logger {

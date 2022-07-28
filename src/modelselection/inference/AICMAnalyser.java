@@ -27,14 +27,14 @@ package modelselection.inference;
 
 import java.util.Arrays;
 
-import beast.app.util.Application;
-import beast.app.util.LogFile;
-import beast.core.Description;
-import beast.core.Input;
-import beast.core.util.Log;
-import beast.math.LogTricks;
-import beast.util.LogAnalyser;
-import beast.util.Randomizer;
+import beastfx.app.tools.Application;
+import beastfx.app.util.LogFile;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.core.Log;
+import beast.base.math.LogTricks;
+import beastfx.app.tools.LogAnalyser;
+import beast.base.util.Randomizer;
 
 /**
  * @author Marc Suchard
@@ -45,7 +45,7 @@ import beast.util.Randomizer;
  */
 
 @Description("Calculate AICM of a trace log")
-public class AICMAnalyser extends beast.core.Runnable {
+public class AICMAnalyser extends beast.base.inference.Runnable {
 	final public Input<LogFile> traceFileInput = new Input<>("logFile","input file containing trace log");
 	public Input<Integer> burninInput = new Input<>("burnin", "percentage of the log file to disregard as burn-in (default 10)" , 10);
 	public Input<Integer> bootstrapLengthInput = new Input<>("bootstrapLength", "number of bootstrap samples used to calculate variance in AICM estimate" , 1000);

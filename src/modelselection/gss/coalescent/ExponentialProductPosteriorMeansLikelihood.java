@@ -28,10 +28,10 @@ package modelselection.gss.coalescent;
 import java.util.List;
 import java.util.Random;
 
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.State;
-import beast.evolution.tree.Tree;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.inference.State;
+import beast.base.evolution.tree.Tree;
 
 /**
  * Calculates a product of exponential densities and exponential tail probabilities.

@@ -15,24 +15,26 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
-import beast.app.BeastMCMC;
-import beast.core.Description;
-import beast.core.Distribution;
-import beast.core.Input;
-import beast.core.Logger;
-import beast.core.MCMC;
-import beast.core.Input.Validate;
-import beast.core.util.CompoundDistribution;
-import beast.core.util.Log;
-import beast.util.Randomizer;
-import beast.util.XMLProducer;
+import beastfx.app.beast.BeastMCMC;
+import beastfx.app.util.Utils;
+import beast.base.core.Description;
+import beast.base.inference.Distribution;
+import beast.base.core.Input;
+import beast.base.inference.Logger;
+import beast.base.inference.MCMC;
+import beast.base.core.Input.Validate;
+import beast.base.inference.CompoundDistribution;
+import beast.base.core.Log;
+import beast.base.core.ProgramStatus;
+import beast.base.util.Randomizer;
+import beast.base.parser.XMLProducer;
 
 
 
 @Description("Calculate marginal likelihood through path/stepping stone sampling. " +
 		"Perform multiple steps and calculate estimate." +
 		"Uses multiple threads if specified as command line option to BEAST.")
-public class PathSampler extends beast.core.Runnable {
+public class PathSampler extends beast.base.inference.Runnable {
 	public static String LIKELIHOOD_LOG_FILE = "likelihood.log";
 
 	public Input<Double> alphaInput = new Input<Double>("alpha", "alpha parameter of Beta(alpha,1) distribution used to space out steps, default 0.3" +
@@ -98,7 +100,7 @@ public class PathSampler extends beast.core.Runnable {
 		m_sScript = m_sScriptInput.get();
 		if (m_sScript == null) {
 			m_sScript = "cd $(dir)\n" +
-					"java -cp $(java.class.path) beast.app.beastapp.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml\n";
+					"java -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml\n";
 		}
 		if (m_sHostsInput.get() != null) {
 			m_sHosts = m_sHostsInput.get().split(",");
@@ -136,7 +138,7 @@ public class PathSampler extends beast.core.Runnable {
 		MCMC mcmc = mcmcInput.get();
 
 		if (!mcmc.getClass().equals(MCMC.class)) {
-			System.out.println("WARNING: class is not beast.core.MCMC, which may result in unexpected behavior ");
+			System.out.println("WARNING: class is not beast.base.inference.MCMC, which may result in unexpected behavior ");
 		}
 		PathSamplingStep step = new PathSamplingStep();
 		for (Input<?> input : mcmc.listInputs()) {
@@ -179,9 +181,9 @@ public class PathSampler extends beast.core.Runnable {
 		}
 		
 		
-		PrintStream [] cmdFiles = new PrintStream[BeastMCMC.m_nThreads];
-    	for (int i = 0; i < BeastMCMC.m_nThreads; i++) {
-    		FileOutputStream outStream = (beast.app.util.Utils.isWindows()?
+		PrintStream [] cmdFiles = new PrintStream[ProgramStatus.m_nThreads];
+    	for (int i = 0; i < ProgramStatus.m_nThreads; i++) {
+    		FileOutputStream outStream = (Utils.isWindows()?
     					new FileOutputStream(rootDirInput.get() + "/run" + i +".bat"):
     					new FileOutputStream(rootDirInput.get() + "/run" + i +".sh"));
     		 cmdFiles[i] = new PrintStream(outStream);
@@ -190,7 +192,7 @@ public class PathSampler extends beast.core.Runnable {
 		
 		
 		for (int i = 0; i < m_nSteps; i++) {
-			if (i < BeastMCMC.m_nThreads) {
+			if (i < ProgramStatus.m_nThreads) {
 				mcmc.burnInInput.setValue(preBurnIn, mcmc);
 			} else {
 				mcmc.burnInInput.setValue(0, mcmc);
@@ -215,7 +217,7 @@ public class PathSampler extends beast.core.Runnable {
 			
 			String cmd = getCommand(stepDir.getAbsolutePath(), i);
         	FileOutputStream cmdFile = 
-        			(beast.app.util.Utils.isWindows()?
+        			(Utils.isWindows()?
         					new FileOutputStream(stepDir.getAbsoluteFile() + "/run.bat"):
         					new FileOutputStream(stepDir.getAbsoluteFile() + "/run.sh"));
         	PrintStream out2 = new PrintStream(cmdFile);
@@ -223,7 +225,7 @@ public class PathSampler extends beast.core.Runnable {
 			out2.close();
 
         	cmdFile = 
-        			(beast.app.util.Utils.isWindows()?
+        			(Utils.isWindows()?
         					new FileOutputStream(stepDir.getAbsoluteFile() + "/resume.bat"):
         					new FileOutputStream(stepDir.getAbsoluteFile() + "/resume.sh"));
         	cmd = cmd.replace("-overwrite", "-resume");
@@ -232,25 +234,25 @@ public class PathSampler extends beast.core.Runnable {
 			out2.close();
 //TODO: probably more efficient to group cmdFiles in block of #steps/#threads
 //instead of skipping #threads steps every time.
-			if (i >= BeastMCMC.m_nThreads) {
-				String copyCmd = (beast.app.util.Utils.isWindows()
+			if (i >= ProgramStatus.m_nThreads) {
+				String copyCmd = (Utils.isWindows()
 						? getCopyCmd(i)
-						: "cp " + getStepDir(i - BeastMCMC.m_nThreads) + "/beast.xml.state " + getStepDir(i)
+						: "cp " + getStepDir(i - ProgramStatus.m_nThreads) + "/beast.xml.state " + getStepDir(i)
 							);
-				cmdFiles[i % BeastMCMC.m_nThreads].println(copyCmd);				
+				cmdFiles[i % ProgramStatus.m_nThreads].println(copyCmd);				
 			}
-			if (i / BeastMCMC.m_nThreads == 0) {
+			if (i / ProgramStatus.m_nThreads == 0) {
 				cmd = cmd.replace("-resume", "-overwrite");
 			}
-			cmdFiles[i % BeastMCMC.m_nThreads].println(cmd);
+			cmdFiles[i % ProgramStatus.m_nThreads].println(cmd);
 			File script = new File(stepDir.getAbsoluteFile() + 
-					(beast.app.util.Utils.isWindows()? "/run.bat": "/run.sh"));
+					(Utils.isWindows()? "/run.bat": "/run.sh"));
 			script.setExecutable(true);
 		}
 		
 		
 		
-    	for (int k = 0; k < BeastMCMC.m_nThreads; k++) {
+    	for (int k = 0; k < ProgramStatus.m_nThreads; k++) {
     		cmdFiles[k].close();
     	}
 
@@ -260,7 +262,7 @@ public class PathSampler extends beast.core.Runnable {
 	
 	private String getCopyCmd(int i) {
 		String cmd = "copy \"";
-		cmd += getStepDir(i - BeastMCMC.m_nThreads);
+		cmd += getStepDir(i - ProgramStatus.m_nThreads);
 		cmd += "\\beast.xml.state\" \"";
 		cmd += getStepDir(i);
 		cmd += "\"";
@@ -311,11 +313,11 @@ public class PathSampler extends beast.core.Runnable {
 		sCommand = sCommand.replaceAll("\\$\\(java.library.path\\)",  "\"" + sanitise(System.getProperty("java.library.path")) + "\"");
 //		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(System.getProperty("java.class.path")) + "\"");
 		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(getLauncherJarPath()) + "\"");
-		sCommand = sCommand.replaceAll("beast.app.beastapp.BeastMain", "beast.app.beastapp.BeastLauncher");
+		sCommand = sCommand.replaceAll("beast.app.beastapp.BeastMain", "beast.pkgmgmt.launcher.BeastLauncher");
 		if (m_sHosts != null) {
 			sCommand = sCommand.replaceAll("\\$\\(host\\)", m_sHosts[iStep % m_sHosts.length]);
 		}
-		if (iStep < BeastMCMC.m_nThreads) {
+		if (iStep < ProgramStatus.m_nThreads) {
 			sCommand = sCommand.replaceAll("\\$\\(resume/overwrite\\)", "-overwrite");
 		} else {
 			sCommand = sCommand.replaceAll("\\$\\(resume/overwrite\\)", "-resume");
@@ -351,7 +353,7 @@ public class PathSampler extends beast.core.Runnable {
 		property = b.substring(0, b.length() - 1);
 		
 		// sanitise for windows
-		if (beast.app.util.Utils.isWindows()) {
+		if (Utils.isWindows()) {
 			String cwd = System.getProperty("user.dir");
 			cwd = cwd.replace("\\", "/");
 			property = property.replaceAll(";\\.", ";" +  cwd + ".");
@@ -377,7 +379,7 @@ public class PathSampler extends beast.core.Runnable {
 					throw new Exception("Failed to find directory " + stepDir.getName());
 				}
 	        	String cmd = 
-        			(beast.app.util.Utils.isWindows()?
+        			(Utils.isWindows()?
         					stepDir.getAbsoluteFile() + "/run.bat":
         					stepDir.getAbsoluteFile() + "/run.sh");
 	        	
@@ -410,15 +412,15 @@ public class PathSampler extends beast.core.Runnable {
     	long startTime = System.currentTimeMillis();
 
 		for (int i = 0; i < m_nSteps; i++) {
-	    	if (BeastMCMC.m_nThreads > 1) {
-	    		int nSteps = Math.min(BeastMCMC.m_nThreads, m_nSteps - i);
+	    	if (ProgramStatus.m_nThreads > 1) {
+	    		int nSteps = Math.min(ProgramStatus.m_nThreads, m_nSteps - i);
 	    		m_nCountDown = new CountDownLatch(nSteps);
 	    		for (int j = 0; j < nSteps; j++) {
 	    			new StepThread(i).start();
 	    			i++;
 	    		}
 	    		m_nCountDown.await();	    		
-    			for (int j = 0; j < BeastMCMC.m_nThreads && i+j < m_nSteps; j++) {
+    			for (int j = 0; j < ProgramStatus.m_nThreads && i+j < m_nSteps; j++) {
     				copyStateFile(i-1, i + j);	    			
     				checkLogFiles(i + j);
     			}
@@ -429,7 +431,7 @@ public class PathSampler extends beast.core.Runnable {
 					throw new Exception("Failed to find directory " + stepDir.getName());
 				}
 	        	String cmd = 
-	        			(beast.app.util.Utils.isWindows()?
+	        			(Utils.isWindows()?
 	        					stepDir.getAbsoluteFile() + "\\run.bat":
 	        					stepDir.getAbsoluteFile() + "/run.sh");
 	        	
