@@ -2,8 +2,8 @@ package modelselection.inference;
 
 import beast.base.core.Description;
 import beast.base.core.Input;
+import beastfx.app.tools.Application;
 import beastfx.app.tools.LogAnalyser;
-import jam.util.IconUtils;
 import modelselection.inference.PairedPathSampler.Scheme;
 
 import java.io.IOException;
@@ -146,26 +146,13 @@ public class PairedPathSampleAnalyser extends beast.base.inference.Runnable {
 		return rootDir + "/step" + formatter.format(iParticle);
 	}
 	
-	public static void main(String[] args) throws Exception {
-		PairedPathSampleAnalyser analyser = new PairedPathSampleAnalyser();
-		int nSteps = Integer.parseInt(args[0]);
-		double alpha = Double.parseDouble(args[1]);
-		String rootDir = args[2];
-		int burnInPercentage = Integer.parseInt(args[3]);
-		double marginalL = analyser.estimateMarginalLikelihood(nSteps, alpha, rootDir, burnInPercentage);
-		System.out.println("Bayes factor estimate = " + marginalL);
-	}
-	
-	
-    ConsoleApp consoleApp = null;
 
 	@Override
 	public void run() throws IOException {
 		// create output window
         String nameString = "PairedPathSampleAnalyser";
         String title = "Paired Path Sample Analyser -- " + rootDirInput.get();
-        consoleApp = new ConsoleApp(nameString, title, IconUtils.getIcon(modelselection.app.tools.PathSampleAnalyser.class, "ps.png"));
-
+    
 		double marginalL = Double.NaN;
 		try {
 			marginalL = estimateMarginalLikelihood(
@@ -178,5 +165,9 @@ public class PairedPathSampleAnalyser extends beast.base.inference.Runnable {
 			e.printStackTrace();
 		}
 		System.out.println("Bayes factor estimate = " + marginalL);
+	}
+
+	public static void main(String[] args) throws Exception {
+		new Application(new PairedPathSampleAnalyser(), "", args);
 	}
 }

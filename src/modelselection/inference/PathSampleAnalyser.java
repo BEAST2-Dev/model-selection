@@ -249,10 +249,10 @@ public class PathSampleAnalyser extends beast.base.inference.Runnable {
 		}
 		
 		if (verbose) {
-			if (consoleApp != null) {
+			//if (consoleApp != null) {
 				// allow output to flush to app window
 				Thread.sleep(500);
-			}
+			//}
 	
 			System.out.println("\nStep        theta         likelihood   contribution ESS");
 			BetaDistribution betaDistribution = alpha > 0 ? new BetaDistributionImpl(alpha, 1.0) : null;
@@ -311,8 +311,6 @@ public class PathSampleAnalyser extends beast.base.inference.Runnable {
 //		double marginalL = analyser.estimateMarginalLikelihood(nSteps, alpha, rootDir, burnInPercentage);
 //		System.out.println("marginal L estimate = " + marginalL);
 	}
-
-    public ConsoleApp consoleApp = null;
     
 	@Override
 	public void run() throws Exception {
@@ -333,5 +331,5 @@ public class PathSampleAnalyser extends beast.base.inference.Runnable {
 		Thread.sleep(500);
 		System.out.println("marginal L estimate = " + marginalL);
 	}
-	
+
 }

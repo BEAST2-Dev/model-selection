@@ -1,12 +1,12 @@
 <beast version='2.0'
-       namespace='beast.app.beauti:beast.core:beast.evolution.branchratemodel:beast.evolution.speciation:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood:beast.evolution:beast.math.distributions'
+       namespace='beast.app.beauti:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution'
 	templateinfo='template for standard phylogenetic analysis,&lt;br> supporting tip-date analysis and calibrations'>
 
 
 <!-- we need those to be able to parse the standard HyperPrior, not used for this template -->
-<map name='connect' reserved='true'>beast.app.beauti.BeautiConnector</map>
-<map name='subtemplate' reserved='true'>beast.app.beauti.BeautiSubTemplate</map>
-<map name='OneOnX'>beast.math.distributions.OneOnX</map>
+<map name='connect' reserved='true'>beast.app.inputeditor.BeautiConnector</map>
+<map name='subtemplate' reserved='true'>beast.app.inputeditor.BeautiSubTemplate</map>
+<map name='OneOnX'>beast.base.inference.distribution.OneOnX</map>
 
     <beauticonfig spec='BeautiConfig'
         inputLabelMap=''
@@ -24,7 +24,7 @@ beast.inference.PairedPathSampler.hosts'
             hasPartitions="none" icon='9.png.x' forceExpansion='TRUE'
         />
 
-        <partitiontemplate id='StandardPartitionTemplate' spec='BeautiSubTemplate' class='beast.evolution.likelihood.TreeLikelihood' mainid='mcmc' value=''/>
+        <partitiontemplate id='StandardPartitionTemplate' spec='BeautiSubTemplate' class='beast.base.evolution.likelihood.TreeLikelihood' mainid='mcmc' value=''/>
 
     </beauticonfig>
 

@@ -33,6 +33,7 @@ import beast.base.evolution.tree.coalescent.RandomTree;
 import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.TreeDistribution;
 import beast.base.evolution.tree.TreeInterface;
+import beast.base.evolution.TreeWithMetaDataLogger;
 import beast.base.evolution.tree.MRCAPrior;
 import beast.base.inference.MCMC;
 import beast.base.parser.JSONProducer;
@@ -121,7 +122,7 @@ abstract public class MCMC2IS extends Runnable {
 	private void setUpInitialisers(List<StateNodeInitialiser> initialiser) {
 		for (int i = 0; i < initialiser.size(); i++) {
 			StateNodeInitialiser init = initialiser.get(i);
-			if (init instanceof RandomTree || init instanceof SimpleRandomTree) {				
+			if (init instanceof RandomTree || init.getClass().getName().equals("beastlabs.evolution.tree.SimpleRandomTree")) {				
 				// grab last tree from log file
 				TreeParser newInit = new TreeParser();
 				Tree tree = (Tree) ((BEASTInterface)init).getInput("initial").get();

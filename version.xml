@@ -35,6 +35,33 @@
             />
 -->
 
+    <service type="beast.base.core.BEASTInterface">
+        <provider classname="modelselection.core.CPOLogger"/>
+        <provider classname="modelselection.cpo.BEASTRunAnalyser"/>
+        <provider classname="modelselection.cpo.CPOAnalyser"/>
+        <provider classname="modelselection.gss.coalescent.ExponentialProductPosteriorMeansLikelihood"/>
+        <provider classname="modelselection.gss.distribution.GSSTreeDistribution"/>
+        <provider classname="modelselection.gss.distribution.LogitTransformedNormalKDEDistribution"/>
+        <provider classname="modelselection.gss.distribution.LogTransformedNormalKDEDistribution"/>
+        <provider classname="modelselection.gss.distribution.MultivariateKDEDistribution"/>
+        <provider classname="modelselection.gss.distribution.NormalKDEDistribution"/>
+        <provider classname="modelselection.gss.GeneralisedSteppingStone"/>
+        <provider classname="modelselection.gss.GeneralisedSteppingStoneStep"/>
+        <provider classname="modelselection.gss.GSSFromFile"/>
+        <provider classname="modelselection.gss.MCMC2GSS"/>
+        <provider classname="modelselection.gss.TraceLog"/>
+        <provider classname="modelselection.gss.TreeFromTreeSetFileInitialiser"/>
+        <provider classname="modelselection.inference.AICMAnalyser"/>
+        <provider classname="modelselection.inference.DiffLogger"/>
+        <provider classname="modelselection.inference.PairedPathSampleAnalyser"/>
+        <provider classname="modelselection.inference.PairedPathSampler"/>
+        <provider classname="modelselection.inference.PairedPathSamplingStep"/>
+        <provider classname="modelselection.inference.PathSampleAnalyser"/>
+        <provider classname="modelselection.inference.PathSampler"/>
+        <provider classname="modelselection.inference.PathSamplerFromFile"/>
+        <provider classname="modelselection.inference.PathSamplingStep"/>
+    </service>
+
 
 	<map from="beast.core.CPOLogger"  to="modelselection.core.CPOLogger"/>
 
