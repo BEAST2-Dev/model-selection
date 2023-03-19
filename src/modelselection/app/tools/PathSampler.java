@@ -23,12 +23,12 @@ public class PathSampler {
 	
 	public static void main(final String[] args) throws Exception {
 		// suppress a few inputs that we don't want to expose to the user
-		String className = modelselection.inference.PathSampler.class.getName();
+		String className = modelselection.inference.PathSamplerFromFile.class.getName();
 		String [] suppressedInputs = new String [] {
 				className + ".mcmc",
 				className + ".value",
 				className + ".hosts"};
-		new Application(new modelselection.inference.PathSampler(), suppressedInputs, "Path Sampler", args);
+		new Application(new modelselection.inference.PathSamplerFromFile(), suppressedInputs, "Path Sampler", args);
 
 		
 //		Application main = null;
