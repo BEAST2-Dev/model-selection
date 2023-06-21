@@ -39,7 +39,7 @@
 <!--
     <operator id="tauScaler" parameter="@tau" scaleFactor="0.5" spec="ScaleOperator" weight="1"/>
 -->
-    <logger fileName="trace.log" id="tracelog" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+    <logger fileName="trace2.log" id="tracelog" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>

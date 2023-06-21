@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -15,7 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.math.distribution.BetaDistribution;
 import org.apache.commons.math.distribution.BetaDistributionImpl;
 
-import beastfx.app.beast.BeastMCMC;
 import beastfx.app.util.Utils;
 import beast.base.core.Description;
 import beast.base.inference.Distribution;
@@ -49,12 +50,14 @@ public class PathSampler extends beast.base.inference.Runnable {
 			"$(dir) is replaced by the directory associated with the particle " +
 			"$(java.class.path) is replaced by a java class path used to launch this application " +
 			"$(java.library.path) is replaced by a java library path used to launch this application " +
+			"$(java) is replaced by a path to the java executable included in the BEAST release " +
 			"$(seed) is replaced by a random number seed that differs with every launch " +
 			"$(host) is replaced by a host from the list of hosts", Validate.REQUIRED);
 	public Input<String> m_sHostsInput = new Input<String>("hosts", "comma separated list of hosts. " +
 			"If there are k hosts in the list, for particle i the term $(host) in the script will be replaced " +
 			"by the (i modulo k) host in the list. " +
-			"Note that whitespace is removed");
+			"Note that whitespace is removed. " +
+			"This can be useful for example when starting BEAST remotely through ssh.");
 	public Input<Boolean> doNotRun = new Input<Boolean>("doNotRun", "Set up all files but do not run analysis if true. " +
 			"This can be useful for setting up an analysis on a cluster", false);
 	
@@ -100,7 +103,7 @@ public class PathSampler extends beast.base.inference.Runnable {
 		m_sScript = m_sScriptInput.get();
 		if (m_sScript == null) {
 			m_sScript = "cd $(dir)\n" +
-					"java -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml\n";
+					"$(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml\n";
 		}
 		if (m_sHostsInput.get() != null) {
 			m_sHosts = m_sHostsInput.get().split(",");
@@ -310,6 +313,13 @@ public class PathSampler extends beast.base.inference.Runnable {
 		//while (sCommand.matches("$(seed)")) {
 			sCommand = sCommand.replaceAll("\\$\\(seed\\)", Math.abs(Randomizer.nextInt())+"");
 		//}
+		String javaInJrePath = null;
+		try {
+			javaInJrePath = getJavaInJrePath();
+		} catch (UnsupportedEncodingException | URISyntaxException e) {
+			e.printStackTrace();
+		}	
+		sCommand = sCommand.replaceAll("\\$\\(java\\)",  javaInJrePath != null ? "\"" + javaInJrePath + "\"" : "java");
 		sCommand = sCommand.replaceAll("\\$\\(java.library.path\\)",  "\"" + sanitise(System.getProperty("java.library.path")) + "\"");
 //		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(System.getProperty("java.class.path")) + "\"");
 		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(getLauncherJarPath()) + "\"");
@@ -322,10 +332,25 @@ public class PathSampler extends beast.base.inference.Runnable {
 		} else {
 			sCommand = sCommand.replaceAll("\\$\\(resume/overwrite\\)", "-resume");
 		}		
+				
 		return sCommand;
 	}
 
 	
+	private String getJavaInJrePath() throws URISyntaxException, UnsupportedEncodingException {
+		File launcherJarFile = new File(getLauncherJarPath());
+		String javaInJrePath = launcherJarFile.getParentFile().getParentFile().getAbsolutePath() + "/jre/bin/java";
+				
+		if (Utils.isWindows()) {
+			javaInJrePath += ".exe";
+		}
+		if (new File(javaInJrePath).exists()) {
+			return javaInJrePath;
+		}
+		return null;
+	}
+
+
 	private String getLauncherJarPath() {
 		String property = System.getProperty("java.class.path");
 		String pathSeparator = System.getProperty("path.separator");

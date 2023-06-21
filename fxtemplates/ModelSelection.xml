@@ -43,7 +43,7 @@ beast.inference.PairedPathSampler.hosts'
         deleteOldLogs='true'
     >
 cd $(dir)
-java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
+java -cp $(java.class.path) beastfx.app.beast.BeastMain $(resume/overwrite) -seed $(seed) beast.xml
 
 </run>
 
