@@ -12,7 +12,7 @@
 		deleteOldLogs='true'
     >
 cd $(dir)
-java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
+java -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml
 
 </run>
 </beast>

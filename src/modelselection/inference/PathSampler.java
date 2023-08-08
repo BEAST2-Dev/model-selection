@@ -323,6 +323,7 @@ public class PathSampler extends beast.base.inference.Runnable {
 		sCommand = sCommand.replaceAll("\\$\\(java.library.path\\)",  "\"" + sanitise(System.getProperty("java.library.path")) + "\"");
 //		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(System.getProperty("java.class.path")) + "\"");
 		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(getLauncherJarPath()) + "\"");
+		sCommand = sCommand.replaceAll("beastfx.app.beast.BeastMain", "beast.pkgmgmt.launcher.BeastLauncher");
 		sCommand = sCommand.replaceAll("beast.app.beastapp.BeastMain", "beast.pkgmgmt.launcher.BeastLauncher");
 		if (m_sHosts != null) {
 			sCommand = sCommand.replaceAll("\\$\\(host\\)", m_sHosts[iStep % m_sHosts.length]);

@@ -1,5 +1,5 @@
 <!-- Build MODEL_SELECTION. It is also used by Hudson MODEL_SELECTION project. JUnit test is available for this build. -->
-<project basedir="." default="addon" name="BUILD_MODEL_SELECTION">
+<project basedir="." default="package" name="BUILD_MODEL_SELECTION">
 	<description>
 	    Build MODEL_SELECTION. 
             Also used by Hudson MODEL_SELECTION project. 
@@ -19,7 +19,7 @@
 	<property name="srcBeast2" location="${beast2path}/src" />
 	<property name="beast2classpath" location="${beast2path}/build" />
 	<property name="beastappclasspath" location="../BeastFX/build" />
-	<property name="Add_on_dir" value="${release_dir}/add-on" />
+	<property name="Package_dir" value="${release_dir}/package" />
 
     <import file="${beast2path}/build.xml" />
 
@@ -163,43 +163,44 @@
 		<echo message="JUnit test report finished." />
 	</target>
 
+	<target name="addon" depends="package"/>
 
-	<target name="addon"
+	<target name="package"
 	        depends="build_jar_all_MODEL_SELECTION_NoJUnitTest"
 	        description="release BEAST 2 add-on version of MODEL_SELECTION">
 
-		<delete dir="${Add_on_dir}" />
+		<delete dir="${Package_dir}" />
 		<!-- Create the release directory -->
-		<mkdir dir="${Add_on_dir}" />
-		<mkdir dir="${Add_on_dir}/doc" />
-		<mkdir dir="${Add_on_dir}/lib" />
-		<mkdir dir="${Add_on_dir}/examples" />
-		<mkdir dir="${Add_on_dir}/fxtemplates" />
+		<mkdir dir="${Package_dir}" />
+		<mkdir dir="${Package_dir}/doc" />
+		<mkdir dir="${Package_dir}/lib" />
+		<mkdir dir="${Package_dir}/examples" />
+		<mkdir dir="${Package_dir}/fxtemplates" />
 
-		<copy todir="${Add_on_dir}">
+		<copy todir="${Package_dir}">
 			<fileset file="version.xml"/>
 		</copy>
-		<copy todir="${Add_on_dir}/examples">
+		<copy todir="${Package_dir}/examples">
 			<fileset dir="examples" />
 		</copy>
-		<copy todir="${Add_on_dir}/doc">
+		<copy todir="${Package_dir}/doc">
 			<fileset file="doc/readme.txt"/>
 		</copy>
-		<copy todir="${Add_on_dir}/lib">
+		<copy todir="${Package_dir}/lib">
 			<fileset dir="${distMODEL_SELECTION}" includes="MODEL_SELECTION.addon.jar" />
 		</copy>
-		<copy todir="${Add_on_dir}">
+		<copy todir="${Package_dir}">
 			<fileset dir="${distMODEL_SELECTION}" includes="MODEL_SELECTION.src.jar" />
 		</copy>
+		<copy todir="${Package_dir}/fxtemplates">
+			<fileset file="fxtemplates/ModelSelection.xml" />
 		<!--
-		<copy todir="${Add_on_dir}/fxtemplates">
-			<fileset file="fxtemplates/MODEL_SELECTION.xml" />
 			<fileset file="fxtemplates/AutoPartition.xml" />
-		</copy>
 		-->
+		</copy>
 
 		<jar jarfile="${distMODEL_SELECTION}/MODEL_SELECTION.addon.v${MODEL_SELECTIONversion}.zip">
-			<fileset dir="${Add_on_dir}">
+			<fileset dir="${Package_dir}">
 				<include name="**/*" />
 			</fileset>
         </jar>

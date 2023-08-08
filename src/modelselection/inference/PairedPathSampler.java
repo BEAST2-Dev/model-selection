@@ -126,7 +126,7 @@ public class PairedPathSampler extends PathSampler {
 		m_sScript = m_sScriptInput.get();
 		if (m_sScript == null) {
 			m_sScript = "cd $(dir)\n" +
-					"java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml\n";
+					"$(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml\n";
 		}
 		if (m_sHostsInput.get() != null) {
 			m_sHosts = m_sHostsInput.get().split(",");

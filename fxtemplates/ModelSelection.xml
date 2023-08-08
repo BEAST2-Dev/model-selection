@@ -1,51 +1,63 @@
-<beast version='2.0'
-       namespace='beast.app.beauti:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution'
+<beast version='2.7'
+       namespace='beastfx.app.beauti:beastfx.app.inputeditor:beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.branchratemodel:beast.base.evolution.speciation:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood:beast.evolution:beast.base.inference.distribution'
 	templateinfo='template for standard phylogenetic analysis,&lt;br> supporting tip-date analysis and calibrations'>
 
-
-<!-- we need those to be able to parse the standard HyperPrior, not used for this template -->
-<map name='connect' reserved='true'>beast.app.inputeditor.BeautiConnector</map>
-<map name='subtemplate' reserved='true'>beast.app.inputeditor.BeautiSubTemplate</map>
+<map name='connect' reserved='true'>beastfx.app.inputeditor.BeautiConnector</map>
+<map name='subtemplate' reserved='true'>beastfx.app.inputeditor.BeautiSubTemplate</map>
+<map name='Uniform'>beast.base.inference.distribution.Uniform</map>
+<map name='Normal'>beast.base.inference.distribution.Normal</map>
 <map name='OneOnX'>beast.base.inference.distribution.OneOnX</map>
+<map name='LogNormal'>beast.base.inference.distribution.LogNormalDistributionModel</map>
+<map name='Exponential'>beast.base.inference.distribution.Exponential</map>
+<map name='Gamma'>beast.base.inference.distribution.Gamma</map>
+<map name='Beta'>beast.base.inference.distribution.Beta</map>
+<map name='LaplaceDistribution'>beast.base.inference.distribution.LaplaceDistribution</map>
+<map name='InverseGamma'>beast.base.inference.distribution.InverseGamma</map>
+<map name='prior'>beast.base.inference.distribution.Prior</map>
 
-    <beauticonfig spec='BeautiConfig'
-        inputLabelMap=''
-        inlinePlugins =''
-        collapsedPlugins =''
-        suppressPlugins = 'beast.inference.PairedPathSampler.mcmc,
-beast.inference.PairedPathSampler.value,
-beast.inference.PairedPathSampler.hosts'
-        buttonLabelMap=''
-    >
-        <!--disableMenus='Mode'-->
 
-		<panel spec='BeautiPanelConfig' panelname="Model Selection" tiptext="Model Selection Parameters"
-            path=''
-            hasPartitions="none" icon='9.png.x' forceExpansion='TRUE'
-        />
-
-        <partitiontemplate id='StandardPartitionTemplate' spec='BeautiSubTemplate' class='beast.base.evolution.likelihood.TreeLikelihood' mainid='mcmc' value=''/>
-
-    </beauticonfig>
-
-<!-- framework for main model -->
-
-    <run spec='beast.inference.PairedPathSampler' 
-        rootdir='/tmp/step'
-        model1='examples/normalTest-1.xml'
-        model2='examples/normalTest-2.xml'
-        nrOfSteps='8'
-        alpha='3.0'
-        chainLength='100000'
-        burnInPercentage='50'
-        preBurnin='100000'
-        doNotRun='false'
-        deleteOldLogs='true'
-    >
+	<mergewith point='runnables'>
+        <subtemplate id='Path Sampling/Stepping Stone' class='modelselection.inference.PathSampler' mainid='PathSampler'
+        suppressInputs="modelselection.inference.PathSampler.mcmc,
+			        modelselection.inference.PathSampler.value,
+			        modelselection.inference.PathSampler.hosts"
+        >
+<![CDATA[
+<run id='PathSampler' spec='modelselection.inference.PathSampler' chainLength="100000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='50' preBurnin="50000" deleteOldLogs='true' nrOfSteps='100'>
 cd $(dir)
-java -cp $(java.class.path) beastfx.app.beast.BeastMain $(resume/overwrite) -seed $(seed) beast.xml
+$(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -seed $(seed) beast.xml
+
+    <mcmc spec="MCMC" id="mcmc" chainLength="1000000">
+
+        <state storeEvery='5000' id='state'>
+        </state>
+
+        <distribution spec="CompoundDistribution" id="posterior">
+            <distribution spec="CompoundDistribution" id="prior">
+            </distribution>
+            <distribution spec="CompoundDistribution" id="likelihood" useThreads="true">
+            </distribution>
+        </distribution>
+
+        <logger id='tracelog' spec="beast.gss.NSLogger" logEvery="1000" fileName="beast.log" sort="smart" sanitiseHeaders='true'>
+	        <model idref='posterior'/>
+            <log idref="posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+        </logger>
+
+        <logger id='screenlog' logEvery="1000">
+            <log idref="posterior"/>
+      	    <ESS spec='ESS' name='log' arg="@posterior"/>
+            <log idref="likelihood"/>
+            <log idref="prior"/>
+        </logger>
+    </mcmc>
 
 </run>
-
+]]>
+</subtemplate>
+	</mergewith>
 </beast>
+
 

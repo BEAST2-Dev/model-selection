@@ -15,7 +15,7 @@
 <run spec='beast.inference.PathSampler' chainLength="500000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='50' preBurnin="50000" deleteOldLogs='true' nrOfSteps='20'>
 
 cd $(dir)
-java -cp $(java.class.path) beast.app.beastapp.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
+$(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml
 
   <mcmc chainLength="10000000" id="mcmc" spec="MCMC">
     <state id="state" storeEvery="1000">
