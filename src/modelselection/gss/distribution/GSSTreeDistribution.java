@@ -4,6 +4,7 @@ package modelselection.gss.distribution;
 import java.io.IOException;
 import java.util.*;
 
+import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.ContinuousDistribution;
 import org.apache.commons.math.distribution.ExponentialDistribution;
 import org.apache.commons.math.distribution.ExponentialDistributionImpl;
@@ -22,7 +23,6 @@ import beast.base.evolution.tree.Node;
 import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.TreeInterface;
 import beast.base.evolution.tree.TreeIntervals;
-import beast.base.inference.distribution.ParametricDistribution;
 import beast.base.util.Randomizer;
 
 @Description("Tree Distribution consisting of a "
@@ -39,7 +39,7 @@ public class GSSTreeDistribution extends Distribution {
 	public Input<Integer> burninPercentageInput = new Input<>("burnin", "percentage of the tree set to remove from the beginning", 10);
 	public Input<BranchLengthDistribution> useGammaForBranchLengthsInput = new Input<>("useGammaForBranchLengths", "use an empirical gamma distribution for branch length distribution", BranchLengthDistribution.none, BranchLengthDistribution.values());
 
-	public Input<Boolean> useCCDInput = new Input<>("useCCD", "include conditional clade distribution", true);
+	public Input<Double> CCDWeightInput = new Input<>("CCDWeight", "weighted contribution of the conditional clade distribution", 1.0);
 	
 	
 
@@ -95,6 +95,11 @@ public class GSSTreeDistribution extends Distribution {
     final static double EPSILON = -8;    
     //double [] epsilon;
 	
+    
+	double [] distributionQuantiles = new double[128];
+	double [] logPdistributionQuantiles = new double[128];
+	double median;
+
     public GSSTreeDistribution() {}
 //	public GSSTreeDistribution(@Param(name="treefile", description="file containing tree set") TreeFile treeFile,
 //			@Param(name="tree", description="beast tree for which the conditional clade distribution is calculated") TreeInterface tree,
@@ -198,6 +203,28 @@ public class GSSTreeDistribution extends Distribution {
 				break;
 			case none:
 			}
+			
+			if (branchLengthDistr != null) {
+				distributionQuantiles[0] = 0;
+				distributionQuantiles[127] = Double.POSITIVE_INFINITY;
+				logPdistributionQuantiles[127] = -10; 
+				for (int i = 1; i < 127; i++) {
+					try {
+						distributionQuantiles[i] = branchLengthDistr.inverseCumulativeProbability((i+0.0)/127.0);
+						logPdistributionQuantiles[i-1] = -Math.log(distributionQuantiles[i] - distributionQuantiles[i-1]); 
+					} catch (MathException e) {
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
+				}
+				try {
+					median = branchLengthDistr.inverseCumulativeProbability(0.5);
+				} catch (MathException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(e.getMessage());
@@ -325,8 +352,8 @@ public class GSSTreeDistribution extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = 0;
-		if (useCCDInput.get()) {
-			logP = getLogCladeCredibility(tree.getRoot(), new BitSet());
+		if (CCDWeightInput.get()> 0) {
+			logP = CCDWeightInput.get() * getLogCladeCredibility(tree.getRoot(), new BitSet());
 		}
 		
 		//System.err.print("GSST logp = " + logP);
@@ -359,8 +386,33 @@ public class GSSTreeDistribution extends Distribution {
     private double getGammaBranchLengths(TreeInterface tree) {
     	 double logP = 0;
     	 double len = getTreeLength(tree);
-		logP += branchLengthDistr.logDensity(len);
-		return logP;
+    	 int i = Arrays.binarySearch(distributionQuantiles, len);
+    	 if (i < 0) {
+    		 i = -i-1;
+    	 }
+
+ 		if (i == 127) {
+			// length is way off, fall back on exponential with lambda = median of gamma distribution
+			logP = -len / median;
+			return logP;
+		}
+
+    	 logP += logPdistributionQuantiles[i];
+    	 return logP;
+    	 
+    	 
+//		logP += branchLengthDistr.logDensity(len);
+//		if (Double.isNaN(logP)) {
+//			// length is way off, fall back on exponential with lambda = median of gamma distribution
+//			double median;
+//			try {
+//				median = branchLengthDistr.inverseCumulativeProbability(0.5);
+//				logP = -len / median;
+//			} catch (MathException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return logP;
 	}
     
 	private double getTreeLength(TreeInterface tree) {

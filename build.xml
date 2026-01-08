@@ -47,9 +47,10 @@
               ** Required file version.xml does not exist. **
             </fail>
 
-        <!-- Read package name and version from xml file -->
-            <xmlproperty file="${MODEL_SELECTIONdir}/version.xml" prefix="fromVersionFile" />
-        <property name="MODEL_SELECTIONversion" value="${fromVersionFile.package(version)}" />
+         <!-- Read package name and version from xml file -->
+         <xmlproperty file="${MODEL_SELECTIONdir}/version.xml" prefix="fromVersionFile" />
+         <property name="projName" value="${fromVersionFile.package(name)}"/>
+         <property name="MODEL_SELECTIONversion" value="${fromVersionFile.package(version)}" />
 	</target>
 
 	<target name="cleanMODEL_SELECTION">
@@ -78,7 +79,7 @@
 
 	    <!-- Capture the path as a delimited property using the refid attribute -->
 	    <property name="myclasspath" refid="classpath"/>
-	    <!-- Emit the property to the ant console -->
+	    <!-- Emit the property to the ant coMODEL_SELECTIONole -->
 	    <echo message="Classpath = ${myclasspath}"/>
 
 		<mkdir dir="${buildMODEL_SELECTION}" />
@@ -113,7 +114,7 @@
 				<include name="modelselection/**/*.xsl" />
 			</fileset>
         </jar>
-		<jar jarfile="${distMODEL_SELECTION}/MODEL_SELECTION.addon.jar">
+		<jar jarfile="${distMODEL_SELECTION}/MODEL_SELECTION.package.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
@@ -187,7 +188,7 @@
 			<fileset file="doc/readme.txt"/>
 		</copy>
 		<copy todir="${Package_dir}/lib">
-			<fileset dir="${distMODEL_SELECTION}" includes="MODEL_SELECTION.addon.jar" />
+			<fileset dir="${distMODEL_SELECTION}" includes="MODEL_SELECTION.package.jar" />
 		</copy>
 		<copy todir="${Package_dir}">
 			<fileset dir="${distMODEL_SELECTION}" includes="MODEL_SELECTION.src.jar" />
@@ -199,7 +200,7 @@
 		-->
 		</copy>
 
-		<jar jarfile="${distMODEL_SELECTION}/MODEL_SELECTION.addon.v${MODEL_SELECTIONversion}.zip">
+		<jar jarfile="${distMODEL_SELECTION}/MODEL_SELECTION.package.v${MODEL_SELECTIONversion}.zip">
 			<fileset dir="${Package_dir}">
 				<include name="**/*" />
 			</fileset>
@@ -207,4 +208,39 @@
 		<echo message="Add-on version v${MODEL_SELECTIONversion} release is finished." />
 	</target>
 
+
+
+    <condition property="isWindows">
+        <os family="windows"/>
+    </condition>
+    <condition property="isLinux">
+        <and>
+            <os family="unix"/>
+            <not>
+                <os family="mac"/>
+            </not>
+        </and>
+    </condition>
+    <condition property="isMac">
+        <os family="mac"/>
+    </condition>
+
+    <target name="installLinux" depends="package" if="isLinux">
+        <mkdir dir="${user.home}/.beast/2.7/${projName}"/>
+        <unzip src="${distMODEL_SELECTION}/MODEL_SELECTION.package.v${MODEL_SELECTIONversion}.zip" dest="${user.home}/.beast/2.7/${projName}"/>
+    </target>
+
+    <target name="installMac" depends="package" if="isMac">
+        <mkdir dir="${user.home}/.beast/2.7/${projName}"/>
+        <unzip src="${distMODEL_SELECTION}/MODEL_SELECTION.package.v${MODEL_SELECTIONversion}.zip"
+               dest="${user.home}/Library/Application Support/BEAST/2.7/${projName}"/>
+    </target>
+
+    <target name="installWindows" depends="package" if="isWindows">
+        <mkdir dir="${user.home}/BEAST/2.7/${projName}"/>
+        <unzip src="${distMODEL_SELECTION}/MODEL_SELECTION.package.v${MODEL_SELECTIONversion}.zip" dest="${user.home}/BEAST/2.7/${projName}"/>
+    </target>
+
+    <target name="install" depends="installWindows,installMac,installLinux">
+    </target>
 </project>
