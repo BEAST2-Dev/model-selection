@@ -49,6 +49,8 @@ public class ExponentialProductPosteriorMeansLikelihood extends Distribution { /
 	private Tree treeModel;
 	private double[] posteriorMeans;
 
+	public ExponentialProductPosteriorMeansLikelihood() {}
+
 	//make sure to use in combination with coalescentEventsStatistic
 	public ExponentialProductPosteriorMeansLikelihood(Tree treeModel, double[] posteriorMeans) {
 		//super(treeModel);

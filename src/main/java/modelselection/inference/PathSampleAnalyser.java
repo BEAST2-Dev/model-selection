@@ -8,9 +8,7 @@ import beast.base.util.HeapSort;
 import beastfx.app.tools.LogAnalyser;
 import beast.base.util.Randomizer;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.BetaDistribution;
-import org.apache.commons.math.distribution.BetaDistributionImpl;
+import org.apache.commons.statistics.distribution.BetaDistribution;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -83,7 +81,7 @@ public class PathSampleAnalyser extends beast.base.inference.Runnable {
 		} else {
 			BetaDistribution betaDistribution = null;
 			if (alphaInput.get() > 0){
-				betaDistribution = new BetaDistributionImpl(alphaInput.get(), 1.0);
+				betaDistribution = BetaDistribution.of(alphaInput.get(), 1.0);
 			}
 
 			for (int i = 0; i < nSteps; i++) {
@@ -205,7 +203,7 @@ public class PathSampleAnalyser extends beast.base.inference.Runnable {
 		return sum;
 	}
 
-	private double estimateMarginalLikelihood(List<List<Double>> logdata, Double [] [] marginalLs2, double [] marginalLs, double alpha, int nSteps, double [] betas, boolean verbose) throws MathException, InterruptedException {
+	private double estimateMarginalLikelihood(List<List<Double>> logdata, Double [] [] marginalLs2, double [] marginalLs, double alpha, int nSteps, double [] betas, boolean verbose) throws InterruptedException {
 		// combine steps
 		double logMarginalL = 0;
 		if (alpha <= 0) { 
@@ -255,7 +253,7 @@ public class PathSampleAnalyser extends beast.base.inference.Runnable {
 			//}
 	
 			System.out.println("\nStep        theta         likelihood   contribution ESS");
-			BetaDistribution betaDistribution = alpha > 0 ? new BetaDistributionImpl(alpha, 1.0) : null;
+			BetaDistribution betaDistribution = alpha > 0 ? BetaDistribution.of(alpha, 1.0) : null;
 			for (int i = 0; i < nSteps; i++) {
 				System.out.print(format(i)+" ");
 				double beta = betaDistribution != null ?

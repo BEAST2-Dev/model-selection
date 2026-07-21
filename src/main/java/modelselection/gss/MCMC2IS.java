@@ -47,7 +47,7 @@ import modelselection.gss.distribution.NormalKDEDistribution;
 import modelselection.gss.distribution.GSSTreeDistribution.BranchLengthDistribution;
 
 @Description("Convert MCMC analysis to importance sampling analysis like GSS and optionally run the analysis")
-abstract public class MCMC2IS extends Runnable {
+public class MCMC2IS extends MCMC2Abstract {
 	public Input<XMLFile> model1Input = new Input<>("xml",
 			"file name of BEAST XML file containing the model for which to create a GSS XML file for",
 			new XMLFile("examples/normalTest-1XXX.xml"), Validate.REQUIRED);
@@ -117,7 +117,10 @@ abstract public class MCMC2IS extends Runnable {
 		Log.warning("Done");
 	} // save
 
-	abstract protected Runnable newInstance(MCMC mcmc);		
+	@Override
+	protected Runnable newInstance(MCMC mcmc) {
+		return this;
+	}
 
 	private void setUpInitialisers(List<StateNodeInitialiser> initialiser) {
 		for (int i = 0; i < initialiser.size(); i++) {
@@ -217,8 +220,8 @@ abstract public class MCMC2IS extends Runnable {
 		}
 		for (int i = stateNodes.size() - 1; i >= 0; i--) {
 			StateNode s = stateNodes.get(i);
-			if (s instanceof RealParameter) {
-				Distribution altPriorDist = getAltPriorDist(s, s.getID() + "Prior");
+			if (s instanceof RealParameter realParameter) {
+				Distribution altPriorDist = getAltPriorDist(realParameter, s.getID() + "Prior");
 				altPrior.add(altPriorDist);
 				stateNodes.remove(s);
 			}

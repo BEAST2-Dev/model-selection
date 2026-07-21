@@ -14,8 +14,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.commons.math.distribution.BetaDistribution;
-import org.apache.commons.math.distribution.BetaDistributionImpl;
+import org.apache.commons.statistics.distribution.BetaDistribution;
 
 import beastfx.app.util.Utils;
 import beast.base.core.Description;
@@ -180,7 +179,7 @@ public class PathSampler extends beast.base.inference.Runnable {
 		XMLProducer producer = new XMLProducer();
 		BetaDistribution betaDistribution = null;
 		if (alphaInput.get() > 0){
-			betaDistribution = new BetaDistributionImpl(alphaInput.get(), 1.0);
+			betaDistribution = BetaDistribution.of(alphaInput.get(), 1.0);
 		}
 		
 		

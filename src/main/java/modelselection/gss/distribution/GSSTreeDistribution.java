@@ -4,12 +4,9 @@ package modelselection.gss.distribution;
 import java.io.IOException;
 import java.util.*;
 
-import org.apache.commons.math.MathException;
-import org.apache.commons.math.distribution.ContinuousDistribution;
-import org.apache.commons.math.distribution.ExponentialDistribution;
-import org.apache.commons.math.distribution.ExponentialDistributionImpl;
-import org.apache.commons.math.distribution.GammaDistribution;
-import org.apache.commons.math.distribution.GammaDistributionImpl;
+import org.apache.commons.statistics.distribution.ContinuousDistribution;
+import org.apache.commons.statistics.distribution.ExponentialDistribution;
+import org.apache.commons.statistics.distribution.GammaDistribution;
 
 import beastfx.app.treeannotator.TreeAnnotator;
 import beastfx.app.treeannotator.TreeAnnotator.TreeSet;
@@ -209,19 +206,10 @@ public class GSSTreeDistribution extends Distribution {
 				distributionQuantiles[127] = Double.POSITIVE_INFINITY;
 				logPdistributionQuantiles[127] = -10; 
 				for (int i = 1; i < 127; i++) {
-					try {
-						distributionQuantiles[i] = branchLengthDistr.inverseCumulativeProbability((i+0.0)/127.0);
-						logPdistributionQuantiles[i-1] = -Math.log(distributionQuantiles[i] - distributionQuantiles[i-1]); 
-					} catch (MathException e) {
-						e.printStackTrace();
-						throw new RuntimeException(e);
-					}
+					distributionQuantiles[i] = branchLengthDistr.inverseCumulativeProbability((i+0.0)/127.0);
+					logPdistributionQuantiles[i-1] = -Math.log(distributionQuantiles[i] - distributionQuantiles[i-1]);
 				}
-				try {
-					median = branchLengthDistr.inverseCumulativeProbability(0.5);
-				} catch (MathException e) {
-					e.printStackTrace();
-				}
+				median = branchLengthDistr.inverseCumulativeProbability(0.5);
 			}
 			
 			
@@ -239,13 +227,13 @@ public class GSSTreeDistribution extends Distribution {
 		double alpha = 3 - s + Math.sqrt((s-3)*(s-3)+24*s)/(12*s); 
 		double beta = meanLength / alpha;
 		
-		GammaDistribution distr = new GammaDistributionImpl(alpha, beta);
+		GammaDistribution distr = GammaDistribution.of(alpha, beta);
 		return distr;
 	}
 
 	private ExponentialDistribution createExpDistr() {
 		meanLength = meanLength / lengthCount;
-		ExponentialDistribution distr = new ExponentialDistributionImpl(meanLength);
+		ExponentialDistribution distr = ExponentialDistribution.of(meanLength);
 		return distr;
 	}
 

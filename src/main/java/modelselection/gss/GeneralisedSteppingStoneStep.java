@@ -6,7 +6,8 @@ import beast.base.core.Description;
 import beast.base.core.Input;
 import beast.base.inference.CompoundDistribution;
 import beast.base.inference.Distribution;
-import beast.base.inference.Evaluator;
+// TODO BEAST3 migration: beast.base.inference.Evaluator was removed in BEAST3; see doLoop() below.
+// import beast.base.inference.Evaluator;
 import beast.base.inference.Operator;
 import beast.base.util.Randomizer;
 import modelselection.inference.PathSamplingStep;
@@ -67,34 +68,42 @@ public class GeneralisedSteppingStoneStep extends PathSamplingStep {
             Operator operator = operatorSchedule.selectOperator();
             //System.out.print("\n" + iSample + " " + operator.getName()+ ":");
 
-            final Distribution evaluatorDistribution = operator.getEvaluatorDistribution();
-            Evaluator evaluator = null;
-
-            if (evaluatorDistribution != null) {
-                evaluator = new Evaluator() {
-                    @Override
-                    public double evaluate() {
-                        double logP = 0.0;
-
-                        state.storeCalculationNodes();
-                        state.checkCalculationNodesDirtiness();
-
-                        try {
-                            logP = evaluatorDistribution.calculateLogP();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            System.exit(1);
-                        }
-
-                        state.restore();
-                        state.store(currentState);
-
-                        return logP;
-                    }
-                };
-            }
-
-            double fLogHastingsRatio = operator.proposal(evaluator);
+            // TODO BEAST3 migration: beast.base.inference.Evaluator was removed in BEAST3 and
+            // Operator.proposal(Evaluator) no longer exists (Operator.proposal() is now zero-arg).
+            // In BEAST2 this evaluator was only ever consumed by SliceOperator.proposal(Evaluator)
+            // (the only override of proposal(Evaluator)/getEvaluatorDistribution() in beast2/src);
+            // every other operator's proposal(Evaluator) just delegated to proposal(). SliceOperator
+            // does not exist in BEAST3 and is not used by this package's own operators/examples, so
+            // this block was already dead code under BEAST3 and is replaced by operator.proposal().
+//            final Distribution evaluatorDistribution = operator.getEvaluatorDistribution();
+//            Evaluator evaluator = null;
+//
+//            if (evaluatorDistribution != null) {
+//                evaluator = new Evaluator() {
+//                    @Override
+//                    public double evaluate() {
+//                        double logP = 0.0;
+//
+//                        state.storeCalculationNodes();
+//                        state.checkCalculationNodesDirtiness();
+//
+//                        try {
+//                            logP = evaluatorDistribution.calculateLogP();
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                            System.exit(1);
+//                        }
+//
+//                        state.restore();
+//                        state.store(currentState);
+//
+//                        return logP;
+//                    }
+//                };
+//            }
+//
+//            double fLogHastingsRatio = operator.proposal(evaluator);
+            double fLogHastingsRatio = operator.proposal();
 
             if (fLogHastingsRatio != Double.NEGATIVE_INFINITY) {
 
