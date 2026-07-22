@@ -1,24 +1,17 @@
 package test.modelselection.gss.distributions;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Test;
-
-import beastfx.app.treeannotator.TreeAnnotator;
-import beastfx.app.treeannotator.TreeAnnotator.MemoryFriendlyTreeSet;
-import beastfx.app.treeannotator.TreeAnnotator.TreeSet;
-import beastfx.app.util.TreeFile;
-import beast.base.evolution.tree.Tree;
 import beast.base.evolution.tree.TreeParser;
-import junit.framework.TestCase;
+import beastfx.app.util.TreeFile;
 import modelselection.gss.distribution.GSSTreeDistribution;
+import org.junit.jupiter.api.Test;
 
-public class GSSTreeDistributionTest extends TestCase {
-	
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class GSSTreeDistributionTest {
+
 	@Test
 	public void testGSSTreeDistribution() throws FileNotFoundException {
 		TreeParser tree = new TreeParser("((A:0.1,B:0.1):0.1,C:0.2)");

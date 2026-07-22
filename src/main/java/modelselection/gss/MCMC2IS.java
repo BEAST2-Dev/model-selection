@@ -1,50 +1,38 @@
 package modelselection.gss;
 
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
-
+import beast.base.core.*;
+import beast.base.core.Input.Validate;
+import beast.base.evolution.tree.Tree;
+import beast.base.evolution.tree.TreeDistribution;
+import beast.base.evolution.tree.TreeInterface;
+import beast.base.evolution.tree.TreeParser;
+import beast.base.inference.*;
+import beast.base.inference.Logger.LOGMODE;
+import beast.base.inference.Runnable;
+import beast.base.parser.JSONProducer;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLProducer;
+import beast.base.spec.evolution.TreeWithMetaDataLogger;
+import beast.base.spec.evolution.tree.MRCAPrior;
+import beast.base.spec.evolution.tree.coalescent.RandomTree;
+import beast.base.spec.inference.distribution.TensorDistribution;
+import beast.base.spec.inference.parameter.RealScalarParam;
+import beast.base.spec.inference.parameter.RealVectorParam;
+import beast.base.spec.type.Tensor;
 import beastfx.app.util.LogFile;
 import beastfx.app.util.OutFile;
 import beastfx.app.util.TreeFile;
 import beastfx.app.util.XMLFile;
-import beast.base.core.BEASTInterface;
-import beast.base.core.BEASTObject;
-import beast.base.core.Description;
-import beast.base.inference.Distribution;
-import beast.base.core.Function;
-import beast.base.core.Input;
-import beast.base.inference.Runnable;
-import beast.base.inference.State;
-import beast.base.inference.StateNode;
-import beast.base.inference.StateNodeInitialiser;
-import beast.base.inference.parameter.RealParameter;
-import beast.base.core.Input.Validate;
-import beast.base.inference.Logger;
-import beast.base.inference.Logger.LOGMODE;
-import beast.base.inference.CompoundDistribution;
-import beast.base.core.Log;
-import beast.base.evolution.tree.coalescent.RandomTree;
-import beast.base.evolution.tree.Tree;
-import beast.base.evolution.tree.TreeDistribution;
-import beast.base.evolution.tree.TreeInterface;
-import beast.base.evolution.TreeWithMetaDataLogger;
-import beast.base.evolution.tree.MRCAPrior;
-import beast.base.inference.MCMC;
-import beast.base.parser.JSONProducer;
-import beast.base.evolution.tree.TreeParser;
-import beast.base.parser.XMLParser;
-import beast.base.parser.XMLProducer;
 import modelselection.gss.distribution.GSSTreeDistribution;
+import modelselection.gss.distribution.GSSTreeDistribution.BranchLengthDistribution;
 import modelselection.gss.distribution.KernelDensityEstimatorDistribution;
 import modelselection.gss.distribution.MultivariateKDEDistribution;
 import modelselection.gss.distribution.NormalKDEDistribution;
-import modelselection.gss.distribution.GSSTreeDistribution.BranchLengthDistribution;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.util.*;
 
 @Description("Convert MCMC analysis to importance sampling analysis like GSS and optionally run the analysis")
 public class MCMC2IS extends MCMC2Abstract {
@@ -205,12 +193,14 @@ public class MCMC2IS extends MCMC2Abstract {
 				stateNodes.remove(tree);
 			} else if (d instanceof MRCAPrior) {
 				altPrior.add(d);
-			} else if (d instanceof beast.base.inference.distribution.Prior) {
-				beast.base.inference.distribution.Prior p = (beast.base.inference.distribution.Prior) d;
-				Distribution altPriorDist = getAltPriorDist(p.m_x.get(), p.getID());
+			} else if (d instanceof TensorDistribution<?, ?> tensorDistribution) {
+				// BEAST3 dropped Prior -- LogNormal/Gamma/etc. now extend TensorDistribution
+				// directly and hold their target parameter via paramInput, so d itself plays
+				// the role the Prior wrapper used to; there is nothing left to unwrap
+				Tensor<?, ?> param = tensorDistribution.paramInput.get();
+				Distribution altPriorDist = getAltPriorDist(param, d.getID());
 				altPrior.add(altPriorDist);
-				Object o = ((beast.base.inference.distribution.Prior) d).m_x.get();
-				stateNodes.remove(o);
+				stateNodes.remove(param);
 			} else {
 				Log.warning("Don't know how to handle distribution " + d.getID() + " of type " + d.getClass().getName());
 				Log.warning("Using "+ d.getID() + " as working distribution");
@@ -220,8 +210,12 @@ public class MCMC2IS extends MCMC2Abstract {
 		}
 		for (int i = stateNodes.size() - 1; i >= 0; i--) {
 			StateNode s = stateNodes.get(i);
-			if (s instanceof RealParameter realParameter) {
-				Distribution altPriorDist = getAltPriorDist(realParameter, s.getID() + "Prior");
+			if (s instanceof RealScalarParam<?> realScalarParam) {
+				Distribution altPriorDist = getAltPriorDist(realScalarParam, s.getID() + "Prior");
+				altPrior.add(altPriorDist);
+				stateNodes.remove(s);
+			} else if (s instanceof RealVectorParam<?> realVectorParam) {
+				Distribution altPriorDist = getAltPriorDist(realVectorParam, s.getID() + "Prior");
 				altPrior.add(altPriorDist);
 				stateNodes.remove(s);
 			}
@@ -304,7 +298,7 @@ public class MCMC2IS extends MCMC2Abstract {
 		return tree;
 	}
 
-	private Distribution getAltPriorDist(Function f, String priorID) { //beast.base.inference.distribution.Prior d) {
+	private Distribution getAltPriorDist(Tensor f, String priorID) { //beast.base.inference.distribution.Prior d) {
 		//Function f = 
 		String id = ((BEASTInterface) f).getID();
 		String shortid = id.contains(".") ? id.substring(0, id.lastIndexOf('.')) : id;
@@ -345,28 +339,36 @@ public class MCMC2IS extends MCMC2Abstract {
 
 		Distribution altDist = null;
 
-		int dim = f.getDimension();
+		int dim = f.size();
 		if (dim == 1) {
 			altDist = new NormalKDEDistribution(tracelog, label, f);
-			if (f instanceof RealParameter) {
-				RealParameter p = (RealParameter) f;
+			// RealScalarParam
+			if (f instanceof RealScalarParam<?> realScalarParam) {
+//				RealParameter p = (RealParameter) f;
 				Double mean = tracelog.getMean(label);
-				Log.warning("Set value " + p.getID() + " to " + mean);
-				p.valuesInput.get().set(0, mean);
+				Log.warning("Set value " + realScalarParam.getID() + " to " + mean);
+//				p.valuesInput.get().set(0, mean);
+				realScalarParam.set(mean);
 			}
 		} else {
 			KernelDensityEstimatorDistribution[] multivariateKDE = new KernelDensityEstimatorDistribution[dim];
 			for (int i = 0; i < dim; i++) {
 				multivariateKDE[i] = new NormalKDEDistribution(tracelog, label + (i+1), null);
-				if (f instanceof RealParameter) {
-					RealParameter p = (RealParameter) f;
+				// RealScalarParam or RealVectorParam
+				if (f instanceof RealVectorParam<?> realVectorParam) {
+//					RealParameter p = (RealParameter) f;
 					Double mean = tracelog.getMean(label + (i+1));
-					Log.warning("Set value " + p.getID() + "[" + (i+1) + "] to " + mean);
-					if (i < p.valuesInput.get().size()) {
-						p.valuesInput.get().set(i, mean);
-					} else {
-						p.valuesInput.get().add(mean);
-					}
+					Log.warning("Set value " + realVectorParam.getID() + "[" + (i+1) + "] to " + mean);
+//					if (i < p.valuesInput.get().size()) {
+//						p.valuesInput.get().set(i, mean);
+//					} else {
+//						p.valuesInput.get().add(mean);
+//					}
+					if (i < realVectorParam.size())
+						realVectorParam.set(i, mean);
+					else //TODO beast3 cannot append Vector
+						throw new UnsupportedOperationException("");
+
 				}
 			}
 			altDist = new MultivariateKDEDistribution(multivariateKDE, f);

@@ -3,25 +3,28 @@ package test.simstudy;
 // Requirements: the file analysis.xml must be in the directory
 // from where this script is run.
 
-import beast.base.evolution.tree.Tree;
-import beast.base.inference.Logger;
-import beast.base.inference.parameter.RealParameter;
-import beast.base.parser.NexusParser;
-import beast.base.parser.XMLParserException;
+import beagle.BeagleFlag;
 import beast.base.evolution.alignment.Alignment;
 import beast.base.evolution.alignment.Sequence;
-import beast.base.evolution.branchratemodel.StrictClockModel;
-import beast.base.evolution.sitemodel.SiteModel;
-import beast.base.evolution.substitutionmodel.Frequencies;
-import beast.base.evolution.substitutionmodel.HKY;
+import beast.base.evolution.tree.Tree;
+import beast.base.inference.Logger;
+import beast.base.parser.NexusParser;
+import beast.base.parser.XMLParserException;
+import beast.base.spec.domain.PositiveReal;
+import beast.base.spec.domain.UnitInterval;
+import beast.base.spec.evolution.branchratemodel.StrictClockModel;
+import beast.base.spec.evolution.sitemodel.SiteModel;
+import beast.base.spec.evolution.substitutionmodel.Frequencies;
+import beast.base.spec.evolution.substitutionmodel.HKY;
+import beast.base.spec.inference.parameter.RealScalarParam;
+import beast.base.spec.inference.parameter.SimplexParam;
+import beast.base.spec.type.Simplex;
 import beastfx.app.seqgen.MergeDataWith;
 import beastfx.app.seqgen.SequenceSimulator;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import beagle.BeagleFlag;
 
 public class GenerateXMLs {
 	// This script performs a simulation study for the
@@ -101,21 +104,23 @@ public class GenerateXMLs {
 		);
 		Tree tree = trees.get(i);
 
-		RealParameter freqs=new RealParameter("0.25 0.25 0.25 0.25") ;
+		Simplex freqs = new SimplexParam(new double[]{0.25, 0.25, 0.25, 0.25});
 		Frequencies f = new Frequencies();
 		f.initByName("frequencies",freqs);
-		
-		HKY hky = new beast.base.evolution.substitutionmodel.HKY();
-		hky.initByName("frequencies", f, 
-			"kappa", "1.0"
+
+		HKY hky = new HKY();
+		hky.initByName("frequencies", f,
+			"kappa", new RealScalarParam<>(1.0, PositiveReal.INSTANCE)
 		);
-		StrictClockModel clockmodel = new beast.base.evolution.branchratemodel.StrictClockModel();
-		clockmodel.initByName("clock.rate","1.0");
+		StrictClockModel clockmodel = new StrictClockModel();
+		clockmodel.initByName("clock.rate", new RealScalarParam<>(1.0, PositiveReal.INSTANCE));
 
 
 		// change gammaCategoryCount=1 for generating without gamma rate categories
 		SiteModel sitemodel = new SiteModel();
-		sitemodel.initByName("gammaCategoryCount", 1, "substModel", hky, "shape", "1.0", "proportionInvariant", "0.0");
+		sitemodel.initByName("gammaCategoryCount", 1, "substModel", hky,
+				"shape", new RealScalarParam<>(1.0, PositiveReal.INSTANCE),
+				"proportionInvariant", new RealScalarParam<>(0.0, UnitInterval.INSTANCE));
 		MergeDataWith mergewith = new MergeDataWith();
 		mergewith.initByName("template", template, "output", dir + "/analysis-out" + i + ".xml");
 		SequenceSimulator sim = new SequenceSimulator();

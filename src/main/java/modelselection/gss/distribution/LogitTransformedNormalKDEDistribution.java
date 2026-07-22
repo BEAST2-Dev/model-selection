@@ -26,18 +26,19 @@
 package modelselection.gss.distribution;
 
 
+import beast.base.core.Description;
+import beast.base.core.Param;
+import beast.base.inference.State;
+import beast.base.spec.type.Tensor;
+import beast.base.util.DiscreteStatistics;
+import beast.base.util.HeapSort;
+import modelselection.gss.TraceLog;
+
 import java.util.List;
 import java.util.Random;
 
-import beast.base.core.Description;
-import beast.base.core.Function;
-import beast.base.core.Param;
-import beast.base.inference.State;
-import beast.base.util.DiscreteStatistics;
-import beast.base.util.HeapSort;
 //import dr.stats.DiscreteStatistics;
 //import dr.util.HeapSort;
-import modelselection.gss.TraceLog;
 
 /**
  * @author Guy Baele
@@ -50,9 +51,10 @@ public class LogitTransformedNormalKDEDistribution extends KernelDensityEstimato
 
     public LogitTransformedNormalKDEDistribution() {}
 
+	// real-valued only, same as KernelDensityEstimatorDistribution.p -- Int/Bool-valued params not supported
 	public LogitTransformedNormalKDEDistribution(@Param(name="traceLog", description="trace log ") TraceLog traceLog,
 			@Param(name="label",description= "label of the column containing data in the trace file") String label,
-			@Param(name="x", description="function/statistic to take distribution over") Function p) {
+			@Param(name="x", description="function/statistic to take distribution over") Tensor<?, ? extends Double> p) {
 		this(traceLog.getTrace(label), p);
 		this.traceLog = traceLog;
 		this.label = label;
@@ -60,32 +62,32 @@ public class LogitTransformedNormalKDEDistribution extends KernelDensityEstimato
 	}
 
 	//the samples should not already be logit transformed (the logit transformation is done in this class)
-    public LogitTransformedNormalKDEDistribution(Double[] sample, Function p) {
+    public LogitTransformedNormalKDEDistribution(Double[] sample, Tensor<?, ? extends Double> p) {
         this(sample, 1.0, null, null, null, p);
     }
 
-    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, Function p) {
+    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, Tensor<?, ? extends Double> p) {
         this(sample, upperLimit, null, null, null, p);
     }
 
-    public LogitTransformedNormalKDEDistribution(Double[] sample, int n, Function p) {
+    public LogitTransformedNormalKDEDistribution(Double[] sample, int n, Tensor<?, ? extends Double> p) {
         this(sample, 1.0, null, null, null, 3.0, n, p);
     }
 
-    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, int n, Function p) {
+    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, int n, Tensor<?, ? extends Double> p) {
         this(sample, upperLimit, null, null, null, 3.0, n, p);
     }
 
-    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, Double lowerBound, Double upperBound, Double bandWidth, Function p) {
+    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, Double lowerBound, Double upperBound, Double bandWidth, Tensor<?, ? extends Double> p) {
         this(sample, upperLimit, lowerBound, upperBound, bandWidth, 3.0, MINIMUM_GRID_SIZE, p);
     }
 
     public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, Double lowerBound, Double upperBound, Double bandWidth,
-                                                 int n, Function p) {
+                                                 int n, Tensor<?, ? extends Double> p) {
         this(sample, upperLimit, lowerBound, upperBound, bandWidth, 3.0, n, p);
     }
 
-    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, Double lowerBound, Double upperBound, Double bandWidth, double cut, int n, Function p) {
+    public LogitTransformedNormalKDEDistribution(Double[] sample, Double upperLimit, Double lowerBound, Double upperBound, Double bandWidth, double cut, int n, Tensor<?, ? extends Double> p) {
 
         super(sample, lowerBound, upperBound, bandWidth, p);
         //transform the data to the logit scale and store in logSample

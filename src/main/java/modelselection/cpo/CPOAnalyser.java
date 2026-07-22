@@ -1,47 +1,36 @@
 package modelselection.cpo;
 
 
+import beast.base.core.*;
+import beast.base.evolution.tree.Node;
+import beast.base.evolution.tree.Tree;
+import beast.base.inference.*;
+import beast.base.inference.Runnable;
+import beast.base.parser.XMLParser;
+import beast.base.parser.XMLParserException;
+import beast.base.spec.evolution.branchratemodel.Base;
+import beast.base.spec.evolution.likelihood.GenericTreeLikelihood;
+import beast.base.spec.evolution.likelihood.ThreadedTreeLikelihood;
+import beast.base.spec.evolution.likelihood.TreeLikelihood;
+import beast.base.spec.inference.parameter.RealScalarParam;
+import beast.base.spec.inference.parameter.RealVectorParam;
+import beast.base.spec.type.Vector;
+import beast.base.util.Randomizer;
+import beastfx.app.tools.Application;
+import beastfx.app.tools.LogAnalyser;
+import beastfx.app.treeannotator.TreeAnnotator;
+import beastfx.app.treeannotator.TreeAnnotator.TreeSet;
+import beastfx.app.util.LogFile;
+import modelselection.core.CPOLogger;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import beastfx.app.treeannotator.TreeAnnotator;
-import beastfx.app.treeannotator.TreeAnnotator.TreeSet;
-import beastfx.app.methodsection.implementation.BranchRateModelMethodsText;
-import beastfx.app.tools.Application;
-import beastfx.app.util.LogFile;
-import beast.base.core.BEASTInterface;
-import beast.base.core.Description;
-import beast.base.inference.Distribution;
-import beast.base.core.Input;
-import beast.base.inference.Logger;
-import beast.base.inference.MCMC;
-import beast.base.core.Param;
-import beast.base.inference.Runnable;
-import beast.base.inference.State;
-import beast.base.inference.StateNode;
-import beast.base.inference.parameter.Parameter;
-import beast.base.inference.CompoundDistribution;
-import beast.base.core.Log;
-import beast.base.evolution.branchratemodel.BranchRateModel;
-import beast.base.evolution.likelihood.GenericTreeLikelihood;
-import beast.base.evolution.likelihood.ThreadedTreeLikelihood;
-import beast.base.evolution.likelihood.TreeLikelihood;
-import beast.base.evolution.tree.Node;
-import beast.base.evolution.tree.Tree;
-import beastfx.app.tools.LogAnalyser;
-import beast.base.util.Randomizer;
-import beast.base.parser.XMLParser;
-import beast.base.parser.XMLParserException;
-import modelselection.core.CPOLogger;
 
 @Description("Calculate Conditional Predictive Ordinates (CPO), which is a leave one out cross validation measure of fit "
 		+ "as described in Lewis et al, Sys Bio, 2014, but adds bootstrap variance estimate as well.")	
@@ -240,8 +229,8 @@ public class CPOAnalyser extends BEASTRunAnalyser {
     		StateNode stateNode = stateNodes.get(i);
     		String id = stateNode.getID();
     		String shortid = id.contains(".") ? id.substring(0, id.lastIndexOf('.')): id;
-    		if (stateNode instanceof Parameter<?> && ((Parameter<?>) stateNode).getDimension() > 1) {
-    			Parameter<?> p = ((Parameter<?>) stateNode);
+    		// use Vector
+    		if (stateNode instanceof Vector<?,?> vector) {
     			id += ".1";
     			int index = labels.indexOf(shortid);
     			if (index < 0) {
@@ -249,8 +238,8 @@ public class CPOAnalyser extends BEASTRunAnalyser {
     				index = labels.indexOf(shortid);
     			}
     			if (index >= 0) {
-    				Double [][] _values = new Double[p.getDimension()][];
-    				for (int j = 0; j < p.getDimension(); j++) {
+    				Double [][] _values = new Double[vector.size()][];
+    				for (int j = 0; j < vector.size(); j++) {
     					Double [] v = tracelog.getTrace(1 + index + j);
     					_values[j] = v;
     				}
@@ -290,14 +279,24 @@ public class CPOAnalyser extends BEASTRunAnalyser {
     			if (values.get(i) != null) {
     				Object o = values.get(i);
 					StateNode stateNode = stateNodes.get(i);
+    				// scala case
     				if (o instanceof Double[]) {
     					double value = ((Double[])o)[k];
-						((Parameter)stateNode).setValue(value);
-    				} else {
+//						((Parameter)stateNode).setValue(value);
+						if (stateNode instanceof RealScalarParam realScalarParam)
+							realScalarParam.set(value);
+//TODO						else if (stateNode instanceof IntScalarParam<?> intScalarParam)
+//							intScalarParam.set();
+    				} else { // vector case
     					Double [][] _values = (Double[][]) o;
-    					for (int j = 0; j < _values.length; j++) {
-    						((Parameter)stateNode).setValue(j, _values[j][k]);
-    					}
+//						for (int j = 0; j < _values.length; j++) {
+//							((Parameter)stateNode).setValue(j, _values[j][k]);
+//						}
+						//TODO Int or Bool?
+						if (stateNode instanceof RealVectorParam realVectorParam) {
+							for (int j = 0; j < _values.length; j++)
+								realVectorParam.set(j, _values[j][k]);
+						}
     				}
     			}
     		}
@@ -389,7 +388,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 	}
 
 	@Description("clock model that gets its rates from metadata on a newick tree")
-	class RateByMetaData extends BranchRateModel.Base {
+	class RateByMetaData extends Base {
 
 		RateByMetaData(@Param(name="tree",description="beast tree with metadata containing rates")Tree tree) {
 			this.tree = tree;
@@ -404,7 +403,7 @@ public class CPOAnalyser extends BEASTRunAnalyser {
 			Node src = tree.getNode(node.getNr());
 			Object o = src.getMetaData("rate");
 			if (o == null) {
-				return meanRateInput.get().getArrayValue();
+				return meanRateInput.get().get();
 			}
 			if (o instanceof Double) {
 				return (Double) o;

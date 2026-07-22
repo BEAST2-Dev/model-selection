@@ -1,22 +1,23 @@
 package modelselection.core;
 
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.core.Input.Validate;
+import beast.base.inference.CompoundDistribution;
+import beast.base.inference.Distribution;
+import beast.base.inference.Logger;
+import beast.base.spec.domain.Real;
+import beast.base.spec.evolution.likelihood.GenericTreeLikelihood;
+import beast.base.spec.evolution.likelihood.ThreadedTreeLikelihood;
+import beast.base.spec.evolution.likelihood.TreeLikelihood;
+import beast.base.spec.inference.parameter.RealScalarParam;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-
-import beast.base.core.Description;
-import beast.base.inference.Distribution;
-import beast.base.core.Input;
-import beast.base.inference.Logger;
-import beast.base.core.Input.Validate;
-import beast.base.inference.parameter.RealParameter;
-import beast.base.inference.CompoundDistribution;
-import beast.base.evolution.likelihood.GenericTreeLikelihood;
-import beast.base.evolution.likelihood.ThreadedTreeLikelihood;
-import beast.base.evolution.likelihood.TreeLikelihood;
 
 @Description("Logs data for pseudo marginal likelihood estimate (see CPOAnalyser for details)")
 public class CPOLogger extends Logger {
@@ -31,7 +32,7 @@ public class CPOLogger extends Logger {
 	
 	@Override
 	public void initAndValidate() {
-		RealParameter p = new RealParameter("1.0");
+		RealScalarParam<Real> p = new RealScalarParam<>(1.0, Real.INSTANCE);
 		p.setID("dummy");
 		loggersInput.setValue(p, this);
 		super.initAndValidate();

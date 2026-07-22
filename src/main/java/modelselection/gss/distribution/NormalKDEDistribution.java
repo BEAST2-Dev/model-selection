@@ -27,19 +27,19 @@ package modelselection.gss.distribution;
 
 
 import beast.base.core.Description;
-import beast.base.core.Function;
 import beast.base.core.Input;
 import beast.base.core.Input.Validate;
-import beast.base.core.Param;
 import beast.base.inference.State;
+import beast.base.spec.type.Tensor;
 import beast.base.util.DiscreteStatistics;
 import beast.base.util.HeapSort;
-//import dr.stats.DiscreteStatistics;
-//import dr.util.HeapSort;
 import modelselection.gss.TraceLog;
 
 import java.util.List;
 import java.util.Random;
+
+//import dr.stats.DiscreteStatistics;
+//import dr.util.HeapSort;
 
 /**
  * @author Marc A. Suchard
@@ -48,7 +48,8 @@ import java.util.Random;
 public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
 	public Input<TraceLog> traceLogInput = new Input<>("traceLog", "file containing trace log", Validate.REQUIRED);
 	public Input<String> labelInput = new Input<>("label", "label of the column containing data in the trace file", Validate.REQUIRED);
-	public Input<Function> xInput = new Input<>("x", "function/statistic to take distribution over");
+	// real-valued only, same as KernelDensityEstimatorDistribution.p -- Int/Bool-valued params not supported
+	public Input<Tensor<?, ? extends Double>> xInput = new Input<>("x", "function/statistic to take distribution over");
 
     public static final int MINIMUM_GRID_SIZE = 512;
 
@@ -88,7 +89,7 @@ public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
     
 	public NormalKDEDistribution(TraceLog traceLog,
 			String label,
-			Function p) {		
+			Tensor<?, ? extends Double> p) {		
 		this(traceLog.getTrace(label), p);
 		this.traceLog = traceLog;
 		this.label = label;
@@ -99,21 +100,21 @@ public class NormalKDEDistribution extends KernelDensityEstimatorDistribution {
 		xInput.setValue(p, this);
 	}
 
-	public NormalKDEDistribution(Double[] sample, Function p) {
+	public NormalKDEDistribution(Double[] sample, Tensor<?, ? extends Double> p) {
         this(sample, null, null, null, p);
     }
 
-    public NormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, Function p) {
+    public NormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, Tensor<?, ? extends Double> p) {
         this(sample, lowerBound, upperBound, bandWidth, 3.0, MINIMUM_GRID_SIZE, p);
     }
 
     public NormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth,
-                                 int n, Function p) {
+                                 int n, Tensor<?, ? extends Double> p) {
         this(sample, lowerBound, upperBound, bandWidth, 3.0, n, p);
     }
 
     public NormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth,
-                                 double cut, int n, Function p) {
+                                 double cut, int n, Tensor<?, ? extends Double> p) {
         super(sample, lowerBound, upperBound, bandWidth, p);
         this.gridSize = Math.max(n, MINIMUM_GRID_SIZE);
         if (this.gridSize > MINIMUM_GRID_SIZE) {

@@ -26,9 +26,9 @@
 package modelselection.gss.distribution;
 
 import beast.base.core.Description;
-import beast.base.core.Function;
 import beast.base.core.Param;
 import beast.base.inference.State;
+import beast.base.spec.type.Tensor;
 import beast.base.util.DiscreteStatistics;
 //import dr.stats.DiscreteStatistics;
 //import dr.util.HeapSort;
@@ -50,9 +50,10 @@ public class LogTransformedNormalKDEDistribution extends KernelDensityEstimatorD
 
     public LogTransformedNormalKDEDistribution() {}
 
+	// real-valued only, same as KernelDensityEstimatorDistribution.p -- Int/Bool-valued params not supported
 	public LogTransformedNormalKDEDistribution(@Param(name="traceLog", description="file containing trace log ") TraceLog traceLog,
 			@Param(name="label",description= "label of the column containing data in the trace file") String label,
-			@Param(name="x", description="function/statistic to take distribution over") Function p) {
+			@Param(name="x", description="function/statistic to take distribution over") Tensor<?, ? extends Double> p) {
 		this(traceLog.getTrace(label), p);
 		this.traceLog = traceLog;
 		this.label = label;
@@ -60,24 +61,24 @@ public class LogTransformedNormalKDEDistribution extends KernelDensityEstimatorD
 	}
 
     //the samples should not already be log transformed (the log transformation is done in this class)
-    public LogTransformedNormalKDEDistribution(Double[] sample, Function p) {
+    public LogTransformedNormalKDEDistribution(Double[] sample, Tensor<?, ? extends Double> p) {
     	this(sample, null, null, null, p);
     }
     
-    public LogTransformedNormalKDEDistribution(Double[] sample, int n, Function p) {
+    public LogTransformedNormalKDEDistribution(Double[] sample, int n, Tensor<?, ? extends Double> p) {
     	this(sample, null, null, null, 3.0, n, p);
     }
     
-    public LogTransformedNormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, Function p) {
+    public LogTransformedNormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, Tensor<?, ? extends Double> p) {
         this(sample, lowerBound, upperBound, bandWidth, 3.0, MINIMUM_GRID_SIZE, p);
     }
 
     public LogTransformedNormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth,
-                                 int n, Function p) {
+                                 int n, Tensor<?, ? extends Double> p) {
         this(sample, lowerBound, upperBound, bandWidth, 3.0, n, p);
     }
 
-    public LogTransformedNormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, double cut, int n, Function p) {
+    public LogTransformedNormalKDEDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, double cut, int n, Tensor<?, ? extends Double> p) {
     	
     	//first call the super constructor, but immediately overwrite the stored information
     	/* code in super constructor

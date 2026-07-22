@@ -26,16 +26,15 @@
 package modelselection.gss.distribution;
 
 
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.inference.Distribution;
+import beast.base.inference.State;
+import beast.base.spec.type.Tensor;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import beast.base.core.Description;
-import beast.base.inference.Distribution;
-import beast.base.core.Function;
-import beast.base.core.Input;
-import beast.base.core.Param;
-import beast.base.inference.State;
 
 /**
  * @author Guy Baele
@@ -43,13 +42,13 @@ import beast.base.inference.State;
 @Description("Multivariate kernel density esitmators that assumes input variable has independent components")
 public class MultivariateKDEDistribution extends Distribution {
 	public Input<List<KernelDensityEstimatorDistribution>> distInput = new Input<>("dist","distributions, one for each of the dimensions of the parameter", new ArrayList<>());
-	public Input<Function> xInput = new Input<>("x", "parameter to which this distribution applies");
+	public Input<Tensor> xInput = new Input<>("x", "parameter to which this distribution applies");
 	
 	public static final String TYPE = "multivariateKDE";
     public static final boolean DEBUG = false;
 	
 	private KernelDensityEstimatorDistribution[] multivariateKDE;
-	private Function p;
+	private Tensor p;
 	private int dimension;
 	//private boolean[] flags;
 	
@@ -67,7 +66,7 @@ public class MultivariateKDEDistribution extends Distribution {
 	
 	public MultivariateKDEDistribution () {}
 	
-	public MultivariateKDEDistribution (KernelDensityEstimatorDistribution[] multivariateKDE, Function p) {
+	public MultivariateKDEDistribution (KernelDensityEstimatorDistribution[] multivariateKDE, Tensor p) {
 		this.p = p;
 		if (multivariateKDE.length <= 0) {
 			throw new RuntimeException("Creation error in MultivariateKDEDistribution(Distribution[] multivariateKDE)");
@@ -105,8 +104,8 @@ public class MultivariateKDEDistribution extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = 0;
-		for (int i = 0; i < p.getDimension(); i++) {
-			logP += multivariateKDE[i].logPdf((double) p.getArrayValue(i));
+		for (int i = 0; i < p.size(); i++) {
+			logP += multivariateKDE[i].logPdf((double) p.get(i));
 		}
 		return logP;
 	}

@@ -27,9 +27,7 @@ package modelselection.gss.distribution;
 
 import beast.base.core.Description;
 import beast.base.inference.Distribution;
-import beast.base.core.Function;
-import beast.base.core.Input;
-import beast.base.inference.parameter.Parameter;
+import beast.base.spec.type.Tensor;
 import modelselection.gss.TraceLog;
 
 //import dr.math.UnivariateFunction;
@@ -38,12 +36,14 @@ import modelselection.gss.TraceLog;
  * @author Marc Suchard
  */
 @Description("Distribution based on kernel density esitmators")
-public abstract class KernelDensityEstimatorDistribution extends Distribution {	
-	protected Function p;
+public abstract class KernelDensityEstimatorDistribution extends Distribution {
+	// real-valued only: this is a kernel density estimate over a continuous trace, so
+	// Int/Bool-valued params are intentionally out of scope (see modelselection.gss.TraceLog)
+	protected Tensor<?, ? extends Double> p;
 	protected TraceLog traceLog;
 	protected String label;
 
-    public KernelDensityEstimatorDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, Function p) {
+    public KernelDensityEstimatorDistribution(Double[] sample, Double lowerBound, Double upperBound, Double bandWidth, Tensor<?, ? extends Double> p) {
     	this.p = p;
         this.sample = new double[sample.length];
         for (int i = 0; i < sample.length; i++) {
@@ -87,21 +87,13 @@ public abstract class KernelDensityEstimatorDistribution extends Distribution {
 	@Override
 	public double calculateLogP() {
 		logP = 0;
-		if (p instanceof Parameter) {
-			for (int i = 0; i < p.getDimension(); i++) {
-				if (p.getArrayValue(i) < (double) ((Parameter)p).getLower()) {
-					logP = Double.NEGATIVE_INFINITY;
-					return logP;
-				}
-				if (p.getArrayValue(i) > (double) ((Parameter)p).getUpper()) {
-					logP = Double.NEGATIVE_INFINITY;
-					return logP;
-				}			
-			}
-		}
+		if (! p.isValid()) {
+            logP = Double.NEGATIVE_INFINITY;
+            return logP;
+        }
 
-		for (int i = 0; i < p.getDimension(); i++) {
-			logP += logPdf(p.getArrayValue(i));
+		for (int i = 0; i < p.size(); i++) {
+			logP += logPdf(p.get(i));
 		}
 		return logP;
 	}
@@ -204,10 +196,10 @@ public abstract class KernelDensityEstimatorDistribution extends Distribution {
 	public void setLabel(String label) {
 		this.label = label;
 	}
-	public Function getX() {
+	public Tensor<?, ? extends Double> getX() {
 		return p;
 	}
-	public void setX(Function p) {
+	public void setX(Tensor<?, ? extends Double> p) {
 		this.p = p;
 	}
 }
