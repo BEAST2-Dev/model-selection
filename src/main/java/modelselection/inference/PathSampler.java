@@ -1,34 +1,24 @@
 package modelselection.inference;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
+import beast.base.core.Description;
+import beast.base.core.Input;
+import beast.base.core.Input.Validate;
+import beast.base.core.Log;
+import beast.base.core.ProgramStatus;
+import beast.base.inference.CompoundDistribution;
+import beast.base.inference.Distribution;
+import beast.base.inference.Logger;
+import beast.base.inference.MCMC;
+import beast.base.parser.XMLProducer;
+import beast.base.util.Randomizer;
+import beastfx.app.util.Utils;
+import org.apache.commons.statistics.distribution.BetaDistribution;
+
+import java.io.*;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-
-import org.apache.commons.statistics.distribution.BetaDistribution;
-
-import beastfx.app.util.Utils;
-import beast.base.core.Description;
-import beast.base.inference.Distribution;
-import beast.base.core.Input;
-import beast.base.inference.Logger;
-import beast.base.inference.MCMC;
-import beast.base.core.Input.Validate;
-import beast.base.inference.CompoundDistribution;
-import beast.base.core.Log;
-import beast.base.core.ProgramStatus;
-import beast.base.util.Randomizer;
-import beast.base.parser.XMLProducer;
-
 
 
 @Description("Calculate marginal likelihood through path/stepping stone sampling. " +
@@ -320,8 +310,22 @@ public class PathSampler extends beast.base.inference.Runnable {
 		}	
 		sCommand = sCommand.replaceAll("\\$\\(java\\)",  javaInJrePath != null ? "\"" + javaInJrePath + "\"" : "java");
 		sCommand = sCommand.replaceAll("\\$\\(java.library.path\\)",  "\"" + sanitise(System.getProperty("java.library.path")) + "\"");
-//		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(System.getProperty("java.class.path")) + "\"");
-		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(getLauncherJarPath()) + "\"");
+		// prefer launcher.jar (packaged BEAST install can self-resolve its classpath from it);
+		// fall back to this process's own classpath when there's no launcher.jar (e.g. a dev checkout)
+		String javaClassPath = getLauncherJarPath();
+		if (javaClassPath == null) {
+			javaClassPath = System.getProperty("java.class.path");
+		}
+		sCommand = sCommand.replaceAll("\\$\\(java.class.path\\)", "\"" + sanitise(javaClassPath) + "\"");
+		// for a JPMS module-path launch (e.g. this dev checkout's bin/beast, using
+		// --module-path rather than -cp), jdk.module.path reflects the module path this
+		// very process was started with; scripts that need to spawn a beast.base module
+		// launch (rather than the classpath-based beast.pkgmgmt.launcher.BeastLauncher)
+		// should reference $(java.module.path) instead of $(java.class.path)
+		String javaModulePath = System.getProperty("jdk.module.path");
+		if (javaModulePath != null && !javaModulePath.isEmpty()) {
+			sCommand = sCommand.replaceAll("\\$\\(java.module.path\\)", "\"" + sanitise(javaModulePath) + "\"");
+		}
 		sCommand = sCommand.replaceAll("beastfx.app.beast.BeastMain", "beast.pkgmgmt.launcher.BeastLauncher");
 		sCommand = sCommand.replaceAll("beast.app.beastapp.BeastMain", "beast.pkgmgmt.launcher.BeastLauncher");
 		if (m_sHosts != null) {
@@ -338,14 +342,25 @@ public class PathSampler extends beast.base.inference.Runnable {
 
 	
 	private String getJavaInJrePath() throws URISyntaxException, UnsupportedEncodingException {
-		File launcherJarFile = new File(getLauncherJarPath());
-		String javaInJrePath = launcherJarFile.getParentFile().getParentFile().getAbsolutePath() + "/jre/bin/java";
-				
-		if (Utils.isWindows()) {
-			javaInJrePath += ".exe";
+		String launcherJarPath = getLauncherJarPath();
+		if (launcherJarPath != null) {
+			File launcherJarFile = new File(launcherJarPath);
+			String javaInJrePath = launcherJarFile.getParentFile().getParentFile().getAbsolutePath() + "/jre/bin/java";
+			if (Utils.isWindows()) {
+				javaInJrePath += ".exe";
+			}
+			if (new File(javaInJrePath).exists()) {
+				return javaInJrePath;
+			}
 		}
-		if (new File(javaInJrePath).exists()) {
-			return javaInJrePath;
+		// no launcher.jar (e.g. a dev checkout, not a packaged install): fall back to the
+		// JRE running this very process, rather than an unqualified "java" resolved via PATH
+		String javaHomePath = System.getProperty("java.home") + "/bin/java";
+		if (Utils.isWindows()) {
+			javaHomePath += ".exe";
+		}
+		if (new File(javaHomePath).exists()) {
+			return javaHomePath;
 		}
 		return null;
 	}
