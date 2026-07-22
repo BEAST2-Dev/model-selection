@@ -4,17 +4,6 @@
 
 <map name='connect' reserved='true'>beastfx.app.inputeditor.BeautiConnector</map>
 <map name='subtemplate' reserved='true'>beastfx.app.inputeditor.BeautiSubTemplate</map>
-<map name='Uniform'>beast.base.inference.distribution.Uniform</map>
-<map name='Normal'>beast.base.inference.distribution.Normal</map>
-<map name='OneOnX'>beast.base.inference.distribution.OneOnX</map>
-<map name='LogNormal'>beast.base.inference.distribution.LogNormalDistributionModel</map>
-<map name='Exponential'>beast.base.inference.distribution.Exponential</map>
-<map name='Gamma'>beast.base.inference.distribution.Gamma</map>
-<map name='Beta'>beast.base.inference.distribution.Beta</map>
-<map name='LaplaceDistribution'>beast.base.inference.distribution.LaplaceDistribution</map>
-<map name='InverseGamma'>beast.base.inference.distribution.InverseGamma</map>
-<map name='prior'>beast.base.inference.distribution.Prior</map>
-
 
 	<mergewith point='runnables'>
         <subtemplate id='Path Sampling/Stepping Stone' class='modelselection.inference.PathSampler' mainid='PathSampler'
@@ -25,7 +14,7 @@
 <![CDATA[
 <run id='PathSampler' spec='modelselection.inference.PathSampler' chainLength="100000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='50' preBurnin="50000" deleteOldLogs='true' nrOfSteps='100'>
 cd $(dir)
-$(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -seed $(seed) beast.xml
+$(java) --module-path $(java.module.path) -m beast.pkgmgmt/beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -seed $(seed) beast.xml
 
     <mcmc spec="MCMC" id="mcmc" chainLength="1000000">
 
