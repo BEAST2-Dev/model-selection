@@ -48,6 +48,7 @@
         <provider classname="modelselection.gss.GeneralisedSteppingStoneStep"/>
         <provider classname="modelselection.gss.GSSFromFile"/>
         <provider classname="modelselection.gss.MCMC2GSS"/>
+        <provider classname="modelselection.gss.MCMC2IS"/>
         <provider classname="modelselection.gss.TraceLog"/>
         <provider classname="modelselection.gss.TreeFromTreeSetFileInitialiser"/>
         <provider classname="modelselection.inference.AICMAnalyser"/>
