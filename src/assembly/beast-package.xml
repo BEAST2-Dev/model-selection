@@ -37,6 +37,10 @@
         <fileSet>
             <directory>${project.basedir}/src/test/resources/modelselection/examples</directory>
             <outputDirectory>/examples</outputDirectory>
+            <excludes>
+                <exclude>legacy/**</exclude>
+                <exclude>reports/**</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 </assembly>
