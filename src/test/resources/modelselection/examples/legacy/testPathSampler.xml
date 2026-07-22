@@ -1,7 +1,5 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<beast version="2.8"
-       namespace="beast.core:beast.core.util:beast.evolution.alignment:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.tree.coalescent:beast.base.core:beast.base.evolution.alignment:beast.base.evolution.likelihood:beast.base.evolution.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.tree:beast.base.evolution.tree.coalescent:beast.base.inference:beast.base.inference.operator:beast.base.inference.util:beast.pkgmgmt"
-       beautitemplate="Standard">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' namespace="beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.alignment:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" version="2.0">
+
 
     <data id="alignment" name="alignment">
                     <sequence id="Sequence.0" taxon="human" totalcount="4" value="            AGAAATATGTCTGATAAAAGAGTTACTTTGATAGAGTAAATAATAGGAGCTTAAACCCCCTTATTTCTACTAGGACTATGAGAATCGAACCCATCCCTGAGAATCCAAAATTCTCCGTGCCACCTATCACACCCCATCCTAAGTAAGGTCAGCTAAATAAGCTATCGGGCCCATACCCCGAAAATGTTGGTTATACCCTTCCCGTACTAAGAAATTTAGGTTAAATACAGACCAAGAGCCTTCAAAGCCCTCAGTAAGTTG-CAATACTTAATTTCTGTAAGGACTGCAAAACCCCACTCTGCATCAACTGAACGCAAATCAGCCACTTTAATTAAGCTAAGCCCTTCTAGACCAATGGGACTTAAACCCACAAACACTTAGTTAACAGCTAAGCACCCTAATCAAC-TGGCTTCAATCTAAAGCCCCGGCAGG-TTTGAAGCTGCTTCTTCGAATTTGCAATTCAATATGAAAA-TCACCTCGGAGCTTGGTAAAAAGAGGCCTAACCCCTGTCTTTAGATTTACAGTCCAATGCTTCA-CTCAGCCATTTTACCACAAAAAAGGAAGGAATCGAACCCCCCAAAGCTGGTTTCAAGCCAACCCCATGGCCTCCATGACTTTTTCAAAAGGTATTAGAAAAACCATTTCATAACTTTGTCAAAGTTAAATTATAGGCT-AAATCCTATATATCTTA-CACTGTAAAGCTAACTTAGCATTAACCTTTTAAGTTAAAGATTAAGAGAACCAACACCTCTTTACAGTGA        "/>
@@ -12,7 +10,26 @@
                     <sequence id="Sequence.05" taxon="siamang" totalcount="4" value="            AGAAATACGTCTGACGAAAGAGTTACTTTGATAGAGTAAATAACAGGGGTTTAAATCCCCTTATTTCTACTAGAACCATAGGAGTCGAACCCATCCTTGAGAATCCAAAACTCTCCGTGCCACCCGTCGCACCCTGTTCTAAGTAAGGTCAGCTAAATAAGCTATCGGGCCCATACCCCGAAAATGTTGGTTATACCCTTCCCATACTAAGAAATTTAGGTTAAACACAGACCAAGAGCCTTCAAAGCCCTCAGTAAGTTAACAAAACTTAATTTCTGCAAGGGCTGCAAAACCCTACTTTGCATCAACCGAACGCAAATCAGCCACTTTAATTAAGCTAAGCCCTTCTAGATCGATGGGACTTAAACCCATAAAAATTTAGTTAACAGCTAAACACCCTAAACAACCTGGCTTCAATCTAAAGCCCCGGCAGA-GTTGAAGCTGCTTCTTTGAACTTGCAATTCAACGTGAAAAATCACTTCGGAGCTTGGCAAAAAGAGGTTTCACCTCTGTCCTTAGATTTACAGTCTAATGCTTTA-CTCAGCCACTTTACCACAAAAAAGGAAGGAATCGAACCCTCTAAAACCGGTTTCAAGCCAGCCCCATAACCTTTATGACTTTTTCAAAAGATATTAGAAAAACTATTTCATAACTTTGTCAAAGTTAAATCACAGGTCCAAACCCCGTATATCTTATCACTGTAGAGCTAGACCAGCATTAACCTTTTAAGTTAAAGACTAAGAGAACTACCGCCTCTTTACAGTGA        "/>
                 </data>
 
-<run spec="modelselection.inference.PathSampler" nrOfSteps="4" chainLength="100000" alpha="0.3" rootdir="/tmp/step" burnInPercentage="80" preBurnin="50000" deleteOldLogs="true">
+
+    
+
+
+    
+
+
+    
+<map name="Beta">beast.base.inference.distribution.Beta</map>
+<map name="Exponential">beast.base.inference.distribution.Exponential</map>
+<map name="InverseGamma">beast.base.inference.distribution.InverseGamma</map>
+<map name="LogNormal">beast.base.inference.distribution.LogNormalDistributionModel</map>
+<map name="Gamma">beast.base.inference.distribution.Gamma</map>
+<map name="Uniform">beast.base.inference.distribution.Uniform</map>
+<map name="prior">beast.base.inference.distribution.Prior</map>
+<map name="LaplaceDistribution">beast.base.inference.distribution.LaplaceDistribution</map>
+<map name="OneOnX">beast.base.inference.distribution.OneOnX</map>
+<map name="Normal">beast.base.inference.distribution.Normal</map>
+
+<run spec='modelselection.inference.PathSampler' nrOfSteps="4" chainLength="100000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='80' preBurnin="50000" deleteOldLogs='true'>
 cd $(dir)
 $(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -seed $(seed) beast.xml
 
@@ -23,44 +40,48 @@ $(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/ove
                 <data idref="alignment" name="alignment"/>
             </taxonset>
         </tree>
-        <parameter id="birthRate.t:alignment" name="stateNode" value="1.0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
-        <parameter id="kappa.s:alignment" name="stateNode" value="2.0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal"/>
-        <parameter dimension="4" id="freqParameter.s:alignment" name="stateNode" value="0.25" spec="beast.base.spec.inference.parameter.SimplexParam"/>
+        <parameter id="birthRate.t:alignment" name="stateNode" value="1.0"/>
+        <parameter id="kappa.s:alignment" lower="0.0" name="stateNode" value="2.0"/>
+        <parameter dimension="4" id="freqParameter.s:alignment" lower="0.0" name="stateNode" upper="1.0" value="0.25"/>
     </state>
 
     <distribution id="posterior" spec="beast.base.inference.CompoundDistribution">
         <distribution id="prior" spec="beast.base.inference.CompoundDistribution">
-            <distribution birthDiffRate="@birthRate.t:alignment" id="YuleModel.t:alignment" spec="beast.base.spec.evolution.speciation.YuleModel" tree="@Tree.t:alignment"/>
-            <distribution id="Uniform.0" spec="beast.base.spec.inference.distribution.Uniform" param="@birthRate.t:alignment" upper="1.0E6"/>
-            <distribution id="LogNormalDistributionModel.0" spec="beast.base.spec.inference.distribution.LogNormal" param="@kappa.s:alignment">
-                    <parameter estimate="false" id="RealParameter.0" name="M" value="1.0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
-                    <parameter estimate="false" id="RealParameter.01" name="S" value="1.25" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
-                </distribution>
+            <distribution birthDiffRate="@birthRate.t:alignment" id="YuleModel.t:alignment" spec="beast.base.evolution.speciation.YuleModel" tree="@Tree.t:alignment"/>
+            <prior id="YuleBirthRatePrior.t:alignment" name="distribution" x="@birthRate.t:alignment">
+                <Uniform id="Uniform.0" name="distr" upper="Infinity"/>
+            </prior>
+            <prior id="KappaPrior.s:alignment" name="distribution" x="@kappa.s:alignment">
+                <LogNormal id="LogNormalDistributionModel.0" name="distr">
+                    <parameter estimate="false" id="RealParameter.0" name="M" value="1.0"/>
+                    <parameter estimate="false" id="RealParameter.01" name="S" value="1.25"/>
+                </LogNormal>
+            </prior>
         </distribution>
         <distribution id="likelihood" spec="beast.base.inference.CompoundDistribution">
-            <distribution data="@alignment" id="treeLikelihood.alignment" spec="beast.base.spec.evolution.likelihood.TreeLikelihood" tree="@Tree.t:alignment">
-                <siteModel id="SiteModel.s:alignment" spec="beast.base.spec.evolution.sitemodel.SiteModel">
-                    <parameter estimate="false" id="mutationRate.s:alignment" name="mutationRate" value="1.0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
-                    <parameter estimate="false" id="gammaShape.s:alignment" name="shape" value="1.0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
-                    <parameter estimate="false" id="proportionInvariant.s:alignment" name="proportionInvariant" value="0.0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="UnitInterval"/>
-                    <substModel id="hky.s:alignment" kappa="@kappa.s:alignment" spec="beast.base.spec.evolution.substitutionmodel.HKY">
-                        <frequencies frequencies="@freqParameter.s:alignment" id="estimatedFreqs.s:alignment" spec="beast.base.spec.evolution.substitutionmodel.Frequencies"/>
+            <distribution data="@alignment" id="treeLikelihood.alignment" spec="TreeLikelihood" tree="@Tree.t:alignment">
+                <siteModel id="SiteModel.s:alignment" spec="SiteModel">
+                    <parameter estimate="false" id="mutationRate.s:alignment" name="mutationRate" value="1.0"/>
+                    <parameter estimate="false" id="gammaShape.s:alignment" name="shape" value="1.0"/>
+                    <parameter estimate="false" id="proportionInvariant.s:alignment" lower="0.0" name="proportionInvariant" upper="1.0" value="0.0"/>
+                    <substModel id="hky.s:alignment" kappa="@kappa.s:alignment" spec="HKY">
+                        <frequencies frequencies="@freqParameter.s:alignment" id="estimatedFreqs.s:alignment" spec="Frequencies"/>
                     </substModel>
                 </siteModel>
-                <branchRateModel id="StrictClock.c:alignment" spec="beast.base.spec.evolution.branchratemodel.StrictClockModel">
-                    <parameter estimate="false" id="clockRate.c:alignment" name="clock.rate" value="1.0" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
+                <branchRateModel id="StrictClock.c:alignment" spec="beast.base.evolution.branchratemodel.StrictClockModel">
+                    <parameter estimate="false" id="clockRate.c:alignment" name="clock.rate" value="1.0"/>
                 </branchRateModel>
             </distribution>
         </distribution>
     </distribution>
 
-    <operator id="YuleBirthRateScaler.t:alignment" parameter="@birthRate.t:alignment" scaleFactor="0.75" weight="3.0" spec="beast.base.spec.inference.operator.ScaleOperator"/>
+    <operator id="YuleBirthRateScaler.t:alignment" parameter="@birthRate.t:alignment" scaleFactor="0.75" spec="ScaleOperator" weight="3.0"/>
 
-    <operator id="treeScaler.t:alignment" scaleFactor="0.5" tree="@Tree.t:alignment" weight="3.0" spec="beast.base.spec.evolution.operator.ScaleTreeOperator"/>
+    <operator id="treeScaler.t:alignment" scaleFactor="0.5" spec="ScaleOperator" tree="@Tree.t:alignment" weight="3.0"/>
 
-    <operator id="treeRootScaler.t:alignment" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:alignment" weight="3.0" spec="beast.base.spec.evolution.operator.ScaleTreeOperator"/>
+    <operator id="treeRootScaler.t:alignment" rootOnly="true" scaleFactor="0.5" spec="ScaleOperator" tree="@Tree.t:alignment" weight="3.0"/>
 
-    <operator id="UniformOperator.t:alignment" tree="@Tree.t:alignment" weight="30.0" spec="beast.base.evolution.operator.Uniform"/>
+    <operator id="UniformOperator.t:alignment" spec="Uniform" tree="@Tree.t:alignment" weight="30.0"/>
 
 <!--
     <operator id="SubtreeSlide.t:alignment" spec="SubtreeSlide" tree="@Tree.t:alignment" weight="15.0"/>
@@ -71,9 +92,9 @@ $(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/ove
 
     <operator id="WilsonBalding.t:alignment" spec="WilsonBalding" tree="@Tree.t:alignment" weight="3.0"/>
 
-    <operator id="KappaScaler.s:alignment" parameter="@kappa.s:alignment" scaleFactor="0.5" weight="0.1" spec="beast.base.spec.inference.operator.ScaleOperator"/>
+    <operator id="KappaScaler.s:alignment" parameter="@kappa.s:alignment" scaleFactor="0.5" spec="ScaleOperator" weight="0.1"/>
 
-    <operator delta="0.01" id="FrequenciesExchanger.s:alignment" spec="beast.base.spec.inference.operator.DeltaExchangeOperator" weight="0.1">
+    <operator delta="0.01" id="FrequenciesExchanger.s:alignment" spec="DeltaExchangeOperator" weight="0.1">
         <parameter idref="freqParameter.s:alignment"/>
     </operator>
 
@@ -82,7 +103,7 @@ $(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/ove
         <log idref="likelihood"/>
         <log idref="prior"/>
         <log idref="treeLikelihood.alignment"/>
-        <log id="TreeHeight.t:alignment" spec="beast.base.evolution.tree.TreeStatLogger" tree="@Tree.t:alignment" logLength="false"/>
+        <log id="TreeHeight.t:alignment" spec="beast.base.evolution.tree.TreeHeightLogger" tree="@Tree.t:alignment"/>
         <log idref="YuleModel.t:alignment"/>
         <parameter idref="birthRate.t:alignment" name="log"/>
         <parameter idref="kappa.s:alignment" name="log"/>
@@ -91,21 +112,24 @@ $(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/ove
 
     <logger id="screenlog" logEvery="1000">
         <log idref="posterior"/>
-        <log arg="@posterior" id="ESS.0" spec="beast.base.spec.inference.util.ESS"/>
+        <log arg="@posterior" id="ESS.0" spec="util.ESS"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
     </logger>
 
     <logger fileName="$(tree).$(seed).trees" id="treelog.t:alignment" logEvery="1000" mode="tree">
-        <log id="TreeWithMetaDataLogger.t:alignment" spec="beast.base.spec.evolution.TreeWithMetaDataLogger" tree="@Tree.t:alignment"/>
+        <log id="TreeWithMetaDataLogger.t:alignment" spec="beast.base.evolution.TreeWithMetaDataLogger" tree="@Tree.t:alignment"/>
     </logger>
 
-    <init estimate="false" id="RandomTree.t:alignment" initial="@Tree.t:alignment" spec="beast.base.spec.evolution.tree.coalescent.RandomTree" taxa="@alignment">
-        <populationModel id="ConstantPopulation0.t:alignment" spec="beast.base.spec.evolution.tree.coalescent.ConstantPopulation">
-            <parameter id="randomPopSize.t:alignment" name="popSize" value="1" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real"/>
+    <init estimate="false" id="RandomTree.t:alignment" initial="@Tree.t:alignment" spec="beast.base.evolution.tree.coalescent.RandomTree" taxa="@alignment">
+        <populationModel id="ConstantPopulation0.t:alignment" spec="ConstantPopulation">
+            <parameter id="randomPopSize.t:alignment" name="popSize" value="1"/>
         </populationModel>
     </init>
   </mcmc>
 </run>
 
 </beast>
+
+
+

@@ -1,44 +1,38 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.pkgmgmt:beast.base.core:beast.base.inference:beast.base.evolution.alignment:beast.base.evolution.tree.coalescent:beast.base.util:beast.base.math:beast.evolution.nuc:beast.base.evolution.operator:beast.base.inference.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.likelihood" version="2.0">
-    
-<map name="Gamma">beast.base.inference.distribution.Gamma</map>
-<map name="Normal">beast.base.inference.distribution.Normal</map>
-<map name='prior'>beast.base.inference.distribution.Prior</map>
+<?xml version='1.0' encoding='UTF-8'?>
+<beast version="2.8"
+       namespace="beast.core:beast.core.util:beast.evolution.alignment:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.tree.coalescent:beast.base.core:beast.base.evolution.alignment:beast.base.evolution.likelihood:beast.base.evolution.operator:beast.base.evolution.sitemodel:beast.base.evolution.substitutionmodel:beast.base.evolution.tree:beast.base.evolution.tree.coalescent:beast.base.inference:beast.base.inference.operator:beast.base.inference.util:beast.pkgmgmt"
+       beautitemplate="Standard"
+       beautistatus="">
 
-
-<run spec='beast.inference.PathSampler' chainLength="500000" alpha='0.3' rootdir='/tmp/step' burnInPercentage='50' preBurnin="50000" deleteOldLogs='true' nrOfSteps='100'>
+<run spec="beast.inference.PathSampler" chainLength="500000" alpha="0.3" rootdir="/tmp/step" burnInPercentage="50" preBurnin="50000" deleteOldLogs="true" nrOfSteps="100">
 cd $(dir)
 $(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -seed $(seed) beast.xml
 
 <mcmc chainLength="10000000" id="mcmc" spec="MCMC">
     <state id="state" storeEvery="5000">
-        <parameter id="mean" lower='-Infinity' upper='Infinity' name="stateNode">0.0</parameter>
-        <parameter id="tau" lower='0' name="stateNode">2.0</parameter>
+        <parameter id="mean" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="Real" name="stateNode">0.0</parameter>
+        <parameter id="tau" spec="beast.base.spec.inference.parameter.RealScalarParam" domain="PositiveReal" name="stateNode">2.0</parameter>
     </state>
 
     <distribution id="posterior" spec="beast.base.inference.CompoundDistribution">
 
         <distribution id="prior" spec="beast.base.inference.CompoundDistribution">
-            <prior id="meanPrior" name="distribution" x="@mean">
-                <Normal name="distr" tau="@tau" mean='2.0'/>
-            </prior>
+            <distribution id="meanPrior" spec="beast.base.spec.inference.distribution.Normal" param="@mean" tau="@tau" mean="2.0"/>
 
-            <prior id="precissionPrior" name="distribution">
-               	<x idref='tau'/>
-               	<Gamma name="distr" alpha='10' beta='10.0'/>
-            </prior>
+            <distribution id="precissionPrior" spec="beast.base.spec.inference.distribution.Gamma" param="@tau" alpha="10" lambda="10.0"/>
         </distribution>
 
         <distribution id="likelihood" spec="beast.base.inference.CompoundDistribution">
-            <prior id="dataLikelihood" name="distribution" >
-		        <parameter id="data" name="x">-1.532150246 0.04074889315 0.3764286126 -1.273536386 -0.09245518809 -0.08052089396 -0.8836752794 -1.751806433 0.4095952282 1.628965147 0.665399023 0.1235472142 0.7869642234 0.1178040049 0.139374006 2.299191912 -0.3189984415 -0.4214709484 -2.282972059 0.01863195228</parameter>
-                <Normal mean="@mean" tau="@tau" name="distr"/>
-            </prior>
+            <distribution id="dataLikelihood" spec="beast.base.spec.inference.distribution.IID">
+                <parameter id="data" name="param" spec="beast.base.spec.inference.parameter.RealVectorParam" domain="Real">-1.532150246 0.04074889315 0.3764286126 -1.273536386 -0.09245518809 -0.08052089396 -0.8836752794 -1.751806433 0.4095952282 1.628965147 0.665399023 0.1235472142 0.7869642234 0.1178040049 0.139374006 2.299191912 -0.3189984415 -0.4214709484 -2.282972059 0.01863195228</parameter>
+                <distribution id="dataLikelihoodDistr" spec="beast.base.spec.inference.distribution.Normal" mean="@mean" tau="@tau" name="distr"/>
+            </distribution>
         </distribution>
 
     </distribution>
 
-    <operator id="meanRandomWalker" parameter="@mean" windowSize="0.75" spec="RealRandomWalkOperator" weight="1"/>
-    <operator id="meanRandomWalker2" parameter="@tau" windowSize="0.75" spec="RealRandomWalkOperator" weight="1"/>
+    <operator id="meanRandomWalker" scalar="@mean" windowSize="0.75" spec="beast.base.spec.inference.operator.RealRandomWalkOperator" weight="1"/>
+    <operator id="meanRandomWalker2" scalar="@tau" windowSize="0.75" spec="beast.base.spec.inference.operator.RealRandomWalkOperator" weight="1"/>
 <!--
     <operator id="tauScaler" parameter="@tau" scaleFactor="0.5" spec="ScaleOperator" weight="1"/>
 -->
@@ -46,13 +40,13 @@ $(java) -cp $(java.class.path) beast.pkgmgmt.launcher.BeastLauncher $(resume/ove
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
-        <log idref='tau'/>
-        <log idref='mean'/>
+        <log idref="tau"/>
+        <log idref="mean"/>
     </logger>
 
     <logger id="screenlog" logEvery="1000">
         <log idref="posterior"/>
-        <log arg="@posterior" id="ESS.0" spec="util.ESS"/>
+        <log arg="@posterior" id="ESS.0" spec="beast.base.spec.inference.util.ESS"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
     </logger>
