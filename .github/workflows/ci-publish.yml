@@ -2,7 +2,7 @@ name: CI & Publish
 
 on:
   push:
-    branches: [ master ]
+    branches: [ beast3 ]
     tags: [ 'v*' ]
   pull_request:
     branches: [ master ]
