@@ -21,6 +21,27 @@ Run an example XML through BEAST:
 ```bash
 mvn exec:exec -Dbeast.args="src/test/resources/modelselection/examples/normalTest-1.xml"
 ```
+### Project folder structure
+
+BEAUti templates and the example XMLs live under `src/`, not root directory:
+
+```
+src/
+├── main/resources/modelselection/
+│   ├── app/tools/ps.png
+│   └── fxtemplates/
+│       └── ModelSelection.xml
+└── test/resources/modelselection/examples/
+    ├── normalTest-1.xml, normalTest-2.xml, normalTestPS-1.xml, normalTestPS-2.xml,
+    │   testPairedPathSampler.xml, testPathSampler.xml, testPathSamplerForSimpleTree.xml
+    └── legacy/          (superseded example XMLs, excluded from the release ZIP)
+```
+
+`fxtemplates/` is a **main** resource, so it's bundled into the jar (see below).
+`examples/` is a **test** resource, so the assembly plugin copies it into the ZIP's
+top-level `/examples/` directly from `src/test/resources/`, excluding `legacy/**`
+(see `src/assembly/beast-package.xml`).
+
 
 ## Releasing
 
