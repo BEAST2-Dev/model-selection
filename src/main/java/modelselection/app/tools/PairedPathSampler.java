@@ -1,15 +1,14 @@
 package modelselection.app.tools;
 
 
-import java.io.File;
-
 import beast.base.core.ProgramStatus;
-import beastfx.app.beauti.Beauti;
-import beastfx.app.inputeditor.BeautiConfig;
-import beastfx.app.inputeditor.BeautiDoc;
 import beastfx.app.inputeditor.BEASTObjectDialog;
 import beastfx.app.inputeditor.BEASTObjectPanel;
+import beastfx.app.inputeditor.BeautiConfig;
+import beastfx.app.inputeditor.BeautiDoc;
 import beastfx.app.tools.Application;
+
+import java.io.File;
 
 // command line interface to PairedPathSampler
 public class PairedPathSampler {

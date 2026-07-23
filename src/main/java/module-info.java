@@ -1,12 +1,15 @@
-open module beast.modelselection {
-    requires beast.pkgmgmt;
+open module model.selection {
     requires beast.base;
+    requires beast.pkgmgmt;
     requires java.xml;
-    requires static beast.fx;
-    requires static javafx.controls;
 
     requires org.apache.commons.statistics.distribution;
 
+    // GUI (optional at runtime)
+    requires static beast.fx;
+    requires static javafx.controls;
+
+    // Export all modelselection packages
     exports modelselection.app.tools;
     exports modelselection.core;
     exports modelselection.cpo;
@@ -15,8 +18,12 @@ open module beast.modelselection {
     exports modelselection.gss.distribution;
     exports modelselection.inference;
 
+    // ServiceLoader service types
+    uses beast.base.core.BEASTInterface;
     // Tell the module system to consume this abstract type
     uses modelselection.gss.MCMC2Abstract;
+
+    // Service providers
 
     provides beast.base.core.BEASTInterface with
         modelselection.core.CPOLogger,

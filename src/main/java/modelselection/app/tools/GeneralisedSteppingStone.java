@@ -2,15 +2,7 @@ package modelselection.app.tools;
 
 
 
-import beastfx.app.beauti.Beauti;
-import beastfx.app.inputeditor.BeautiConfig;
-import beastfx.app.inputeditor.BeautiDoc;
-import beastfx.app.inputeditor.BEASTObjectDialog;
-import beastfx.app.inputeditor.BEASTObjectPanel;
 import beastfx.app.tools.Application;
-import beast.base.core.ProgramStatus;
-import beast.pkgmgmt.Utils6;
-import beastfx.app.util.XMLFile;
 import modelselection.gss.GSSFromFile;
 
 //command line interface to GSS

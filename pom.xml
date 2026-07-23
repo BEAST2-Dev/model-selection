@@ -52,7 +52,6 @@
         <beast.main>beast.base.minimal.BeastMain</beast.main>
         <beast.args/>
         <beast.pkg.name>MODEL_SELECTION</beast.pkg.name>
-        <beast.pkg.version>1.7.0</beast.pkg.version>
     </properties>
 
     <dependencies>
@@ -126,7 +125,7 @@
                 <configuration>
                     <workingDirectory>${project.build.testOutputDirectory}</workingDirectory>
                     <argLine>
-                        --add-reads beast.modelselection=ALL-UNNAMED
+                        --add-reads model.selection=ALL-UNNAMED
                         --add-reads beast.base=ALL-UNNAMED
                         --add-reads beast.pkgmgmt=ALL-UNNAMED
                     </argLine>
@@ -213,7 +212,7 @@
                     <descriptors>
                         <descriptor>src/assembly/beast-package.xml</descriptor>
                     </descriptors>
-                    <finalName>${beast.pkg.name}.v${beast.pkg.version}</finalName>
+                    <finalName>${beast.pkg.name}.v${version}</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>

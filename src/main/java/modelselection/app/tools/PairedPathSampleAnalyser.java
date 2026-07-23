@@ -1,16 +1,10 @@
 package modelselection.app.tools;
 
-import java.io.File;
-
-import beastfx.app.beauti.Beauti;
-import beastfx.app.inputeditor.BeautiConfig;
-import beastfx.app.inputeditor.BeautiDoc;
 import beastfx.app.inputeditor.BEASTObjectDialog;
 import beastfx.app.inputeditor.BEASTObjectPanel;
+import beastfx.app.inputeditor.BeautiConfig;
+import beastfx.app.inputeditor.BeautiDoc;
 import beastfx.app.tools.Application;
-import beast.base.core.BEASTObject;
-import beast.base.core.Input;
-import modelselection.inference.PathSamplerFromFile;
 
 //command line interface to PathSampler
 public class PairedPathSampleAnalyser {

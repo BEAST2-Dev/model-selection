@@ -1,22 +1,7 @@
 package modelselection.app.tools;
 
 
-import java.util.Optional;
-
-import beast.base.core.Log;
-import beast.base.core.ProgramStatus;
-import beastfx.app.beauti.Beauti;
-import beastfx.app.inputeditor.BeautiConfig;
-import beastfx.app.inputeditor.BeautiDoc;
-import beastfx.app.inputeditor.BEASTObjectDialog;
-import beastfx.app.inputeditor.BEASTObjectPanel;
 import beastfx.app.tools.Application;
-import beastfx.app.util.Console;
-import beastfx.app.util.Utils;
-import beastfx.app.util.XMLFile;
-import javafx.scene.control.ButtonType;
-import modelselection.inference.PathSampleAnalyser;
-import modelselection.inference.PathSamplerFromFile;
 
 //command line interface to PathSampler
 public class PathSampler {
