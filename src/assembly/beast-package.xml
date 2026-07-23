@@ -37,11 +37,6 @@
     </dependencySets>
 
     <fileSets>
-        <!-- fxtemplates/ -->
-        <fileSet>
-            <directory>${project.basedir}/src/main/resources/modelselection/fxtemplates</directory>
-            <outputDirectory>/fxtemplates</outputDirectory>
-        </fileSet>
         <!-- examples/ -->
         <fileSet>
             <directory>${project.basedir}/src/test/resources/modelselection/examples</directory>

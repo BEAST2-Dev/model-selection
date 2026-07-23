@@ -24,6 +24,34 @@ mvn exec:exec -Dbeast.args="src/test/resources/modelselection/examples/normalTes
 
 ## Releasing
 
+### Jar folder structure
+
+The release module jar, bundled into the BEAST package ZIP's `lib/`, contains:
+
+```
+META-INF/
+├── MANIFEST.MF
+└── maven/io.github.beast2-dev/model-selection/
+    ├── pom.xml
+    └── pom.properties
+modelselection/
+├── app/tools/          (PathSampler, PathSampleAnalyser, PairedPathSampler*, GeneralisedSteppingStone, ps.png)
+├── core/                (CPOLogger)
+├── cpo/                 (CPOAnalyser, BEASTRunAnalyser + inner classes)
+├── fxtemplates/
+│   └── ModelSelection.xml
+├── gss/                 (GeneralisedSteppingStone*, MCMC2GSS, MCMC2IS, GSSFromFile, TraceLog, ...)
+│   ├── coalescent/
+│   └── distribution/
+└── inference/           (PathSampler, PathSamplingStep, PairedPathSampler*, AICMAnalyser, DiffLogger, ...)
+version.xml
+module-info.class
+```
+
+`modelselection/fxtemplates/ModelSelection.xml` is loaded via module path resource
+lookup at runtime — `src/assembly/beast-package.xml` does not copy it anywhere else in
+the ZIP.
+
 ### 1. Maven Central release (JARs)
 
 Push a `v*` tag to trigger `.github/workflows/ci-publish.yml`, which sets the Maven
