@@ -13,9 +13,18 @@
             <source>${project.basedir}/version.xml</source>
             <outputDirectory>/</outputDirectory>
         </file>
+        <!-- Source JAR at top level, not in /lib: everything under /lib is put on
+             the module path, and a sources jar has no compiled classes to offer it. -->
+        <file>
+            <source>${project.build.directory}/${project.build.finalName}-sources.jar</source>
+            <destName>${project.build.finalName}-src.jar</destName>
+            <outputDirectory>/</outputDirectory>
+        </file>
     </files>
 
-    <!-- Module JAR only (BEAST core and transitive deps provided by runtime) -->
+    <!-- Everything in /lib lands on the module path, so only include jars meant
+         to be loaded at runtime. Add extra <include> entries here only for
+         runtime deps the BEAST runtime doesn't already provide. -->
     <dependencySets>
         <dependencySet>
             <outputDirectory>/lib</outputDirectory>
