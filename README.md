@@ -39,10 +39,20 @@ https://github.com/BEAST2-Dev/model-selection/actions/workflows/ci-publish.yml
 
 ### 2. GitHub release (BEAST package ZIP)
 
-Build the installable BEAST package ZIP locally:
+First remove `-SNAPSHOT` from `<version>` in `pom.xml` so it matches the release
+(e.g. `1.7.0-SNAPSHOT` -> `1.7.0`), then build the installable BEAST package ZIP locally:
 
 ```bash
 mvn clean package -DskipTests
+```
+
+**Note:** if you skip the manual edit above, the build still succeeds, but the module
+jar bundled inside the ZIP (`lib/model-selection-<version>.jar`) will carry the
+`-SNAPSHOT` suffix — that's meant for dev/testing builds, not an official release.
+Alternatively, instead of hand-editing `pom.xml`, run:
+
+```bash
+mvn versions:set -DnewVersion=<version> -DgenerateBackupPoms=false
 ```
 
 The ZIP is written to `target/MODEL_SELECTION.v<version>.zip`. Then manually:
