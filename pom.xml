@@ -105,6 +105,16 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <excludes>
+                    <exclude>**/legacy/**</exclude>
+                    <exclude>**/reports/**</exclude>
+                </excludes>
+            </testResource>
+        </testResources>
+
         <plugins>
             <!-- Compiler -->
             <plugin>

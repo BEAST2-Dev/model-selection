@@ -37,6 +37,7 @@
     </dependencySets>
 
     <fileSets>
+        <!-- fxtemplates/ inside jar now -->
         <!-- examples/ -->
         <fileSet>
             <directory>${project.basedir}/src/test/resources/modelselection/examples</directory>
