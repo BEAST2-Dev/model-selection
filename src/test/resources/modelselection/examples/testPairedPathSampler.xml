@@ -13,7 +13,7 @@
 		deleteOldLogs='true'
     >
 cd $(dir)
-$(java) --module-path $(java.module.path) -m beast.pkgmgmt/beast.pkgmgmt.launcher.BeastLauncher $(resume/overwrite) -java -seed $(seed) beast.xml
+$(java) --module-path $(java.module.path) -m beast.base/beast.base.minimal.BeastMain $(resume/overwrite) -java -seed $(seed) beast.xml
 
 </run>
 </beast>
