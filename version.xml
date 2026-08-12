@@ -1,6 +1,6 @@
-<package name='MODEL_SELECTION' version='1.6.3'>
-	<depends on='BEAST.base' atleast='2.7.5'/>
-	<depends on='BEAST.app' atleast='2.7.5'/>
+<package name='MODEL_SELECTION' version='1.7.0'>
+	<depends on='BEAST.base' atleast='2.8.0'/>
+	<depends on='BEAST.app' atleast='2.8.0'/>
     <packageapp description="Path sampler"
               class="modelselection.app.tools.PathSampler"
               args=""
@@ -48,6 +48,7 @@
         <provider classname="modelselection.gss.GeneralisedSteppingStoneStep"/>
         <provider classname="modelselection.gss.GSSFromFile"/>
         <provider classname="modelselection.gss.MCMC2GSS"/>
+        <provider classname="modelselection.gss.MCMC2IS"/>
         <provider classname="modelselection.gss.TraceLog"/>
         <provider classname="modelselection.gss.TreeFromTreeSetFileInitialiser"/>
         <provider classname="modelselection.inference.AICMAnalyser"/>
